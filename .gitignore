@@ -1,0 +1,16 @@
+# Competition data / SDK (do not redistribute; re-download via kaggle CLI)
+competition_files/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Submissions / outputs
+submission.csv
+*.zip
+
+# Editor
+.idea/
+.DS_Store
