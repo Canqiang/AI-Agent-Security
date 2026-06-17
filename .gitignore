@@ -14,3 +14,6 @@ submission.csv
 # Editor
 .idea/
 .DS_Store
+
+# Kaggle kernel push scaffolding
+kaggle_push/
