@@ -47,6 +47,19 @@ and passes `tools/validate_validation_summary.py`. It still writes the manifest
 under `/tmp`, so the blockers remain inspectable.
 The command refreshes Kaggle status first and rejects stale status snapshots.
 
+Produce the real validation summary in a T4/GGUF environment with:
+
+```bash
+make validation-gguf \
+  VALIDATION_N=20 \
+  VALIDATION_MAX_TOOL_HOPS=8 \
+  VALIDATION_BUDGET_PER_MODEL=3000
+```
+
+The Kaggle entry point for the same command is `notebooks/validation.ipynb`.
+The summary is written to `research/results/validation-summary.latest.json`;
+raw per-candidate replay logs stay in `research/results/validation-raw.latest.jsonl`.
+
 Generate the official four-row commit-run CSV with:
 
 ```bash

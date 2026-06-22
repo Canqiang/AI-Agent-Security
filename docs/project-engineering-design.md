@@ -38,6 +38,8 @@ tools/
   lint_candidate_bank.py            # research CandidateSpec lint
   eval_candidate_bank.py            # local replay summary, mock-only
   kaggle_status.py                  # Python API polling; avoids broken CLI path
+  run_gguf_validation.py            # real-model validation summary producer
+  check_validation_notebook.py      # static notebook syntax gate
   build_submission_manifest.py      # immutable evidence before submit
 
 research/
@@ -179,8 +181,8 @@ and hop cap produced it.
 
 ## 6. Validation Contract
 
-`notebooks/validation.ipynb` is the load-bearing research environment. A result
-is promotable only if it records:
+`notebooks/validation.ipynb` is the load-bearing research entry point and calls
+`tools/run_gguf_validation.py`. A result is promotable only if it records:
 
 - exact source SHA and generated candidate manifest;
 - model backend and quantization, especially GGUF/Q4 path;
@@ -250,7 +252,7 @@ measured.
 
 ### Phase 2 -- Validation Baseline
 
-- Build `notebooks/validation.ipynb`.
+- Build `notebooks/validation.ipynb` and `tools/run_gguf_validation.py`.
 - Run C1 at small N (`50/100/150/200`) on the exact GGUF path where possible.
 - Produce a summarized validation result under `docs/superpowers/results/`.
 
@@ -311,9 +313,10 @@ As of the first implementation pass:
 - `tools/validate_validation_summary.py` and
   `submissions/manifests/validation-summary.schema.json` define the minimal
   GGUF validation evidence contract.
+- `tools/run_gguf_validation.py` and `notebooks/validation.ipynb` now provide
+  the executable T4/GGUF path that produces that contract.
 - `tools/write_submission_csv.py` writes the official four-row commit-run CSV.
 
-The next implementation slice is `notebooks/validation.ipynb` producing a real
-GGUF validation summary for the current suppress-once source SHA. Once that file
-exists, `make submit-ready` should be the promotion gate from
+The next implementation slice is running `make validation-gguf` in the T4/GGUF
+environment, then using `make submit-ready` as the promotion gate from
 `local_gates_ready=true` to `submit_ready=true`.

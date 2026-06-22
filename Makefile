@@ -5,6 +5,11 @@ MAX_MESSAGES ?= 400
 MAX_TOOL_HOPS ?= 4
 LOCAL_EVAL_N ?= 20
 MAX_KAGGLE_STATUS_AGE_MIN ?= 30
+VALIDATION_N ?= 20
+VALIDATION_BUDGET_PER_MODEL ?= 3000
+VALIDATION_MODELS ?= gpt_oss,gemma
+VALIDATION_MAX_TOOL_HOPS ?= 8
+VALIDATION_RAW_OUT ?= research/results/validation-raw.latest.jsonl
 
 COMPETITION ?= ai-agent-security-multi-step-tool-attacks
 KERNEL_SLUG ?= canqiang/aiagsec-static-c1-n600
@@ -29,6 +34,7 @@ help:
 	@echo "  make manifest-local  refresh tracked latest manifest and summary"
 	@echo "  make submission-csv  write official four-row commit-run CSV"
 	@echo "  make kaggle-status   refresh Kaggle status JSON"
+	@echo "  make validation-gguf run real GGUF validation and write summary"
 
 .PHONY: compile
 compile:
@@ -54,8 +60,12 @@ bank-lint: bank-sample
 bank-scored-lint: bank-suppress
 	$(PYTHON) tools/lint_candidate_bank.py $(SCORED_BANK) --scored --max-total-messages $(MAX_MESSAGES) --fail-on-warning
 
+.PHONY: validation-notebook-check
+validation-notebook-check:
+	$(PYTHON) tools/check_validation_notebook.py notebooks/validation.ipynb
+
 .PHONY: ci
-ci: compile parity bank-lint bank-scored-lint
+ci: compile parity validation-notebook-check bank-lint bank-scored-lint
 
 .PHONY: sdk-present
 sdk-present:
@@ -80,6 +90,16 @@ submission-csv:
 .PHONY: validation-summary
 validation-summary:
 	$(PYTHON) tools/validate_validation_summary.py $(VALIDATION_SUMMARY)
+
+.PHONY: validation-gguf
+validation-gguf:
+	$(PYTHON) tools/run_gguf_validation.py \
+		--n $(VALIDATION_N) \
+		--models $(VALIDATION_MODELS) \
+		--budget-per-model $(VALIDATION_BUDGET_PER_MODEL) \
+		--max-tool-hops $(VALIDATION_MAX_TOOL_HOPS) \
+		--out $(VALIDATION_SUMMARY) \
+		--raw-out $(VALIDATION_RAW_OUT)
 
 .PHONY: manifest-smoke
 manifest-smoke: sdk-present bank-suppress

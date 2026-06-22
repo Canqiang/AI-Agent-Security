@@ -50,6 +50,7 @@ already showed that shape can runtime-exceed with no score.
 - `make manifest-local` -- refresh the tracked latest local manifest and summary.
 - `make submission-csv` -- generate the official four-row commit-run CSV.
 - `make validation-summary` -- validate GGUF summary JSON against current source.
+- `make validation-gguf` -- run real T4/GGUF validation and write that summary.
 - `make kaggle-status` -- refresh Kaggle pending/status JSON.
 
 ## Current No-Go Conditions

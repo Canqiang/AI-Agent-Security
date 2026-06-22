@@ -16,6 +16,7 @@ This repository has two gate levels because the competition SDK under
 | `make manifest-local` | no | yes | Refresh tracked latest local manifest and markdown summary |
 | `make submission-csv` | no | no | Write the official four-row commit-run CSV |
 | `make validation-summary` | no | no | Validate a GGUF summary JSON against the current source/notebook SHA |
+| `make validation-gguf` | no | yes + GGUF models/GPU | Run real `gpt_oss`/`gemma` validation and write the summary JSON |
 | `make kaggle-status` | no | Kaggle credentials | Refresh Kaggle pending/status snapshot |
 
 `make ci` is intentionally SDK-free. It catches repository drift that can be
@@ -23,6 +24,7 @@ checked from a clean clone:
 
 - Python syntax for all tracked `.py` files;
 - `src/attack.py` and `notebooks/submission.ipynb` parity;
+- `notebooks/validation.ipynb` JSON and Python syntax;
 - normal candidate-bank lint for mixed research families;
 - scored candidate-bank lint for `direct_exfil_suppress_once`.
 
@@ -75,6 +77,27 @@ Required top-level fields:
 Submit readiness requires both model results to have positive findings,
 positive hit rate, and positive exact-payload rate. The backend string must
 identify GGUF llama.cpp validation; mock or placeholder summaries are rejected.
+
+The real-model producer is:
+
+```bash
+make validation-gguf \
+  VALIDATION_N=20 \
+  VALIDATION_MAX_TOOL_HOPS=8 \
+  VALIDATION_BUDGET_PER_MODEL=3000
+```
+
+It writes:
+
+- `research/results/validation-summary.latest.json`, consumed by
+  `make submit-ready`;
+- `research/results/validation-raw.latest.jsonl`, a per-candidate replay log
+  for debugging failed or slow candidates.
+
+Run it in a T4 environment with the competition SDK plus the GGUF model files
+available. The repo notebook `notebooks/validation.ipynb` is a thin Kaggle entry
+point for that command. For offline Kaggle runs, set `GPT_OSS_MODEL_PATH` and
+`GEMMA_MODEL_PATH` to the attached `.gguf` files before running the notebook.
 
 Generated CSV evidence should stay outside git, for example:
 
