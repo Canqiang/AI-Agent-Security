@@ -72,8 +72,15 @@ Required top-level fields:
   findings, hit rate, exact payload rate, guardrail block rate, p95 seconds per
   candidate, and total wall time.
 
+Submit readiness requires both model results to have positive findings,
+positive hit rate, and positive exact-payload rate. The backend string must
+identify GGUF llama.cpp validation; mock or placeholder summaries are rejected.
+
 Generated CSV evidence should stay outside git, for example:
 
 ```bash
 make submission-csv SUBMISSION_CSV=/tmp/aiagsec-submission.csv
 ```
+
+The strict gate refreshes Kaggle status before building the manifest and rejects
+snapshots older than `MAX_KAGGLE_STATUS_AGE_MIN` minutes.

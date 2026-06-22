@@ -45,6 +45,7 @@ make submit-ready \
 `make submit-ready` is expected to fail until the GGUF validation summary exists
 and passes `tools/validate_validation_summary.py`. It still writes the manifest
 under `/tmp`, so the blockers remain inspectable.
+The command refreshes Kaggle status first and rejects stale status snapshots.
 
 Generate the official four-row commit-run CSV with:
 

@@ -1,6 +1,6 @@
 {
   "competition": "ai-agent-security-multi-step-tool-attacks",
-  "created_at": "2026-06-22T08:52:11+00:00",
+  "created_at": "2026-06-22T09:37:13+00:00",
   "kernel_metadata": {
     "kernel": "canqiang/aiagsec-static-c1-n600",
     "matches": [

@@ -12,6 +12,10 @@
     "results"
   ],
   "schema_version": "2026-06-22.validation-summary.v1",
+  "backend_required_words": [
+    "gguf",
+    "llama"
+  ],
   "target_models": [
     "gpt_oss",
     "gemma"
@@ -24,5 +28,11 @@
     "guardrail_block_rate",
     "seconds_per_candidate_p95",
     "time_taken_s"
+  ],
+  "submit_readiness_constraints": [
+    "results.<model>.attempted_candidates must equal validation_n",
+    "results.<model>.findings must be positive",
+    "results.<model>.hit_rate must be positive",
+    "results.<model>.exact_payload_rate must be positive"
   ]
 }

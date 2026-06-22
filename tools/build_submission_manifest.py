@@ -106,16 +106,31 @@ def read_submission_csv(path: Path | None) -> dict[str, Any]:
         }
 
     with path.open("r", encoding="utf-8", newline="") as fh:
-        rows = list(csv.DictReader(fh))
+        reader = csv.DictReader(fh)
+        rows = list(reader)
+    headers = list(reader.fieldnames or [])
     ids = [row.get("Id", "") for row in rows]
-    ok = ids == OFFICIAL_SUBMISSION_IDS
+    predictions = [row.get("Prediction") for row in rows]
+    headers_ok = headers == ["Id", "Prediction"]
+    predictions_ok = all(isinstance(value, str) and bool(value) for value in predictions)
+    ok = headers_ok and len(rows) == 4 and ids == OFFICIAL_SUBMISSION_IDS and predictions_ok
+    messages: list[str] = []
+    if not headers_ok:
+        messages.append("submission.csv header must be exactly Id,Prediction")
+    if len(rows) != 4:
+        messages.append("submission.csv must contain exactly four data rows")
+    if ids != OFFICIAL_SUBMISSION_IDS:
+        messages.append("submission.csv Id rows do not match official four-row contract")
+    if not predictions_ok:
+        messages.append("submission.csv Prediction values must be non-empty")
     return {
         "present": True,
         "path": rel(path),
+        "headers": headers,
         "ids": ids,
         "expected_ids": OFFICIAL_SUBMISSION_IDS,
         "ok": ok,
-        "message": None if ok else "submission.csv Id rows do not match official four-row contract",
+        "message": None if ok else "; ".join(messages),
     }
 
 
@@ -163,27 +178,62 @@ def pending_status(pending_refs: list[str], allow_pending: bool) -> dict[str, An
     }
 
 
-def kaggle_status_snapshot(path: Path | None) -> dict[str, Any]:
+def parse_utc_datetime(value: Any) -> datetime | None:
+    if not isinstance(value, str) or not value:
+        return None
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=UTC)
+    return parsed.astimezone(UTC)
+
+
+def kaggle_status_snapshot(path: Path | None, *, max_age_minutes: float) -> dict[str, Any]:
     if path is None:
         return {"present": False, "ok": True}
     data = load_json_file(path)
     submissions = data.get("submissions", {})
     kernel_status = data.get("kernel_status", {})
     kernel_metadata = data.get("kernel_metadata", {})
+    created_at = data.get("created_at")
+    age_seconds = None
+    fresh = True
+    freshness_message = None
+    if max_age_minutes > 0:
+        created = parse_utc_datetime(created_at)
+        max_age_seconds = max_age_minutes * 60
+        if created is None:
+            fresh = False
+            freshness_message = "Kaggle status snapshot has no parseable created_at"
+        else:
+            age_seconds = max(0.0, (datetime.now(UTC) - created).total_seconds())
+            fresh = age_seconds <= max_age_seconds
+            if not fresh:
+                freshness_message = (
+                    f"Kaggle status snapshot is stale: age_s={age_seconds:.0f}, "
+                    f"max_age_s={max_age_seconds:.0f}"
+                )
+    status_ok = bool(submissions.get("ok", True)) and bool(kernel_status.get("ok", True)) and bool(
+        kernel_metadata.get("ok", True)
+    )
     return {
         "present": True,
         "path": rel(path),
         "sha256": sha256_file(path),
-        "created_at": data.get("created_at"),
+        "created_at": created_at,
+        "age_seconds": round(age_seconds, 3) if age_seconds is not None else None,
+        "max_age_minutes": max_age_minutes,
+        "fresh": fresh,
         "competition": data.get("competition"),
         "pending_refs": list(submissions.get("pending_refs") or []),
         "pending_count": submissions.get("pending_count"),
         "submissions_ok": submissions.get("ok"),
         "kernel_status": kernel_status,
         "kernel_metadata": kernel_metadata,
-        "ok": bool(submissions.get("ok", True))
-        and bool(kernel_status.get("ok", True))
-        and bool(kernel_metadata.get("ok", True)),
+        "ok": status_ok and fresh,
+        "message": freshness_message,
     }
 
 
@@ -262,6 +312,10 @@ def collect_blockers(
     if not kernel.get("ok"):
         blockers.append("Kaggle kernel metadata does not prove NvidiaTeslaT4")
 
+    status_snapshot = manifest["kaggle"]["status_snapshot"]
+    if not status_snapshot.get("ok"):
+        blockers.append(status_snapshot.get("message") or "Kaggle status snapshot invalid")
+
     pending = manifest["kaggle"]["pending"]
     if not pending.get("ok"):
         blockers.append("pending Kaggle submission ref(s) present")
@@ -270,7 +324,7 @@ def collect_blockers(
     if require_submission_csv and not csv_status.get("present"):
         blockers.append("required commit-run submission.csv not supplied")
     elif csv_status.get("present") and not csv_status.get("ok"):
-        blockers.append("commit-run submission.csv has invalid Id rows")
+        blockers.append(csv_status.get("message") or "commit-run submission.csv invalid")
 
     validation = manifest["validation_summary"]
     if not allow_missing_validation and not validation.get("ok"):
@@ -293,6 +347,11 @@ def strict_submit_blockers(manifest: dict[str, Any]) -> list[str]:
         blockers.append("GGUF validation summary missing or invalid")
     if not manifest["kaggle"]["kernel"].get("ok"):
         blockers.append("Kaggle kernel metadata does not prove NvidiaTeslaT4")
+    if not manifest["kaggle"]["status_snapshot"].get("ok"):
+        blockers.append(
+            manifest["kaggle"]["status_snapshot"].get("message")
+            or "Kaggle status snapshot invalid"
+        )
     if not manifest["kaggle"]["pending"].get("ok"):
         blockers.append("pending Kaggle submission ref(s) present")
     if not manifest["kaggle"]["commit_run_submission_csv"].get("ok"):
@@ -315,7 +374,10 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
         allow_inline=args.allow_inline,
     )
 
-    status_snapshot = kaggle_status_snapshot(args.kaggle_status_json)
+    status_snapshot = kaggle_status_snapshot(
+        args.kaggle_status_json,
+        max_age_minutes=args.max_kaggle_status_age_min,
+    )
     pending_refs = list(args.pending_ref)
     for ref in status_snapshot.get("pending_refs", []):
         ref_text = str(ref)
@@ -563,6 +625,7 @@ def main() -> int:
     parser.add_argument("--kernel-slug")
     parser.add_argument("--kernel-version")
     parser.add_argument("--machine-shape")
+    parser.add_argument("--max-kaggle-status-age-min", type=float, default=0.0)
     parser.add_argument("--pending-ref", action="append", default=[])
     parser.add_argument("--allow-pending", action="store_true")
     parser.add_argument("--submission-csv", type=Path)

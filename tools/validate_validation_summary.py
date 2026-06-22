@@ -15,6 +15,7 @@ REPO = Path(__file__).resolve().parent.parent
 SCHEMA_VERSION = "2026-06-22.validation-summary.v1"
 REQUIRED_MODELS = ("gpt_oss", "gemma")
 HEX64_RE = re.compile(r"^[0-9a-f]{64}$")
+REQUIRED_BACKEND_WORDS = ("gguf", "llama")
 
 
 def rel(path: Path) -> str:
@@ -40,19 +41,8 @@ def load_json(path: Path) -> dict[str, Any]:
     return data
 
 
-def sha256_text(text: str) -> str:
-    return hashlib.sha256(text.encode("utf-8")).hexdigest()
-
-
-def normalize_source(text: str) -> str:
-    lines = [line.rstrip() for line in text.replace("\r\n", "\n").split("\n")]
-    while lines and lines[-1] == "":
-        lines.pop()
-    return "\n".join(lines) + "\n"
-
-
 def source_sha(path: Path) -> str:
-    return sha256_text(normalize_source(path.read_text(encoding="utf-8")))
+    return sha256_file(path)
 
 
 def notebook_attack_sha(path: Path, source_path: Path) -> str:
@@ -78,6 +68,10 @@ def check_rate(value: Any) -> bool:
     return is_number(value) and 0.0 <= float(value) <= 1.0
 
 
+def check_positive_rate(value: Any) -> bool:
+    return is_number(value) and 0.0 < float(value) <= 1.0
+
+
 def check_positive_int(value: Any) -> bool:
     return isinstance(value, int) and not isinstance(value, bool) and value > 0
 
@@ -86,7 +80,13 @@ def check_nonnegative_int(value: Any) -> bool:
     return isinstance(value, int) and not isinstance(value, bool) and value >= 0
 
 
-def validate_model_result(name: str, value: Any, blockers: list[str]) -> None:
+def validate_model_result(
+    name: str,
+    value: Any,
+    blockers: list[str],
+    *,
+    expected_attempted: int | None,
+) -> None:
     if not isinstance(value, dict):
         blockers.append(f"results.{name} must be an object")
         return
@@ -95,12 +95,22 @@ def validate_model_result(name: str, value: Any, blockers: list[str]) -> None:
     findings = value.get("findings")
     if not check_positive_int(attempted):
         blockers.append(f"results.{name}.attempted_candidates must be a positive integer")
+    elif expected_attempted is not None and attempted != expected_attempted:
+        blockers.append(
+            f"results.{name}.attempted_candidates must equal validation_n={expected_attempted}"
+        )
     if not check_nonnegative_int(findings):
         blockers.append(f"results.{name}.findings must be a non-negative integer")
+    elif findings == 0:
+        blockers.append(f"results.{name}.findings must be positive for submit readiness")
     if check_positive_int(attempted) and check_nonnegative_int(findings) and findings > attempted:
         blockers.append(f"results.{name}.findings cannot exceed attempted_candidates")
 
-    for field in ("hit_rate", "exact_payload_rate", "guardrail_block_rate"):
+    for field in ("hit_rate", "exact_payload_rate"):
+        if not check_positive_rate(value.get(field)):
+            blockers.append(f"results.{name}.{field} must be a positive number in (0, 1]")
+
+    for field in ("guardrail_block_rate",):
         if not check_rate(value.get(field)):
             blockers.append(f"results.{name}.{field} must be a number in [0, 1]")
 
@@ -134,10 +144,19 @@ def validate_data(
     for field in ("candidate_family", "backend"):
         if not is_nonempty_string(data.get(field)):
             blockers.append(f"{field} must be a non-empty string")
+    backend = str(data.get("backend") or "").lower()
+    missing_backend_words = [word for word in REQUIRED_BACKEND_WORDS if word not in backend]
+    if missing_backend_words:
+        blockers.append(
+            "backend must identify GGUF llama.cpp validation; missing: "
+            + ", ".join(missing_backend_words)
+        )
 
+    validation_n = data.get("validation_n")
     for field in ("validation_n", "total_messages", "max_tool_hops"):
         if not check_positive_int(data.get(field)):
             blockers.append(f"{field} must be a positive integer")
+    expected_attempted = validation_n if check_positive_int(validation_n) else None
 
     results = data.get("results")
     if not isinstance(results, dict):
@@ -147,7 +166,12 @@ def validate_data(
             if model not in results:
                 blockers.append(f"results.{model} is required")
             else:
-                validate_model_result(model, results[model], blockers)
+                validate_model_result(
+                    model,
+                    results[model],
+                    blockers,
+                    expected_attempted=expected_attempted,
+                )
 
     return blockers
 

@@ -35,9 +35,13 @@ def sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
-def read_ids(path: Path) -> list[str]:
+def read_csv(path: Path) -> tuple[list[str], list[dict[str, str]], list[str]]:
     with path.open("r", encoding="utf-8", newline="") as fh:
-        return [str(row.get("Id", "")) for row in csv.DictReader(fh)]
+        reader = csv.DictReader(fh)
+        rows = list(reader)
+    headers = list(reader.fieldnames or [])
+    ids = [str(row.get("Id", "")) for row in rows]
+    return headers, rows, ids
 
 
 def write_csv(path: Path, prediction: str) -> None:
@@ -57,16 +61,29 @@ def status(path: Path) -> dict[str, Any]:
             "ok": False,
             "message": "submission.csv path does not exist",
         }
-    ids = read_ids(path)
-    ok = ids == OFFICIAL_SUBMISSION_IDS
+    headers, rows, ids = read_csv(path)
+    headers_ok = headers == ["Id", "Prediction"]
+    predictions = [row.get("Prediction") for row in rows]
+    predictions_ok = all(isinstance(value, str) and bool(value) for value in predictions)
+    ok = headers_ok and len(rows) == 4 and ids == OFFICIAL_SUBMISSION_IDS and predictions_ok
+    messages: list[str] = []
+    if not headers_ok:
+        messages.append("submission.csv header must be exactly Id,Prediction")
+    if len(rows) != 4:
+        messages.append("submission.csv must contain exactly four data rows")
+    if ids != OFFICIAL_SUBMISSION_IDS:
+        messages.append("submission.csv Id rows do not match official four-row contract")
+    if not predictions_ok:
+        messages.append("submission.csv Prediction values must be non-empty")
     return {
         "present": True,
         "path": rel(path),
         "sha256": sha256_file(path),
+        "headers": headers,
         "ids": ids,
         "expected_ids": OFFICIAL_SUBMISSION_IDS,
         "ok": ok,
-        "message": None if ok else "submission.csv Id rows do not match official four-row contract",
+        "message": None if ok else "; ".join(messages),
     }
 
 

@@ -4,6 +4,7 @@ N ?= 200
 MAX_MESSAGES ?= 400
 MAX_TOOL_HOPS ?= 4
 LOCAL_EVAL_N ?= 20
+MAX_KAGGLE_STATUS_AGE_MIN ?= 30
 
 COMPETITION ?= ai-agent-security-multi-step-tool-attacks
 KERNEL_SLUG ?= canqiang/aiagsec-static-c1-n600
@@ -98,7 +99,7 @@ manifest-smoke: sdk-present bank-suppress
 check: ci audit bank-eval local-eval manifest-smoke
 
 .PHONY: submit-ready
-submit-ready: sdk-present bank-suppress submission-csv
+submit-ready: sdk-present bank-suppress submission-csv kaggle-status
 	$(PYTHON) tools/build_submission_manifest.py \
 		--n $(N) \
 		--machine-shape NvidiaTeslaT4 \
@@ -107,6 +108,7 @@ submit-ready: sdk-present bank-suppress submission-csv
 		--eval-candidate-bank \
 		--validation-summary $(VALIDATION_SUMMARY) \
 		--kaggle-status-json $(KAGGLE_STATUS_JSON) \
+		--max-kaggle-status-age-min $(MAX_KAGGLE_STATUS_AGE_MIN) \
 		--submission-csv $(SUBMISSION_CSV) \
 		--require-submission-csv \
 		--description "strict suppress-once n$(N) pre-submit evidence" \
