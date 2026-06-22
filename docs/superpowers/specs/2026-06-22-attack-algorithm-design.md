@@ -4,6 +4,7 @@
 > 状态：已按 code review 修订。本文取代早先"保底层 + 在线 Go-Explore 诱导搜索"设计。
 > 目标：先恢复可出分提交，再用真实模型 validation notebook 做模板/诱导研究。
 > 配套：`docs/scoring-mechanics.md`、`docs/elicitation-templates.md`、`docs/competition-rules-and-overview.md`。
+> 下一阶段多步骤系统设计：`docs/superpowers/specs/2026-06-22-multistep-attack-system.md`。
 
 ---
 
