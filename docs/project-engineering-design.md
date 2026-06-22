@@ -301,6 +301,12 @@ As of the first implementation pass:
 - `src/attack.py` and `notebooks/submission.ipynb` default to the suppress-once canary
   upper bound `N_CANDIDATES=200`.
 - Old `N=2000` / stacking variants are archived under `src/archive/`.
+- `Makefile` now provides `make ci` for SDK-free GitHub checks and `make check`
+  for the full local SDK gate.
+- `.github/workflows/check.yml` runs `make ci` on push and pull request without
+  requiring the private competition SDK.
+- `docs/infra.md` documents the CI/local split and submit-readiness distinction.
 
-The next implementation slice is `notebooks/validation.ipynb` plus the
-submission manifest/status tooling.
+The next implementation slice is `notebooks/validation.ipynb`, a durable GGUF
+validation summary format, and official four-row `submission.csv` evidence so a
+manifest can move from `local_gates_ready=true` to `submit_ready=true`.

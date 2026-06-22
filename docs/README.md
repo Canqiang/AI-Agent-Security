@@ -24,20 +24,29 @@ already showed that shape can runtime-exceed with no score.
 
 1. `project-engineering-design.md` -- engineering architecture, target layout,
    blocking gates, and phased migration.
-2. `competition-rules-and-overview.md` -- competition contract and operational
+2. `infra.md` -- executable gate levels, Makefile targets, and CI/local split.
+3. `competition-rules-and-overview.md` -- competition contract and operational
    constraints.
-3. `scoring-mechanics.md` -- SDK scoring reverse engineering and runtime
+4. `scoring-mechanics.md` -- SDK scoring reverse engineering and runtime
    evidence.
-4. `elicitation-templates.md` -- prompt/template hypotheses and what still needs
+5. `elicitation-templates.md` -- prompt/template hypotheses and what still needs
    GGUF validation.
-5. `superpowers/specs/2026-06-22-agent-attack-research-design.md` --
+6. `superpowers/specs/2026-06-22-agent-attack-research-design.md` --
    literature-backed predicate-route matrix and comprehensive attack/validation
    design.
-6. `superpowers/specs/2026-06-22-attack-algorithm-design.md` -- scored attack
+7. `superpowers/specs/2026-06-22-attack-algorithm-design.md` -- scored attack
    strategy.
-7. `superpowers/specs/2026-06-22-multistep-attack-system.md` -- research-only
+8. `superpowers/specs/2026-06-22-multistep-attack-system.md` -- research-only
    candidate factory and promotion rules.
-8. `superpowers/plans/*.md` -- implementation work breakdowns.
+9. `superpowers/plans/*.md` -- implementation work breakdowns.
+
+## Gate Commands
+
+- `make ci` -- SDK-free checks suitable for GitHub Actions.
+- `make check` -- full local smoke gate; requires `competition_files/aicomp_sdk`.
+- `make manifest-smoke` -- build a throwaway pre-submit manifest under `/tmp`.
+- `make manifest-local` -- refresh the tracked latest local manifest and summary.
+- `make kaggle-status` -- refresh Kaggle pending/status JSON.
 
 ## Current No-Go Conditions
 
