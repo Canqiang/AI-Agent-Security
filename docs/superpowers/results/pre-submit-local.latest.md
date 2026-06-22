@@ -1,16 +1,16 @@
 # Submission Manifest Summary
 
 - Manifest: `submissions/manifests/pre-submit-local.latest.json`
-- Created: `2026-06-22T08:38:49+00:00`
+- Created: `2026-06-22T08:52:45+00:00`
 - Competition: `ai-agent-security-multi-step-tool-attacks`
-- Description: static C1 n200 local pre-submit evidence with live Kaggle status
+- Description: suppress-once n200 local pre-submit evidence with live Kaggle status
 - Local gates ready: `true`
 - Submit ready: `false`
 
 ## Source
 
 - Source: `src/attack.py`
-- Source SHA256: `6e0123010ccc1ac4adaf4278c920f0ac175eafdce4e116d534f84e19d9f68ca9`
+- Source SHA256: `e8828ebe72ebe1b83b3411521bea89865080e0e8e3824d4ac213b46fce8042c7`
 - Requested candidates: `200`
 - Module default candidates: `200`
 - Notebook source match: `true`
@@ -20,8 +20,8 @@
 | Gate | Result | Detail |
 |---|---|---|
 | attack audit | pass | 200 candidates, 200 messages, 200 unique host buckets |
-| notebook parity | pass | attack SHA `6e0123010ccc1ac4adaf4278c920f0ac175eafdce4e116d534f84e19d9f68ca9` |
-| candidate bank | pass | research/results/candidate_bank.c1.jsonl |
+| notebook parity | pass | attack SHA `e8828ebe72ebe1b83b3411521bea89865080e0e8e3824d4ac213b46fce8042c7` |
+| candidate bank | pass | research/results/candidate_bank.suppress.jsonl |
 | validation summary | fail | no GGUF validation summary supplied |
 | T4 metadata | pass | machine_shape=`NvidiaTeslaT4` |
 | pending refs | pass | 0 pending |
@@ -58,4 +58,4 @@
 
 ## Notes
 
-- Live Kaggle status shows no pending refs; GGUF validation summary and commit-run CSV not attached yet.
+- Live Kaggle status shows no pending refs; suppress-once source/notebook parity passes; GGUF validation summary and commit-run CSV not attached yet.

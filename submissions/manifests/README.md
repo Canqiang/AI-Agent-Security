@@ -21,7 +21,7 @@ Build a local pre-submit manifest with:
 python tools/build_submission_manifest.py \
   --n 200 \
   --machine-shape NvidiaTeslaT4 \
-  --candidate-bank research/results/candidate_bank.c1.jsonl \
+  --candidate-bank research/results/candidate_bank.suppress.jsonl \
   --candidate-bank-scored \
   --eval-candidate-bank \
   --allow-missing-validation \

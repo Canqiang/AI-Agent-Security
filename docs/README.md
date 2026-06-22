@@ -9,7 +9,8 @@
 The project direction is runtime-first:
 
 1. keep scored `src/attack.py` static, deterministic, and zero-interaction;
-2. recover a valid low-N score before larger sweeps;
+2. use the suppress-once direct EXFIL canary first, then recover a valid low-N
+   score before larger sweeps;
 3. keep real-model template search, multi-step families, stacking, and
    Harmony/ChatML probes in dev-only validation until promoted by evidence;
 4. treat Kaggle packaging and pending-submission state as part of the algorithm,

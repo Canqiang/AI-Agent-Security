@@ -298,7 +298,7 @@ As of the first implementation pass:
   multi-message scored shapes.
 - `tools/check_submission_notebook.py` exists and verifies that the notebook's
   `%%writefile /kaggle/working/attack.py` source matches `src/attack.py`.
-- `src/attack.py` and `notebooks/submission.ipynb` default to the C1 canary
+- `src/attack.py` and `notebooks/submission.ipynb` default to the suppress-once canary
   upper bound `N_CANDIDATES=200`.
 - Old `N=2000` / stacking variants are archived under `src/archive/`.
 
