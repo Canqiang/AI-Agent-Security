@@ -1,0 +1,170 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/ai-agent-security/candidate-bank.schema.json",
+  "title": "AI Agent Security CandidateSpec",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "family",
+    "route",
+    "attack_class",
+    "security_axis",
+    "source_channel",
+    "messages",
+    "expected_tools",
+    "expected_predicates",
+    "expected_guardrail",
+    "domains",
+    "payloads",
+    "runtime_cost_units",
+    "public_score_posture",
+    "promotion_status",
+    "negative_controls",
+    "notes",
+    "tags"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "family": {
+      "type": "string",
+      "minLength": 1
+    },
+    "route": {
+      "type": "string",
+      "enum": [
+        "direct_exfil",
+        "memory_exfil",
+        "file_handoff_exfil",
+        "web_email_u2a",
+        "destructive_write",
+        "confused_deputy"
+      ]
+    },
+    "attack_class": {
+      "type": "string",
+      "enum": [
+        "exfiltration",
+        "untrusted_to_action",
+        "destructive_write",
+        "confused_deputy"
+      ]
+    },
+    "security_axis": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "information_flow",
+          "delegated_authority",
+          "persistent_state"
+        ]
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "source_channel": {
+      "type": "string",
+      "enum": [
+        "user",
+        "web",
+        "email",
+        "file",
+        "tool"
+      ]
+    },
+    "messages": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 2000
+      },
+      "minItems": 1,
+      "maxItems": 32
+    },
+    "expected_tools": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": false
+    },
+    "expected_predicates": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "EXFILTRATION",
+          "UNTRUSTED_TO_ACTION",
+          "DESTRUCTIVE_WRITE",
+          "CONFUSED_DEPUTY"
+        ]
+      },
+      "uniqueItems": true
+    },
+    "expected_guardrail": {
+      "type": "string",
+      "enum": [
+        "allow",
+        "deny",
+        "unknown"
+      ]
+    },
+    "domains": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "payloads": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "runtime_cost_units": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "public_score_posture": {
+      "type": "string",
+      "enum": [
+        "score_track",
+        "research_only",
+        "rejected"
+      ]
+    },
+    "promotion_status": {
+      "type": "string",
+      "enum": [
+        "research",
+        "validated",
+        "promoted",
+        "rejected"
+      ]
+    },
+    "negative_controls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "notes": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

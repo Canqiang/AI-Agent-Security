@@ -16,6 +16,7 @@ research/results/*.csv
 docs/superpowers/results/*.json
 docs/superpowers/results/*.jsonl
 docs/superpowers/results/*.csv
+docs/references/papers/*.pdf
 submissions/bundles/
 submissions/tmp/
 

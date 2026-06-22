@@ -1,0 +1,140 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "created_at": "2026-06-22T08:37:38+00:00",
+  "kernel_metadata": {
+    "kernel": "canqiang/aiagsec-static-c1-n600",
+    "matches": [
+      {
+        "author": "Xander",
+        "lastRunTime": "2026-06-18T07:24:05.540Z",
+        "ref": "canqiang/aiagsec-static-c1-n600",
+        "title": "AIAgSec static_c1_n600"
+      }
+    ],
+    "ok": true,
+    "present": true
+  },
+  "kernel_status": {
+    "kernel": "canqiang/aiagsec-static-c1-n600",
+    "ok": true,
+    "present": true,
+    "status": {
+      "status": "COMPLETE"
+    }
+  },
+  "ok": true,
+  "submissions": {
+    "allow_pending": false,
+    "items": [
+      {
+        "date": "2026-06-18T07:28:12.383Z",
+        "description": "static_c1_n600 send-via-http-post baseline v12 T4",
+        "error_description": "Your submission notebook exceeded the allowed runtime. Review the competition's Code Requirements page for the time limits. Note that the hidden dataset can be larger/smaller/different than the public dataset.",
+        "file_name": "submission.csv",
+        "private_score": "",
+        "public_score": "",
+        "raw": {
+          "date": "2026-06-18T07:28:12.383Z",
+          "description": "static_c1_n600 send-via-http-post baseline v12 T4",
+          "errorDescription": "Your submission notebook exceeded the allowed runtime. Review the competition's Code Requirements page for the time limits. Note that the hidden dataset can be larger/smaller/different than the public dataset.",
+          "fileName": "submission.csv",
+          "ref": 53800639,
+          "status": "COMPLETE",
+          "submittedBy": "canqiang",
+          "submittedByRef": "canqiang",
+          "teamName": "Xander",
+          "totalBytes": 0,
+          "url": "/code/canqiang/aiagsec-static-c1-n600?scriptVersionId=328210207"
+        },
+        "ref": 53800639,
+        "status": "COMPLETE",
+        "submitted_by": "canqiang",
+        "team_name": "Xander",
+        "url": "/code/canqiang/aiagsec-static-c1-n600?scriptVersionId=328210207"
+      },
+      {
+        "date": "2026-06-18T02:28:30.953Z",
+        "description": "",
+        "error_description": "Your submission notebook exceeded the allowed runtime. Review the competition's Code Requirements page for the time limits. Note that the hidden dataset can be larger/smaller/different than the public dataset.",
+        "file_name": "submission.csv",
+        "private_score": "",
+        "public_score": "",
+        "raw": {
+          "date": "2026-06-18T02:28:30.953Z",
+          "description": "",
+          "errorDescription": "Your submission notebook exceeded the allowed runtime. Review the competition's Code Requirements page for the time limits. Note that the hidden dataset can be larger/smaller/different than the public dataset.",
+          "fileName": "submission.csv",
+          "ref": 53793274,
+          "status": "COMPLETE",
+          "submittedBy": "canqiang",
+          "submittedByRef": "canqiang",
+          "teamName": "Xander",
+          "totalBytes": 0,
+          "url": "/code/canqiang/aiagsec-static-c1-n600?scriptVersionId=328136142"
+        },
+        "ref": 53793274,
+        "status": "COMPLETE",
+        "submitted_by": "canqiang",
+        "team_name": "Xander",
+        "url": "/code/canqiang/aiagsec-static-c1-n600?scriptVersionId=328136142"
+      },
+      {
+        "date": "2026-06-17T10:05:49.270Z",
+        "description": "",
+        "error_description": "Your submission notebook exceeded the allowed runtime. Review the competition's Code Requirements page for the time limits. Note that the hidden dataset can be larger/smaller/different than the public dataset.",
+        "file_name": "submission.csv",
+        "private_score": "",
+        "public_score": "",
+        "raw": {
+          "date": "2026-06-17T10:05:49.270Z",
+          "description": "",
+          "errorDescription": "Your submission notebook exceeded the allowed runtime. Review the competition's Code Requirements page for the time limits. Note that the hidden dataset can be larger/smaller/different than the public dataset.",
+          "fileName": "submission.csv",
+          "ref": 53771967,
+          "status": "COMPLETE",
+          "submittedBy": "canqiang",
+          "submittedByRef": "canqiang",
+          "teamName": "Xander",
+          "totalBytes": 0,
+          "url": "/code/canqiang/aiagsec-static-c1-n600?scriptVersionId=327891112"
+        },
+        "ref": 53771967,
+        "status": "COMPLETE",
+        "submitted_by": "canqiang",
+        "team_name": "Xander",
+        "url": "/code/canqiang/aiagsec-static-c1-n600?scriptVersionId=327891112"
+      },
+      {
+        "date": "2026-06-17T06:27:00.607Z",
+        "description": "",
+        "error_description": "",
+        "file_name": "submission.csv",
+        "private_score": "",
+        "public_score": "55.800",
+        "raw": {
+          "date": "2026-06-17T06:27:00.607Z",
+          "description": "",
+          "fileName": "submission.csv",
+          "publicScore": "55.800",
+          "ref": 53765988,
+          "status": "COMPLETE",
+          "submittedBy": "canqiang",
+          "submittedByRef": "canqiang",
+          "teamName": "Xander",
+          "totalBytes": 118,
+          "url": "/code/canqiang/ai-agent-replay-dense-exfiltration?scriptVersionId=327838623"
+        },
+        "ref": 53765988,
+        "status": "COMPLETE",
+        "submitted_by": "canqiang",
+        "team_name": "Xander",
+        "url": "/code/canqiang/ai-agent-replay-dense-exfiltration?scriptVersionId=327838623"
+      }
+    ],
+    "ok": true,
+    "page_size": 20,
+    "pending_count": 0,
+    "pending_refs": [],
+    "queried": true
+  }
+}

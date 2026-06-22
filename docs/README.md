@@ -29,11 +29,14 @@ already showed that shape can runtime-exceed with no score.
    evidence.
 4. `elicitation-templates.md` -- prompt/template hypotheses and what still needs
    GGUF validation.
-5. `superpowers/specs/2026-06-22-attack-algorithm-design.md` -- scored attack
+5. `superpowers/specs/2026-06-22-agent-attack-research-design.md` --
+   literature-backed predicate-route matrix and comprehensive attack/validation
+   design.
+6. `superpowers/specs/2026-06-22-attack-algorithm-design.md` -- scored attack
    strategy.
-6. `superpowers/specs/2026-06-22-multistep-attack-system.md` -- research-only
+7. `superpowers/specs/2026-06-22-multistep-attack-system.md` -- research-only
    candidate factory and promotion rules.
-7. `superpowers/plans/*.md` -- implementation work breakdowns.
+8. `superpowers/plans/*.md` -- implementation work breakdowns.
 
 ## Current No-Go Conditions
 
