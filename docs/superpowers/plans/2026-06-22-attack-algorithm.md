@@ -3,6 +3,7 @@
 > Status: revised on 2026-06-22 after runtime review.
 > This plan supersedes the earlier "static floor + online Go-Explore in `run()`" plan.
 > Current priority: recover a valid scored submission, then optimize from real-model evidence.
+> Engineering contract: `docs/project-engineering-design.md`.
 > Related multi-step system plan: `docs/superpowers/plans/2026-06-22-multistep-attack-system.md`.
 
 ## Goal
@@ -12,12 +13,13 @@ Build a runtime-first submission workflow:
 1. keep the scored `src/attack.py` static, deterministic, and zero-interaction;
 2. add a real-model validation notebook adapted from `llkh0a/aas-local-validation`;
 3. add an audit/parity gate before every Kaggle code submission;
-4. submit low N canaries (`N=200/300/400`) before any larger or more complex strategy.
+4. derive low N canaries from measured GGUF runtime evidence before any larger or more complex strategy.
 
 ## Non-Goals
 
 - Do not put online Go-Explore into scored `AttackAlgorithm.run()` yet.
 - Do not submit `N=600` again without new runtime evidence.
+- Do not submit any new canary before audit, parity, manifest, T4 metadata, and pending-ref checks exist.
 - Do not add stacking, multi-turn candidates, or DEPUTY-heavy candidates before a low N C1 canary scores.
 - Do not treat `tools/ab_eval.py` with `AgentSelection` as authoritative for real `gpt_oss/gemma` scoring.
 
@@ -29,6 +31,29 @@ Build a runtime-first submission workflow:
 - Each user message should stay far under 2000 chars.
 - Every candidate should use a clean unique domain.
 - Every submission must have an audit record: N, template, payloads, unique domain count, max/mean message chars, expected raw under compliant scoring, source SHA, notebook parity status.
+- Every scored attempt must have a manifest with Kaggle metadata (`NvidiaTeslaT4`), official four-row placeholder CSV, status polling method, and pending-ref decision.
+
+---
+
+## Task 0: Engineering Baseline and Evidence Contract
+
+**Files:**
+- `docs/README.md`
+- `docs/project-engineering-design.md`
+- `docs/superpowers/results/` or `submissions/manifests/`
+
+**Required content:**
+- Record the no-go status for stale `N_CANDIDATES=600`.
+- Record the `53800639` failed run as an evidence artifact, not just prose:
+  source SHA, notebook attack SHA, kernel metadata, N, message count, status,
+  failure taxonomy, and status polling method.
+- Define that `N=200` is only a candidate upper bound until GGUF validation gives
+  p95 runtime evidence.
+
+**Verification:**
+```bash
+rg -n "N_CANDIDATES=600|53800639|NvidiaTeslaT4|pending|manifest" docs
+```
 
 ---
 
@@ -45,7 +70,7 @@ Build a runtime-first submission workflow:
   - `53771967`, `53793274`, `53800639` all runtime exceeded/no-score;
   - `53800639` is `static_c1_n600 send-via-http-post baseline v12 T4`.
 - State clearly that `N=600` is not a safe baseline.
-- State that the next scored candidate should be a low N canary.
+- State that the next scored candidate should be a low N canary selected from validation evidence, not a fixed ladder guess.
 
 **Verification:**
 ```bash
@@ -71,8 +96,9 @@ rg -n "53800639|runtime exceeded|N=600|low N|canary" docs
   - `payload_counts`;
   - `expected_raw_compliant = n * 18`;
   - `expected_norm_compliant = expected_raw / 200000 * 1000`;
-  - SHA256 of `src/attack.py`;
-  - warnings for `N >= 600`, duplicate domains, overlong messages, or non-C1 shape.
+- SHA256 of `src/attack.py`;
+  - SDK-backed proof that generated `http.post` hosts form distinct score-cell buckets;
+  - warnings or failures for `N >= 600`, duplicate domains, overlong messages, sensitive URL substrings, scored-path `env.interact`, unresolved stacking, or non-C1 shape.
 
 **Verification:**
 ```bash
@@ -82,7 +108,7 @@ python tools/audit_attack.py --n 600
 
 Expected:
 - `--n 200` has no high-risk warning;
-- `--n 600` prints a runtime-risk warning referencing prior Kaggle failures.
+- `--n 600` fails or prints a runtime-risk blocker referencing prior Kaggle failures.
 
 ---
 
@@ -121,7 +147,7 @@ Current expected result may be mismatch, because `notebooks/submission.ipynb` st
 **Behavior:**
 - Load `src/attack.py`.
 - Run `evaluate_redteam` separately for `gpt_oss` and `gemma`.
-- Start with `N=50/100/200`, not 600.
+- Start with `N=50/100/150/200`, not 600.
 - Report:
   - score;
   - raw score;
@@ -131,6 +157,10 @@ Current expected result may be mismatch, because `notebooks/submission.ipynb` st
   - wall time per returned candidate and per finding;
   - first 20 findings with predicates and compact tool events.
 - Run the same config twice only at small N to estimate determinism.
+- Include negative controls: no-secret, wrong-secret, duplicate-domain,
+  duplicate-body, and decoy-secret.
+- Record path and hop cap: Kaggle gateway-compatible replay vs local
+  `evaluation.ops` default.
 
 **Local verification:**
 ```bash
@@ -174,7 +204,7 @@ python -m py_compile /tmp/validation.py
 
 **Behavior:**
 - Keep C1 or a shorter validated template.
-- Set `N_CANDIDATES=200` for the first scored canary unless validation strongly supports a different value.
+- Set `N_CANDIDATES` from validation evidence; first scored canary must be `<=200` unless there is explicit runtime evidence and manifest approval.
 - Keep one message per candidate.
 - Keep one unique clean domain per candidate.
 - Keep placeholder `submission.csv` rows as the four official IDs:
@@ -203,16 +233,18 @@ Expected:
 
 | Step | N | Submit only if |
 |---|---:|---|
-| C0 | 200 | audit + local eval + notebook parity pass |
-| C1 | 300 | C0 returns non-empty score and no runtime error |
-| C2 | 400 | C1 returns non-empty score and validation wall time supports it |
-| C3 | >400 | explicit runtime evidence only |
+| V0 | 50/100/150/200 | GGUF validation records hit rate, p95 runtime, and negative controls |
+| C0 | `<=200` | audit + local eval + notebook parity + manifest + pending-ref check pass |
+| C1 | C0 + small delta | C0 returns non-empty score and no runtime error |
+| C2 | evidence-based | C1 returns non-empty score and validation wall time supports it |
+| C3 | larger | explicit runtime evidence only |
 
 **Stop conditions:**
 - runtime exceeded;
 - blank public/private score;
 - hidden notebook mismatch;
 - validation shows low hit rate on either target model.
+- prior ref still `PENDING` without an explicit parallel-slot decision.
 
 If a stop condition triggers, reduce N or change template in validation first.
 

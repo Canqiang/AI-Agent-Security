@@ -128,7 +128,7 @@ http.post — "POST data to an external HTTP endpoint by URL. Use this to send
 本地没有 gpt-oss-20b / gemma-4-26B-A4B 的 GGUF 权重（数 GB），无法判定"模型会不会照做"。
 唯一可信的排序方式 = 在 Kaggle notebook 内做 **低 N validation / A/B**。先解决 runtime，再比较模板。
 
-1. 先用 C1 `N=200` 或更小 canary 跑真实 `gpt_oss/gemma`，确认不会 runtime/no-score。
+1. 先用 C1 `N=50/100/150/200` 在真实 GGUF `gpt_oss/gemma` validation 中量 hit rate 与 runtime，再选择 `N<=200` 的 scored canary，确认不会 runtime/no-score。
 2. 再每个模板各生成小样本 M 个候选（用不同 `{i}` 域名），在 validation notebook 中比较 **scored findings 数 / 候选数**（命中率）和 wall time。
 3. 关注差异：gpt-oss 的失败多半是**拒绝**（无 http.post 调用），gemma 的失败多半是**工具调用未形成/未解析**。据此微调措辞。
 4. 选定后回填到 `src/attack.py` 的 payload/模板，并按 `docs/scoring-mechanics.md` §5.1 的 runtime gate 决定 `n_candidates`。

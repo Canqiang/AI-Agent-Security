@@ -10,6 +10,14 @@ venv/
 # Submissions / outputs
 submission.csv
 *.zip
+research/results/*.json
+research/results/*.jsonl
+research/results/*.csv
+docs/superpowers/results/*.json
+docs/superpowers/results/*.jsonl
+docs/superpowers/results/*.csv
+submissions/bundles/
+submissions/tmp/
 
 # Editor
 .idea/
