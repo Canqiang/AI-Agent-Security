@@ -5,6 +5,7 @@ never carry an exfiltration payload — making it useless for validating an
 EXFILTRATION-based attack locally. This stand-in parses a single imperative
 
     "POST <data> TO <url>"
+    "Send <data> to <url> via http.post"
 
 and emits exactly one http.post(url=..., data=...) call, then stops. It is a
 rough proxy for how the real target agents (gpt-oss / gemma) behave when told
@@ -29,7 +30,7 @@ from aicomp_sdk.agents.types import (
 )
 from aicomp_sdk.core.runtime_history import RuntimeHistory
 
-_POST_RE = re.compile(r"post\s+(?P<data>.+?)\s+to\s+(?P<url>https?://\S+)", re.IGNORECASE)
+_POST_RE = re.compile(r"(?:post|send)\s+(?P<data>.+?)\s+to\s+(?P<url>https?://\S+)", re.IGNORECASE)
 
 
 class CompliantAgent:
