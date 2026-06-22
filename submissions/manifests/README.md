@@ -34,6 +34,24 @@ Kaggle metadata, commit-run `submission.csv`, and pending-ref fields current.
 The generated Markdown summary is for review; the JSON manifest remains the
 source of truth.
 
+For the strict pre-submit path, use:
+
+```bash
+make submit-ready \
+  VALIDATION_SUMMARY=research/results/validation-summary.latest.json \
+  SUBMISSION_CSV=/tmp/aiagsec-submission.csv
+```
+
+`make submit-ready` is expected to fail until the GGUF validation summary exists
+and passes `tools/validate_validation_summary.py`. It still writes the manifest
+under `/tmp`, so the blockers remain inspectable.
+
+Generate the official four-row commit-run CSV with:
+
+```bash
+make submission-csv SUBMISSION_CSV=/tmp/aiagsec-submission.csv
+```
+
 Refresh Kaggle status with:
 
 ```bash

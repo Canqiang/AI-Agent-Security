@@ -303,10 +303,17 @@ As of the first implementation pass:
 - Old `N=2000` / stacking variants are archived under `src/archive/`.
 - `Makefile` now provides `make ci` for SDK-free GitHub checks and `make check`
   for the full local SDK gate.
+- `make submit-ready` builds a strict `/tmp` manifest and fails until validation
+  summary and commit-run CSV evidence are complete.
 - `.github/workflows/check.yml` runs `make ci` on push and pull request without
   requiring the private competition SDK.
 - `docs/infra.md` documents the CI/local split and submit-readiness distinction.
+- `tools/validate_validation_summary.py` and
+  `submissions/manifests/validation-summary.schema.json` define the minimal
+  GGUF validation evidence contract.
+- `tools/write_submission_csv.py` writes the official four-row commit-run CSV.
 
-The next implementation slice is `notebooks/validation.ipynb`, a durable GGUF
-validation summary format, and official four-row `submission.csv` evidence so a
-manifest can move from `local_gates_ready=true` to `submit_ready=true`.
+The next implementation slice is `notebooks/validation.ipynb` producing a real
+GGUF validation summary for the current suppress-once source SHA. Once that file
+exists, `make submit-ready` should be the promotion gate from
+`local_gates_ready=true` to `submit_ready=true`.

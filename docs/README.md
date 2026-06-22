@@ -45,7 +45,11 @@ already showed that shape can runtime-exceed with no score.
 - `make ci` -- SDK-free checks suitable for GitHub Actions.
 - `make check` -- full local smoke gate; requires `competition_files/aicomp_sdk`.
 - `make manifest-smoke` -- build a throwaway pre-submit manifest under `/tmp`.
+- `make submit-ready` -- strict manifest gate; fails until validation/CSV
+  evidence is complete.
 - `make manifest-local` -- refresh the tracked latest local manifest and summary.
+- `make submission-csv` -- generate the official four-row commit-run CSV.
+- `make validation-summary` -- validate GGUF summary JSON against current source.
 - `make kaggle-status` -- refresh Kaggle pending/status JSON.
 
 ## Current No-Go Conditions

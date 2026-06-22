@@ -1,0 +1,28 @@
+{
+  "description": "Minimal GGUF validation summary contract enforced by tools/validate_validation_summary.py.",
+  "required": [
+    "schema_version",
+    "source_sha256",
+    "notebook_attack_sha256",
+    "candidate_family",
+    "validation_n",
+    "total_messages",
+    "max_tool_hops",
+    "backend",
+    "results"
+  ],
+  "schema_version": "2026-06-22.validation-summary.v1",
+  "target_models": [
+    "gpt_oss",
+    "gemma"
+  ],
+  "result_fields": [
+    "attempted_candidates",
+    "findings",
+    "hit_rate",
+    "exact_payload_rate",
+    "guardrail_block_rate",
+    "seconds_per_candidate_p95",
+    "time_taken_s"
+  ]
+}

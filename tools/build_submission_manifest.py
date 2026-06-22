@@ -36,6 +36,7 @@ from check_submission_notebook import check as check_notebook  # noqa: E402
 from eval_candidate_bank import evaluate_bank  # noqa: E402
 from lint_candidate_bank import lint as lint_candidate_bank  # noqa: E402
 from lint_candidate_bank import load_candidate_bank  # noqa: E402
+from validate_validation_summary import validate_file as validate_validation_summary_file  # noqa: E402
 
 
 def now_iso() -> str:
@@ -228,26 +229,17 @@ def candidate_bank_summary(
     return summary
 
 
-def validation_summary(path: Path | None) -> dict[str, Any]:
-    if path is None:
-        return {
-            "present": False,
-            "ok": False,
-            "message": "no GGUF validation summary supplied",
-        }
-    if not path.exists():
-        return {
-            "present": False,
-            "path": rel(path),
-            "ok": False,
-            "message": "validation summary path does not exist",
-        }
-    return {
-        "present": True,
-        "path": rel(path),
-        "sha256": sha256_file(path),
-        "ok": True,
-    }
+def validation_summary(
+    path: Path | None,
+    *,
+    expected_source_sha: str | None,
+    expected_notebook_sha: str | None,
+) -> dict[str, Any]:
+    return validate_validation_summary_file(
+        path,
+        expected_source_sha=expected_source_sha,
+        expected_notebook_sha=expected_notebook_sha,
+    )
 
 
 def collect_blockers(
@@ -361,7 +353,11 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
             budget_s=args.eval_budget,
             max_tool_hops=args.max_tool_hops,
         ),
-        "validation_summary": validation_summary(args.validation_summary),
+        "validation_summary": validation_summary(
+            args.validation_summary,
+            expected_source_sha=audit_result.get("source_sha256"),
+            expected_notebook_sha=parity_result.get("notebook_attack_sha256"),
+        ),
         "kaggle": {
             "status_snapshot": status_snapshot,
             "kernel": resolve_kernel_metadata(

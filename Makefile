@@ -11,10 +11,12 @@ KAGGLE_STATUS_JSON ?= submissions/manifests/kaggle-status.latest.json
 
 SAMPLE_BANK ?= research/results/candidate_bank.sample.jsonl
 SCORED_BANK ?= research/results/candidate_bank.suppress.jsonl
+VALIDATION_SUMMARY ?= research/results/validation-summary.latest.json
+SUBMISSION_CSV ?= /tmp/aiagsec-submission.csv
 MANIFEST_OUT ?= /tmp/aiagsec-pre-submit.json
 MANIFEST_SUMMARY ?= /tmp/aiagsec-pre-submit.md
 
-PY_FILES := $(shell git ls-files '*.py')
+PY_FILES := $(shell find src tools research -name '*.py' -not -path '*/__pycache__/*' | sort)
 
 .PHONY: help
 help:
@@ -22,7 +24,9 @@ help:
 	@echo "  make ci              SDK-free checks for GitHub Actions"
 	@echo "  make check           full local gate; requires competition_files/aicomp_sdk"
 	@echo "  make manifest-smoke  build throwaway pre-submit manifest under /tmp"
+	@echo "  make submit-ready    strict pre-submit manifest; fails until validation evidence exists"
 	@echo "  make manifest-local  refresh tracked latest manifest and summary"
+	@echo "  make submission-csv  write official four-row commit-run CSV"
 	@echo "  make kaggle-status   refresh Kaggle status JSON"
 
 .PHONY: compile
@@ -68,6 +72,14 @@ bank-eval: sdk-present bank-suppress
 local-eval: sdk-present
 	$(PYTHON) tools/local_eval.py compliant --n $(LOCAL_EVAL_N)
 
+.PHONY: submission-csv
+submission-csv:
+	$(PYTHON) tools/write_submission_csv.py --out $(SUBMISSION_CSV)
+
+.PHONY: validation-summary
+validation-summary:
+	$(PYTHON) tools/validate_validation_summary.py $(VALIDATION_SUMMARY)
+
 .PHONY: manifest-smoke
 manifest-smoke: sdk-present bank-suppress
 	$(PYTHON) tools/build_submission_manifest.py \
@@ -84,6 +96,22 @@ manifest-smoke: sdk-present bank-suppress
 
 .PHONY: check
 check: ci audit bank-eval local-eval manifest-smoke
+
+.PHONY: submit-ready
+submit-ready: sdk-present bank-suppress submission-csv
+	$(PYTHON) tools/build_submission_manifest.py \
+		--n $(N) \
+		--machine-shape NvidiaTeslaT4 \
+		--candidate-bank $(SCORED_BANK) \
+		--candidate-bank-scored \
+		--eval-candidate-bank \
+		--validation-summary $(VALIDATION_SUMMARY) \
+		--kaggle-status-json $(KAGGLE_STATUS_JSON) \
+		--submission-csv $(SUBMISSION_CSV) \
+		--require-submission-csv \
+		--description "strict suppress-once n$(N) pre-submit evidence" \
+		--out $(MANIFEST_OUT) \
+		--summary-md $(MANIFEST_SUMMARY)
 
 .PHONY: manifest-local
 manifest-local: sdk-present bank-suppress
