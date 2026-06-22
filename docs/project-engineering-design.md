@@ -40,6 +40,7 @@ tools/
   kaggle_status.py                  # Python API polling; avoids broken CLI path
   run_gguf_validation.py            # real-model validation summary producer
   prepare_validation_kernel.py      # self-contained Kaggle validation kernel builder
+  push_kaggle_kernel.py             # Kaggle push helper that preserves T4 shape
   check_validation_notebook.py      # static notebook syntax gate
   build_submission_manifest.py      # immutable evidence before submit
 

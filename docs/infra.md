@@ -18,6 +18,7 @@ This repository has two gate levels because the competition SDK under
 | `make validation-summary` | no | no | Validate a GGUF summary JSON against the current source/notebook SHA |
 | `make validation-gguf` | no | yes + GGUF models/GPU | Run real `gpt_oss`/`gemma` validation and write the summary JSON |
 | `make validation-kernel` | no | no | Build ignored self-contained Kaggle validation kernel folder |
+| `make push-validation-kernel` | no | Kaggle credentials | Push validation kernel with explicit `NvidiaTeslaT4` request |
 | `make kaggle-status` | no | Kaggle credentials | Refresh Kaggle pending/status snapshot |
 
 `make ci` is intentionally SDK-free. It catches repository drift that can be
@@ -104,12 +105,13 @@ For Kaggle API push, build the ignored self-contained kernel folder first:
 
 ```bash
 make validation-kernel
-kaggle kernels push -p kaggle_push/validation
+make push-validation-kernel
 ```
 
 This matters because Kaggle kernel push uploads only the notebook named in
 `kernel-metadata.json`; the generated notebook embeds the required `src/` and
-`tools/` files before running validation.
+`tools/` files before running validation. The repo helper also sends
+`machine_shape=NvidiaTeslaT4`, which the default Kaggle push path may ignore.
 
 Generated CSV evidence should stay outside git, for example:
 

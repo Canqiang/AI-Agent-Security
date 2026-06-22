@@ -61,6 +61,8 @@ The summary is written to `research/results/validation-summary.latest.json`;
 raw per-candidate replay logs stay in `research/results/validation-raw.latest.jsonl`.
 For API push, run `make validation-kernel` and push `kaggle_push/validation`;
 that generated notebook embeds the repo files Kaggle does not upload as sidecars.
+Prefer `make push-validation-kernel` over raw `kaggle kernels push` so the push
+request carries `machine_shape=NvidiaTeslaT4`.
 
 Generate the official four-row commit-run CSV with:
 

@@ -52,6 +52,7 @@ already showed that shape can runtime-exceed with no score.
 - `make validation-summary` -- validate GGUF summary JSON against current source.
 - `make validation-gguf` -- run real T4/GGUF validation and write that summary.
 - `make validation-kernel` -- build an ignored self-contained Kaggle validation kernel.
+- `make push-validation-kernel` -- push that kernel while explicitly requesting T4.
 - `make kaggle-status` -- refresh Kaggle pending/status JSON.
 
 ## Current No-Go Conditions

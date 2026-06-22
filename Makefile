@@ -36,6 +36,7 @@ help:
 	@echo "  make kaggle-status   refresh Kaggle status JSON"
 	@echo "  make validation-gguf run real GGUF validation and write summary"
 	@echo "  make validation-kernel build self-contained Kaggle validation kernel"
+	@echo "  make push-validation-kernel push validation kernel with explicit T4"
 
 .PHONY: compile
 compile:
@@ -105,6 +106,10 @@ validation-gguf:
 .PHONY: validation-kernel
 validation-kernel:
 	$(PYTHON) tools/prepare_validation_kernel.py
+
+.PHONY: push-validation-kernel
+push-validation-kernel: validation-kernel
+	$(PYTHON) tools/push_kaggle_kernel.py kaggle_push/validation
 
 .PHONY: manifest-smoke
 manifest-smoke: sdk-present bank-suppress
