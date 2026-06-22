@@ -88,7 +88,8 @@ def normalize_submission(value: Any) -> dict[str, Any]:
 
 def is_pending(submission: dict[str, Any]) -> bool:
     status = str(submission.get("status") or "").strip().lower()
-    if status in PENDING_STATUSES:
+    status_token = status.rsplit(".", 1)[-1]
+    if status in PENDING_STATUSES or status_token in PENDING_STATUSES:
         return True
     public_score = submission.get("public_score")
     private_score = submission.get("private_score")
