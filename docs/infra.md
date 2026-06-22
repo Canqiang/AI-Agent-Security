@@ -17,6 +17,7 @@ This repository has two gate levels because the competition SDK under
 | `make submission-csv` | no | no | Write the official four-row commit-run CSV |
 | `make validation-summary` | no | no | Validate a GGUF summary JSON against the current source/notebook SHA |
 | `make validation-gguf` | no | yes + GGUF models/GPU | Run real `gpt_oss`/`gemma` validation and write the summary JSON |
+| `make validation-kernel` | no | no | Build ignored self-contained Kaggle validation kernel folder |
 | `make kaggle-status` | no | Kaggle credentials | Refresh Kaggle pending/status snapshot |
 
 `make ci` is intentionally SDK-free. It catches repository drift that can be
@@ -98,6 +99,17 @@ Run it in a T4 environment with the competition SDK plus the GGUF model files
 available. The repo notebook `notebooks/validation.ipynb` is a thin Kaggle entry
 point for that command. For offline Kaggle runs, set `GPT_OSS_MODEL_PATH` and
 `GEMMA_MODEL_PATH` to the attached `.gguf` files before running the notebook.
+
+For Kaggle API push, build the ignored self-contained kernel folder first:
+
+```bash
+make validation-kernel
+kaggle kernels push -p kaggle_push/validation
+```
+
+This matters because Kaggle kernel push uploads only the notebook named in
+`kernel-metadata.json`; the generated notebook embeds the required `src/` and
+`tools/` files before running validation.
 
 Generated CSV evidence should stay outside git, for example:
 

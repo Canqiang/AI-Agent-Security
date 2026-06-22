@@ -39,6 +39,7 @@ tools/
   eval_candidate_bank.py            # local replay summary, mock-only
   kaggle_status.py                  # Python API polling; avoids broken CLI path
   run_gguf_validation.py            # real-model validation summary producer
+  prepare_validation_kernel.py      # self-contained Kaggle validation kernel builder
   check_validation_notebook.py      # static notebook syntax gate
   build_submission_manifest.py      # immutable evidence before submit
 
@@ -315,6 +316,8 @@ As of the first implementation pass:
   GGUF validation evidence contract.
 - `tools/run_gguf_validation.py` and `notebooks/validation.ipynb` now provide
   the executable T4/GGUF path that produces that contract.
+- `tools/prepare_validation_kernel.py` builds the ignored self-contained Kaggle
+  kernel folder needed because Kaggle push uploads only the configured notebook.
 - `tools/write_submission_csv.py` writes the official four-row commit-run CSV.
 
 The next implementation slice is running `make validation-gguf` in the T4/GGUF

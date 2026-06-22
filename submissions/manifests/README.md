@@ -59,6 +59,8 @@ make validation-gguf \
 The Kaggle entry point for the same command is `notebooks/validation.ipynb`.
 The summary is written to `research/results/validation-summary.latest.json`;
 raw per-candidate replay logs stay in `research/results/validation-raw.latest.jsonl`.
+For API push, run `make validation-kernel` and push `kaggle_push/validation`;
+that generated notebook embeds the repo files Kaggle does not upload as sidecars.
 
 Generate the official four-row commit-run CSV with:
 

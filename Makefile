@@ -35,6 +35,7 @@ help:
 	@echo "  make submission-csv  write official four-row commit-run CSV"
 	@echo "  make kaggle-status   refresh Kaggle status JSON"
 	@echo "  make validation-gguf run real GGUF validation and write summary"
+	@echo "  make validation-kernel build self-contained Kaggle validation kernel"
 
 .PHONY: compile
 compile:
@@ -100,6 +101,10 @@ validation-gguf:
 		--max-tool-hops $(VALIDATION_MAX_TOOL_HOPS) \
 		--out $(VALIDATION_SUMMARY) \
 		--raw-out $(VALIDATION_RAW_OUT)
+
+.PHONY: validation-kernel
+validation-kernel:
+	$(PYTHON) tools/prepare_validation_kernel.py
 
 .PHONY: manifest-smoke
 manifest-smoke: sdk-present bank-suppress
