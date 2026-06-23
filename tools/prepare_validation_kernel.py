@@ -22,8 +22,12 @@ DEFAULT_TITLE = "AIAgSec GGUF Validation"
 EMBEDDED_FILES = (
     "src/attack.py",
     "tools/run_gguf_validation.py",
+    "tools/run_gguf_bank_experiment.py",
     "tools/validate_validation_summary.py",
     "tools/check_submission_notebook.py",
+    "tools/lint_candidate_bank.py",
+    "research/candidate_families.py",
+    "research/candidate_bank.schema.json",
     "notebooks/submission.ipynb",
 )
 

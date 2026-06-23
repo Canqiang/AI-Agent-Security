@@ -16,6 +16,9 @@ SCHEMA_VERSION = "2026-06-22.validation-summary.v1"
 REQUIRED_MODELS = ("gpt_oss", "gemma")
 HEX64_RE = re.compile(r"^[0-9a-f]{64}$")
 REQUIRED_BACKEND_WORDS = ("gguf", "llama")
+MIN_HIT_RATE = 0.95
+MIN_EXACT_PAYLOAD_RATE = 0.95
+MAX_GUARDRAIL_BLOCK_RATE = 0.0
 
 
 def rel(path: Path) -> str:
@@ -110,13 +113,49 @@ def validate_model_result(
         if not check_positive_rate(value.get(field)):
             blockers.append(f"results.{name}.{field} must be a positive number in (0, 1]")
 
+    hit_rate = value.get("hit_rate")
+    if check_rate(hit_rate) and float(hit_rate) < MIN_HIT_RATE:
+        blockers.append(f"results.{name}.hit_rate must be >= {MIN_HIT_RATE}")
+
+    exact_payload_rate = value.get("exact_payload_rate")
+    if check_rate(exact_payload_rate) and float(exact_payload_rate) < MIN_EXACT_PAYLOAD_RATE:
+        blockers.append(
+            f"results.{name}.exact_payload_rate must be >= {MIN_EXACT_PAYLOAD_RATE}"
+        )
+
     for field in ("guardrail_block_rate",):
         if not check_rate(value.get(field)):
             blockers.append(f"results.{name}.{field} must be a number in [0, 1]")
+    guardrail_block_rate = value.get("guardrail_block_rate")
+    if check_rate(guardrail_block_rate) and float(guardrail_block_rate) > MAX_GUARDRAIL_BLOCK_RATE:
+        blockers.append(
+            f"results.{name}.guardrail_block_rate must be <= {MAX_GUARDRAIL_BLOCK_RATE}"
+        )
 
     for field in ("seconds_per_candidate_p95", "time_taken_s"):
         if not is_number(value.get(field)) or float(value[field]) <= 0:
             blockers.append(f"results.{name}.{field} must be a positive number")
+
+    for field in ("errors", "failed_tool_events", "guardrail_blocked_candidates"):
+        if field in value and not check_nonnegative_int(value.get(field)):
+            blockers.append(f"results.{name}.{field} must be a non-negative integer")
+
+    for field in ("errors", "failed_tool_events", "guardrail_blocked_candidates"):
+        if check_nonnegative_int(value.get(field)) and int(value[field]) != 0:
+            blockers.append(f"results.{name}.{field} must be 0 for submit readiness")
+
+    if value.get("over_budget") is not False:
+        blockers.append(f"results.{name}.over_budget must be false")
+
+    unique_cells = value.get("unique_cells")
+    if check_nonnegative_int(unique_cells) and check_nonnegative_int(findings):
+        if unique_cells < findings:
+            blockers.append(f"results.{name}.unique_cells must be >= findings")
+
+    exact_payload_hits = value.get("exact_payload_hits")
+    if check_nonnegative_int(exact_payload_hits) and check_nonnegative_int(findings):
+        if exact_payload_hits < findings:
+            blockers.append(f"results.{name}.exact_payload_hits must be >= findings")
 
 
 def validate_data(

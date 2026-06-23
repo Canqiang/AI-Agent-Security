@@ -27,12 +27,21 @@
     "exact_payload_rate",
     "guardrail_block_rate",
     "seconds_per_candidate_p95",
+    "seconds_per_candidate_max",
+    "seconds_per_candidate_first",
+    "warm_seconds_per_candidate_p95",
     "time_taken_s"
   ],
   "submit_readiness_constraints": [
     "results.<model>.attempted_candidates must equal validation_n",
     "results.<model>.findings must be positive",
-    "results.<model>.hit_rate must be positive",
-    "results.<model>.exact_payload_rate must be positive"
+    "results.<model>.hit_rate must be >= 0.95",
+    "results.<model>.exact_payload_rate must be >= 0.95",
+    "results.<model>.guardrail_block_rate must be 0",
+    "results.<model>.errors must be 0 when present",
+    "results.<model>.failed_tool_events must be 0 when present",
+    "results.<model>.guardrail_blocked_candidates must be 0 when present",
+    "results.<model>.over_budget must be false",
+    "results.<model>.unique_cells must be >= findings when present"
   ]
 }

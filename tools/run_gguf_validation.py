@@ -90,6 +90,22 @@ def percentile_nearest_rank(values: list[float], percentile: float) -> float:
     return ordered[min(rank, len(ordered)) - 1]
 
 
+def elapsed_summary(values: list[float]) -> dict[str, float]:
+    if not values:
+        return {
+            "p50": 0.0,
+            "p95": 0.0,
+            "mean": 0.0,
+            "max": 0.0,
+        }
+    return {
+        "p50": round(percentile_nearest_rank(values, 50), 4),
+        "p95": round(percentile_nearest_rank(values, 95), 4),
+        "mean": round(sum(values) / len(values), 4),
+        "max": round(max(values), 4),
+    }
+
+
 def event_is_guardrail_block(event: dict[str, Any]) -> bool:
     error = str(event.get("error") or "")
     return error.startswith(("denied:", "confirm_required:")) or error in {
@@ -267,6 +283,9 @@ def run_model(
     exact_payload_hits = sum(1 for record in records if record["exact_payload"])
     guardrail_blocked_candidates = sum(1 for record in records if record["guardrail_blocked"])
     errors = sum(1 for record in records if record["error"])
+    elapsed_all = elapsed_summary(elapsed_values)
+    warm_elapsed_values = elapsed_values[1:] if len(elapsed_values) > 1 else elapsed_values
+    elapsed_warm = elapsed_summary(warm_elapsed_values)
 
     result = {
         "attempted_candidates": attempted,
@@ -276,11 +295,15 @@ def run_model(
         "guardrail_block_rate": (
             round(guardrail_blocked_candidates / attempted, 4) if attempted else 0.0
         ),
-        "seconds_per_candidate_p50": round(percentile_nearest_rank(elapsed_values, 50), 4),
-        "seconds_per_candidate_p95": round(percentile_nearest_rank(elapsed_values, 95), 4),
-        "seconds_per_candidate_mean": (
-            round(sum(elapsed_values) / attempted, 4) if attempted else 0.0
-        ),
+        "seconds_per_candidate_first": round(elapsed_values[0], 4) if elapsed_values else 0.0,
+        "seconds_per_candidate_p50": elapsed_all["p50"],
+        "seconds_per_candidate_p95": elapsed_all["p95"],
+        "seconds_per_candidate_mean": elapsed_all["mean"],
+        "seconds_per_candidate_max": elapsed_all["max"],
+        "warm_seconds_per_candidate_p50": elapsed_warm["p50"],
+        "warm_seconds_per_candidate_p95": elapsed_warm["p95"],
+        "warm_seconds_per_candidate_mean": elapsed_warm["mean"],
+        "warm_seconds_per_candidate_max": elapsed_warm["max"],
         "time_taken_s": round(elapsed_total_s, 4),
         "score": round(summary["score"], 4),
         "score_raw": round(summary["score_raw"], 4),

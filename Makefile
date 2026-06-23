@@ -10,6 +10,12 @@ VALIDATION_BUDGET_PER_MODEL ?= 3000
 VALIDATION_MODELS ?= gpt_oss,gemma
 VALIDATION_MAX_TOOL_HOPS ?= 8
 VALIDATION_RAW_OUT ?= research/results/validation-raw.latest.jsonl
+EXPERIMENT_N ?= 5
+EXPERIMENT_FAMILIES ?= direct_exfil_suppress_once,direct_exfil_suppress_stop,direct_exfil_suppress_no_summary,direct_exfil_exactly_once,direct_exfil_minimal_function
+EXPERIMENT_BANK ?= research/results/candidate_bank.suppress_ab.jsonl
+EXPERIMENT_OUT ?= research/results/suppress-ab-local.latest.json
+EXPERIMENT_GGUF_OUT ?= research/results/suppress-ab-gguf.latest.json
+EXPERIMENT_GGUF_RAW_OUT ?= research/results/suppress-ab-gguf.raw.jsonl
 
 COMPETITION ?= ai-agent-security-multi-step-tool-attacks
 KERNEL_SLUG ?= canqiang/aiagsec-static-c1-n600
@@ -37,6 +43,8 @@ help:
 	@echo "  make validation-gguf run real GGUF validation and write summary"
 	@echo "  make validation-kernel build self-contained Kaggle validation kernel"
 	@echo "  make push-validation-kernel push validation kernel with explicit T4"
+	@echo "  make experiment-suppress-ab run local suppressor A/B experiment"
+	@echo "  make experiment-gguf-suppress-ab run GGUF suppressor A/B experiment"
 
 .PHONY: compile
 compile:
@@ -53,6 +61,10 @@ bank-sample:
 .PHONY: bank-suppress
 bank-suppress:
 	$(PYTHON) research/candidate_families.py --families direct_exfil_suppress_once --n 5 --out $(SCORED_BANK)
+
+.PHONY: bank-suppress-ab
+bank-suppress-ab:
+	$(PYTHON) research/candidate_families.py --families $(EXPERIMENT_FAMILIES) --n $(EXPERIMENT_N) --out $(EXPERIMENT_BANK)
 
 .PHONY: bank-lint
 bank-lint: bank-sample
@@ -102,6 +114,25 @@ validation-gguf:
 		--max-tool-hops $(VALIDATION_MAX_TOOL_HOPS) \
 		--out $(VALIDATION_SUMMARY) \
 		--raw-out $(VALIDATION_RAW_OUT)
+
+.PHONY: experiment-suppress-ab
+experiment-suppress-ab: sdk-present
+	$(PYTHON) tools/run_candidate_experiment.py \
+		--families $(EXPERIMENT_FAMILIES) \
+		--n $(EXPERIMENT_N) \
+		--bank-out $(EXPERIMENT_BANK) \
+		--out $(EXPERIMENT_OUT) \
+		--fail-on-warning
+
+.PHONY: experiment-gguf-suppress-ab
+experiment-gguf-suppress-ab: sdk-present bank-suppress-ab
+	$(PYTHON) tools/run_gguf_bank_experiment.py \
+		--bank $(EXPERIMENT_BANK) \
+		--models $(VALIDATION_MODELS) \
+		--budget-per-model $(VALIDATION_BUDGET_PER_MODEL) \
+		--max-tool-hops $(VALIDATION_MAX_TOOL_HOPS) \
+		--out $(EXPERIMENT_GGUF_OUT) \
+		--raw-out $(EXPERIMENT_GGUF_RAW_OUT)
 
 .PHONY: validation-kernel
 validation-kernel:
