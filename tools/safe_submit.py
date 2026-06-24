@@ -25,10 +25,41 @@ if str(TOOLS) not in sys.path:
 
 REPO = TOOLS.parent
 DEFAULT_COMPETITION = "ai-agent-security-multi-step-tool-attacks"
+
+# Under-REPO temp dir for extracted audit sources (gitignored via submissions/tmp/)
+_AUDIT_TMP = REPO / "submissions" / "tmp"
 DEFAULT_KERNEL = "canqiang/aiagsec-submission"
 MIN_FLOOR_SECONDS = 240.0
 POLL_SECONDS = 30.0
 TIMEOUT_SECONDS = 5400.0
+
+
+def resolve_kernel_source(kernel_folder: Path) -> Path:
+    """Extract the %%writefile attack.py source from the kernel folder's notebook.
+
+    Writes the embedded source to REPO/submissions/tmp/audit-src-<name>.py so the
+    path satisfies audit_attack's source.relative_to(REPO) requirement. Returns the
+    written Path. Raises RuntimeError (from extract_writefile_source) if the notebook
+    has zero or multiple writefile cells.
+    """
+    import json as _json
+    from check_submission_notebook import extract_writefile_source
+
+    meta_path = kernel_folder / "kernel-metadata.json"
+    meta = _json.loads(meta_path.read_text(encoding="utf-8"))
+    code_file = meta["code_file"]
+    text, _ = extract_writefile_source(kernel_folder / code_file)
+    out_path = _AUDIT_TMP / f"audit-src-{kernel_folder.name}.py"
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(text, encoding="utf-8")
+    return out_path
+
+
+def sources_match(text_a: str, text_b: str) -> bool:
+    """Return True iff text_a and text_b are identical after normalisation."""
+    from check_submission_notebook import normalize_source, sha256_text
+
+    return sha256_text(normalize_source(text_a)) == sha256_text(normalize_source(text_b))
 
 
 @dataclass
@@ -67,7 +98,7 @@ def run_safe_submit(plan: SubmitPlan, deps: SubmitDeps) -> dict:
         return {"ok": False, "stage": "push", "blockers": ["push failed"], "ref": None}
     if push.get("machine_shape") != "NvidiaTeslaT4":
         return {"ok": False, "stage": "push",
-                "blockers": [f"machine_shape != NvidiaTeslaT4: {push.get('machine_shape')}"], "ref": None}
+                "blockers": [f"kernel metadata machine_shape != NvidiaTeslaT4 (requested value, not API-confirmed): {push.get('machine_shape')}"], "ref": None}
     version = int(push["version_number"])
     # 4. Wait for a fresh complete
     wait = deps.wait_fn(version)
@@ -161,7 +192,8 @@ def main() -> int:
     parser.add_argument("--kernel", default=DEFAULT_KERNEL)
     parser.add_argument("--kernel-folder", type=Path, required=True,
                         help="prepared kernel folder with kernel-metadata.json")
-    parser.add_argument("--source", type=Path, default=REPO / "src" / "attack.py")
+    parser.add_argument("--source", type=Path, default=None,
+                        help="optional parity reference: if given, must match the kernel folder's embedded source")
     parser.add_argument("--n", type=int, default=200)
     parser.add_argument("--competition", default=DEFAULT_COMPETITION)
     parser.add_argument("--message", required=True)
@@ -193,7 +225,23 @@ def main() -> int:
         allow_high_n=args.allow_high_n, allow_stacking=args.allow_stacking,
         allow_pending=args.allow_pending, dry_run=args.dry_run, reason=args.reason,
     )
-    source = Path(args.source).resolve()
+
+    # Resolve the audited source from the kernel folder (what actually ships)
+    try:
+        audit_source = resolve_kernel_source(args.kernel_folder)
+    except Exception as exc:
+        print(json.dumps({"ok": False, "stage": "resolve_source",
+                          "blockers": [str(exc)]}, indent=2))
+        return 2
+
+    # If --source is provided, assert parity with the kernel folder's embedded source
+    if args.source is not None:
+        ref_text = Path(args.source).read_text(encoding="utf-8")
+        if not sources_match(audit_source.read_text(encoding="utf-8"), ref_text):
+            print(json.dumps({"ok": False, "stage": "parity",
+                              "blockers": ["kernel-folder embedded source does not match --source"]},
+                             indent=2))
+            return 2
 
     def wait_fn(version: int) -> dict:
         if args.unsafe:
@@ -217,7 +265,7 @@ def main() -> int:
         pl.write_ledger(pl.DEFAULT_OUT_DIR, manifests, ledger)
 
     deps = SubmitDeps(
-        audit_fn=_real_audit(source, args.n, plan),
+        audit_fn=_real_audit(audit_source, args.n, plan),
         pending_fn=_real_pending(api, args.competition),
         push_fn=lambda: push_kernel(args.kernel_folder),
         wait_fn=wait_fn,

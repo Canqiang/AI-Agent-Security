@@ -52,3 +52,50 @@ def test_write_ledger_emits_files(tmp_path):
     assert (tmp_path / "ref-53964193.json").exists()
     written = json.loads((tmp_path / "ref-53964193.json").read_text())
     assert written["taxonomy"] == "system_error"
+
+
+def test_current_baseline_ref_is_most_recent_complete_scored_not_dict_order():
+    # Two complete_scored records:
+    #   53765988 submitted 2026-06-15 (score 55.8) — older
+    #   53942563 submitted 2026-06-22 (score 18.0) — more recent
+    # We want current_baseline_ref to be the most-recently submitted (53942563),
+    # regardless of dict iteration order.
+    # To stress-test dict-order reliance, the RECORDS list puts the older one first
+    # (opposite of what the real API returns), and we also pass existing with the
+    # older one first in dict order.
+    records = [
+        {
+            "ref": 53765988,
+            "date": "2026-06-15T10:00:00+00:00",
+            "status": "COMPLETE",
+            "error_description": "",
+            "public_score": "55.800",
+            "description": "replay-dense-exfiltration",
+        },
+        {
+            "ref": 53942563,
+            "date": "2026-06-22T10:00:00+00:00",
+            "status": "COMPLETE",
+            "error_description": "",
+            "public_score": "18.000",
+            "description": "suppress_once_n200",
+        },
+    ]
+
+    # First build — existing={}, records in "wrong" order (older first)
+    first_manifests, first_ledger = pl.build_ledger(
+        records, existing={}, now="2026-06-24T00:00:00+00:00"
+    )
+    # Even in first build, baseline must be 53942563 (more recent date)
+    assert first_ledger["current_baseline_ref"] == 53942563
+
+    # Second build: pass existing with 53765988 first in dict order (stress test)
+    reordered_existing = {
+        "53765988": first_manifests["53765988"],
+        "53942563": first_manifests["53942563"],
+    }
+    _, ledger2 = pl.build_ledger(
+        records, existing=reordered_existing, now="2026-06-25T00:00:00+00:00"
+    )
+    # Must still pick 53942563 (most-recently submitted), NOT 53765988 (first in dict)
+    assert ledger2["current_baseline_ref"] == 53942563

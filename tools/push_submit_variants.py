@@ -78,11 +78,6 @@ def append_jsonl(path: Path, row: dict[str, Any]) -> None:
         fh.write(json.dumps(row, sort_keys=True) + "\n")
 
 
-def status_text(status: Any) -> str:
-    data = to_jsonable(status)
-    return str(object_get(data, "status") or object_get(status, "status") or "")
-
-
 def submit_variant(
     api: Any,
     *,
@@ -108,7 +103,7 @@ def submit_variant(
         allow_high_n=True, allow_stacking=True, allow_pending=False,
         dry_run=False, reason=f"variant batch: {manifest['name']}",
     )
-    source = folder / "attack.py" if (folder / "attack.py").exists() else REPO / "src" / "attack.py"
+    source = ss.resolve_kernel_source(folder)
 
     def wait_fn(version: int) -> dict:
         return kernel_wait.wait_for_fresh_complete(

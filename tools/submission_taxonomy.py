@@ -63,6 +63,8 @@ def summarize(manifests: list[dict]) -> dict:
     unresolved: list[str] = []
     for m in manifests:
         tax = m.get("taxonomy")
+        if tax is None:
+            continue
         counts[tax] = counts.get(tax, 0) + 1
         if tax == "pending":
             unresolved.append(str(m.get("ref")))

@@ -85,11 +85,13 @@ def build_ledger(
             record, taxonomy=taxonomy, now=now, existing=prior, log_excerpt=log_excerpt
         )
     summary = st.summarize(list(manifests.values()))
+    # Pick the most-recently-submitted complete_scored ref (ISO string compare is valid).
+    # Iterating manifests.values() directly would be dict-insertion-order dependent;
+    # sorting by submitted_at guarantees stable results regardless of load order.
+    scored = [m for m in manifests.values() if m["taxonomy"] == "complete_scored"]
     baseline_ref = None
-    for m in manifests.values():
-        if m["taxonomy"] == "complete_scored":
-            baseline_ref = m["ref"]  # last (most recent if records date-desc)
-            break
+    if scored:
+        baseline_ref = max(scored, key=lambda m: str(m.get("submitted_at") or ""))["ref"]
     ledger = {
         "schema_version": LEDGER_SCHEMA,
         "competition": DEFAULT_COMPETITION,

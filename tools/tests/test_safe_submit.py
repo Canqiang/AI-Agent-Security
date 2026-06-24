@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -74,9 +75,57 @@ def test_wait_failure_blocks_submit():
 
 
 def test_happy_path_submits_and_records():
-    deps, submit_calls = _deps()
+    record_calls = []
+    deps, submit_calls = _deps(record_fn=lambda: record_calls.append(1))
     res = ss.run_safe_submit(_plan(), deps)
     assert res["ok"] is True
     assert res["stage"] == "submitted"
     assert res["ref"] == 99001
     assert submit_calls == [7]
+    assert len(record_calls) == 1  # record_fn was invoked exactly once
+
+
+# --- FIX #1 tests: resolve_kernel_source and sources_match ---
+
+def _make_kernel_folder(tmp_path: Path, source_text: str) -> Path:
+    """Create a minimal kernel folder fixture with one %%writefile attack.py cell."""
+    folder = tmp_path / "test_variant"
+    folder.mkdir()
+    nb = {
+        "cells": [
+            {
+                "cell_type": "code",
+                "source": [
+                    "%%writefile /kaggle/working/attack.py\n",
+                    source_text,
+                ],
+            }
+        ]
+    }
+    (folder / "submission.ipynb").write_text(json.dumps(nb), encoding="utf-8")
+    (folder / "kernel-metadata.json").write_text(
+        json.dumps({"code_file": "submission.ipynb", "id": "canqiang/test"}),
+        encoding="utf-8",
+    )
+    return folder
+
+
+def test_resolve_kernel_source_extracts_embedded_source(tmp_path):
+    source_text = "# chain attack\nn = 205\n"
+    folder = _make_kernel_folder(tmp_path, source_text)
+    result_path = ss.resolve_kernel_source(folder)
+    assert result_path.exists()
+    assert result_path.read_text(encoding="utf-8") == source_text
+
+
+def test_sources_match_identical_after_normalize():
+    assert ss.sources_match("hello\n", "hello\n") is True
+
+
+def test_sources_match_different_returns_false():
+    assert ss.sources_match("hello\n", "world\n") is False
+
+
+def test_sources_match_normalize_whitespace():
+    # trailing spaces / CRLF — normalize_source strips them, should still match
+    assert ss.sources_match("hello  \r\n", "hello\n") is True

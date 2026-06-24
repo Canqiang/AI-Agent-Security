@@ -24,7 +24,6 @@ def wait_for_fresh_complete(
 ) -> dict:
     start = monotonic()
     saw_noncomplete = False
-    status = ""
     while True:
         status = str(poll_status() or "").strip().lower()
         elapsed = monotonic() - start
