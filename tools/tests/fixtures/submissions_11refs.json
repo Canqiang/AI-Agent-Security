@@ -1,0 +1,13 @@
+[
+  {"ref": 53996558, "status": "SubmissionStatus.PENDING", "error_description": "", "public_score": "", "description": ""},
+  {"ref": 53964193, "status": "ERROR", "error_description": "A system error. Please try resubmitting to resolve the error and contact Kaggle Support if it persists.", "public_score": "", "description": "chain_k6_n205"},
+  {"ref": 53964173, "status": "ERROR", "error_description": "A system error. Please try resubmitting to resolve the error and contact Kaggle Support if it persists.", "public_score": "", "description": "chain_k4_n180"},
+  {"ref": 53964154, "status": "ERROR", "error_description": "A system error. Please try resubmitting to resolve the error and contact Kaggle Support if it persists.", "public_score": "", "description": "chain_k3_n220"},
+  {"ref": 53964131, "status": "ERROR", "error_description": "A system error. Please try resubmitting to resolve the error and contact Kaggle Support if it persists.", "public_score": "", "description": "chain_k2_n250"},
+  {"ref": 53964109, "status": "ERROR", "error_description": "A system error. Please try resubmitting to resolve the error and contact Kaggle Support if it persists.", "public_score": "", "description": "linear_n400"},
+  {"ref": 53942563, "status": "COMPLETE", "error_description": "", "public_score": "18.000", "description": "suppress_once_n200"},
+  {"ref": 53800639, "status": "COMPLETE", "error_description": "Your submission notebook exceeded the allowed runtime. Review the competition's Code Requirements page for the time limits.", "public_score": "", "description": "static_c1_n600"},
+  {"ref": 53793274, "status": "COMPLETE", "error_description": "Your submission notebook exceeded the allowed runtime. Review the competition's Code Requirements page for the time limits.", "public_score": "", "description": ""},
+  {"ref": 53771967, "status": "COMPLETE", "error_description": "Your submission notebook exceeded the allowed runtime. Review the competition's Code Requirements page for the time limits.", "public_score": "", "description": ""},
+  {"ref": 53765988, "status": "COMPLETE", "error_description": "", "public_score": "55.800", "description": "replay-dense-exfiltration"}
+]
