@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "suppress_once_n200 validated gguf20x2 t4 strict-gated",
+  "error_description": "",
+  "first_seen_at": "2026-06-24T02:52:58+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-submission?scriptVersionId=329455974",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": 18.0,
+  "ref": 53942563,
+  "resolved_at": "2026-06-24T02:52:58+00:00",
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "COMPLETE",
+  "submitted_at": "2026-06-22T10:21:11.397Z",
+  "taxonomy": "complete_scored"
+}

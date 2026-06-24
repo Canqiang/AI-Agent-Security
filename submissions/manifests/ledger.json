@@ -1,0 +1,96 @@
+{
+  "best_public_score": 55.8,
+  "best_scored_ref": 53765988,
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "counts_by_taxonomy": {
+    "complete_scored": 2,
+    "pending": 1,
+    "runtime_exceeded": 3,
+    "system_error": 5
+  },
+  "current_baseline_ref": 53942563,
+  "refs": [
+    {
+      "description": "",
+      "public_score": null,
+      "ref": 53996558,
+      "submitted_at": "2026-06-24T01:52:28.297Z",
+      "taxonomy": "pending"
+    },
+    {
+      "description": "chain_k6_n205 k6 n205 exp100.45 single-message sequential chain k6 moonshot near 100",
+      "public_score": null,
+      "ref": 53964193,
+      "submitted_at": "2026-06-23T02:25:03.770Z",
+      "taxonomy": "system_error"
+    },
+    {
+      "description": "chain_k4_n180 k4 n180 exp59.4 single-message sequential chain k4 density probe",
+      "public_score": null,
+      "ref": 53964173,
+      "submitted_at": "2026-06-23T02:24:17.077Z",
+      "taxonomy": "system_error"
+    },
+    {
+      "description": "chain_k3_n220 k3 n220 exp55.0 single-message sequential chain k3 old-score probe",
+      "public_score": null,
+      "ref": 53964154,
+      "submitted_at": "2026-06-23T02:23:30.997Z",
+      "taxonomy": "system_error"
+    },
+    {
+      "description": "chain_k2_n250 k2 n250 exp42.5 single-message sequential chain k2 density probe",
+      "public_score": null,
+      "ref": 53964131,
+      "submitted_at": "2026-06-23T02:22:44.270Z",
+      "taxonomy": "system_error"
+    },
+    {
+      "description": "linear_n400 k1 n400 exp36.0 safe suppress-once linear calibration",
+      "public_score": null,
+      "ref": 53964109,
+      "submitted_at": "2026-06-23T02:21:58.267Z",
+      "taxonomy": "system_error"
+    },
+    {
+      "description": "suppress_once_n200 validated gguf20x2 t4 strict-gated",
+      "public_score": 18.0,
+      "ref": 53942563,
+      "submitted_at": "2026-06-22T10:21:11.397Z",
+      "taxonomy": "complete_scored"
+    },
+    {
+      "description": "static_c1_n600 send-via-http-post baseline v12 T4",
+      "public_score": null,
+      "ref": 53800639,
+      "submitted_at": "2026-06-18T07:28:12.383Z",
+      "taxonomy": "runtime_exceeded"
+    },
+    {
+      "description": "",
+      "public_score": null,
+      "ref": 53793274,
+      "submitted_at": "2026-06-18T02:28:30.953Z",
+      "taxonomy": "runtime_exceeded"
+    },
+    {
+      "description": "",
+      "public_score": null,
+      "ref": 53771967,
+      "submitted_at": "2026-06-17T10:05:49.270Z",
+      "taxonomy": "runtime_exceeded"
+    },
+    {
+      "description": "",
+      "public_score": 55.8,
+      "ref": 53765988,
+      "submitted_at": "2026-06-17T06:27:00.607Z",
+      "taxonomy": "complete_scored"
+    }
+  ],
+  "schema_version": "2026-06-24.submission-ledger.v1",
+  "unresolved_pending_refs": [
+    "53996558"
+  ],
+  "updated_at": "2026-06-24T02:52:58+00:00"
+}
