@@ -83,37 +83,6 @@ def status_text(status: Any) -> str:
     return str(object_get(data, "status") or object_get(status, "status") or "")
 
 
-def wait_for_kernel_complete(
-    api: Any,
-    *,
-    kernel: str,
-    poll_seconds: float,
-    timeout_seconds: float,
-) -> dict[str, Any]:
-    started = time.monotonic()
-    while True:
-        status = api.kernels_status(kernel)
-        normalized = to_jsonable(status)
-        text = status_text(status).lower()
-        if text == "complete":
-            return {"ok": True, "status": normalized, "waited_s": round(time.monotonic() - started, 3)}
-        if text in {"error", "failed", "cancelled"}:
-            return {
-                "ok": False,
-                "status": normalized,
-                "waited_s": round(time.monotonic() - started, 3),
-                "message": f"kernel ended with status={text}",
-            }
-        if time.monotonic() - started > timeout_seconds:
-            return {
-                "ok": False,
-                "status": normalized,
-                "waited_s": round(time.monotonic() - started, 3),
-                "message": f"timed out waiting for kernel completion; last status={text}",
-            }
-        time.sleep(poll_seconds)
-
-
 def submit_variant(
     api: Any,
     *,
@@ -123,6 +92,8 @@ def submit_variant(
     poll_seconds: float,
     timeout_seconds: float,
 ) -> dict[str, Any]:
+    import kernel_wait
+    import safe_submit as ss
     from push_kaggle_kernel import push_kernel
 
     manifest = load_json(folder / "variant-manifest.json")
@@ -130,43 +101,35 @@ def submit_variant(
         f"{manifest['name']} k{manifest['chain_k']} n{manifest['n_candidates']} "
         f"exp{manifest['expected_public_score']} {manifest['description']}"
     )
-    row: dict[str, Any] = {
-        "created_at": now_iso(),
-        "variant": manifest,
-        "message": message,
-        "folder": str(folder),
-    }
-    push_result = push_kernel(folder)
-    row["push"] = push_result
-    version = push_result.get("version_number")
-    if not push_result.get("ok") or version is None:
-        row["ok"] = False
-        row["error"] = "push failed or did not return version_number"
-        return row
-
-    wait_result = wait_for_kernel_complete(
-        api,
-        kernel=kernel,
-        poll_seconds=poll_seconds,
-        timeout_seconds=timeout_seconds,
+    # Variants are stacking/high-N: they MUST be explicitly allowed with a reason,
+    # and they go through the same gated path. By default the audit gate refuses
+    # them — which is the correct, safe behavior after the 2026-06-23 incident.
+    plan = ss.SubmitPlan(
+        allow_high_n=True, allow_stacking=True, allow_pending=False,
+        dry_run=False, reason=f"variant batch: {manifest['name']}",
     )
-    row["kernel_wait"] = wait_result
-    if not wait_result.get("ok"):
-        row["ok"] = False
-        row["error"] = "kernel did not complete before submit"
-        return row
+    source = folder / "attack.py" if (folder / "attack.py").exists() else REPO / "src" / "attack.py"
 
-    response = api.competition_submit_code(
-        file_name="submission.csv",
-        message=message,
-        competition=competition,
-        kernel=kernel,
-        kernel_version=int(version),
-        quiet=True,
+    def wait_fn(version: int) -> dict:
+        return kernel_wait.wait_for_fresh_complete(
+            poll_status=lambda: ss._status_text(api, kernel),
+            sleep=time.sleep, monotonic=time.monotonic,
+            min_floor_s=ss.MIN_FLOOR_SECONDS, timeout_s=timeout_seconds,
+            poll_seconds=poll_seconds,
+        )
+
+    deps = ss.SubmitDeps(
+        audit_fn=ss._real_audit(source, int(manifest["n_candidates"]), plan),
+        pending_fn=ss._real_pending(api, competition),
+        push_fn=lambda: push_kernel(folder),
+        wait_fn=wait_fn,
+        verify_fn=ss._real_verify(api, kernel),
+        submit_fn=lambda version: ss._to_jsonable_submit_from(api, competition, kernel, message, version),
+        record_fn=lambda: None,
     )
-    row["submit"] = to_jsonable(response)
-    row["ok"] = True
-    return row
+    result = ss.run_safe_submit(plan, deps)
+    return {"created_at": now_iso(), "variant": manifest, "message": message,
+            "folder": str(folder), "result": result, "ok": result["ok"]}
 
 
 def parse_variants(value: str) -> list[str]:

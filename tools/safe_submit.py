@@ -145,6 +145,17 @@ def _real_verify(api: Any, kernel: str) -> Callable[[], dict]:
     return run
 
 
+def _to_jsonable_submit_from(
+    api: Any, competition: str, kernel: str, message: str, version: int
+) -> dict:
+    from kaggle_status import object_get
+    response = api.competition_submit_code(
+        file_name="submission.csv", message=message, competition=competition,
+        kernel=kernel, kernel_version=int(version), quiet=True,
+    )
+    return {"ref": object_get(response, "ref", "id")}
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--kernel", default=DEFAULT_KERNEL)
@@ -182,6 +193,7 @@ def main() -> int:
         allow_high_n=args.allow_high_n, allow_stacking=args.allow_stacking,
         allow_pending=args.allow_pending, dry_run=args.dry_run, reason=args.reason,
     )
+    source = Path(args.source).resolve()
 
     def wait_fn(version: int) -> dict:
         if args.unsafe:
@@ -205,26 +217,19 @@ def main() -> int:
         pl.write_ledger(pl.DEFAULT_OUT_DIR, manifests, ledger)
 
     deps = SubmitDeps(
-        audit_fn=_real_audit(args.source, args.n, plan),
+        audit_fn=_real_audit(source, args.n, plan),
         pending_fn=_real_pending(api, args.competition),
         push_fn=lambda: push_kernel(args.kernel_folder),
         wait_fn=wait_fn,
         verify_fn=verify_fn,
-        submit_fn=lambda version: _to_jsonable_submit(api, args, version),
+        submit_fn=lambda version: _to_jsonable_submit_from(
+            api, args.competition, args.kernel, args.message, version
+        ),
         record_fn=record_fn,
     )
     result = run_safe_submit(plan, deps)
     print(json.dumps(result, indent=2, sort_keys=True))
     return 0 if result["ok"] else 2
-
-
-def _to_jsonable_submit(api: Any, args: argparse.Namespace, version: int) -> dict:
-    from kaggle_status import object_get
-    response = api.competition_submit_code(
-        file_name="submission.csv", message=args.message,
-        competition=args.competition, kernel=args.kernel, kernel_version=version, quiet=True,
-    )
-    return {"ref": object_get(response, "ref", "id")}
 
 
 if __name__ == "__main__":

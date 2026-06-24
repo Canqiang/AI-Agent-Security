@@ -78,8 +78,20 @@ bank-scored-lint: bank-suppress
 validation-notebook-check:
 	$(PYTHON) tools/check_validation_notebook.py notebooks/validation.ipynb
 
+.PHONY: test
+test:
+	$(PYTHON) -m pytest tools/tests -q
+
+.PHONY: ledger
+ledger:
+	$(PYTHON) tools/pull_submission_ledger.py --print
+
+.PHONY: safe-submit
+safe-submit:
+	$(PYTHON) tools/safe_submit.py --kernel-folder $(KERNEL_FOLDER) --message "$(MESSAGE)"
+
 .PHONY: ci
-ci: compile parity validation-notebook-check bank-lint bank-scored-lint
+ci: compile parity validation-notebook-check bank-lint bank-scored-lint test
 
 .PHONY: sdk-present
 sdk-present:

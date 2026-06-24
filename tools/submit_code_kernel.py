@@ -32,59 +32,13 @@ def to_jsonable(value: Any) -> Any:
     return str(value)
 
 
-def submit(
-    *,
-    competition: str,
-    kernel: str,
-    kernel_version: int,
-    message: str,
-    file_name: str,
-) -> dict[str, Any]:
-    from kaggle.api.kaggle_api_extended import KaggleApi
-
-    api = KaggleApi()
-    api.authenticate()
-    response = api.competition_submit_code(
-        file_name=file_name,
-        message=message,
-        competition=competition,
-        kernel=kernel,
-        kernel_version=kernel_version,
-        quiet=True,
-    )
-    return {
-        "ok": True,
-        "competition": competition,
-        "kernel": kernel,
-        "kernel_version": kernel_version,
-        "message": message,
-        "file_name": file_name,
-        "response": to_jsonable(response),
-    }
-
-
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--competition", default=DEFAULT_COMPETITION)
-    parser.add_argument("--kernel", required=True)
-    parser.add_argument("--kernel-version", type=int, required=True)
-    parser.add_argument("--message", required=True)
-    parser.add_argument("--file-name", default="submission.csv")
-    parser.add_argument("--out", type=Path)
-    args = parser.parse_args()
-
-    result = submit(
-        competition=args.competition,
-        kernel=args.kernel,
-        kernel_version=args.kernel_version,
-        message=args.message,
-        file_name=args.file_name,
-    )
-    if args.out:
-        args.out.parent.mkdir(parents=True, exist_ok=True)
-        args.out.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    print(json.dumps(result, indent=2, sort_keys=True))
-    return 0
+    import safe_submit  # noqa: F401 — confirms the module exists on PYTHONPATH
+    print(json.dumps({"ok": False,
+        "message": "submit_code_kernel is retired; use tools/safe_submit.py "
+                   "(or `make safe-submit`). Raw kernel-version submit is unsafe."},
+        indent=2))
+    return 2
 
 
 if __name__ == "__main__":
