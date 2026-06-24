@@ -178,6 +178,22 @@ def pending_status(pending_refs: list[str], allow_pending: bool) -> dict[str, An
     }
 
 
+def unresolved_scored_refs(ledger_path: Path, allow_pending: bool) -> dict[str, Any]:
+    if not Path(ledger_path).exists():
+        return {"ok": True, "unresolved": [], "message": None}
+    try:
+        ledger = json.loads(Path(ledger_path).read_text())
+    except Exception:
+        return {"ok": True, "unresolved": [], "message": None}
+    unresolved = [str(r) for r in (ledger.get("unresolved_pending_refs") or [])]
+    ok = allow_pending or not unresolved
+    return {
+        "ok": ok,
+        "unresolved": unresolved,
+        "message": None if ok else "unresolved pending scored ref(s) in ledger without --allow-pending",
+    }
+
+
 def parse_utc_datetime(value: Any) -> datetime | None:
     if not isinstance(value, str) or not value:
         return None
@@ -334,6 +350,9 @@ def collect_blockers(
     if bank.get("present") and not bank.get("ok"):
         blockers.append("candidate bank lint/eval failed")
 
+    if not manifest.get("ledger", {}).get("ok", True):
+        blockers.append(manifest["ledger"].get("message") or "unresolved pending scored ref(s) in ledger")
+
     return blockers
 
 
@@ -358,6 +377,8 @@ def strict_submit_blockers(manifest: dict[str, Any]) -> list[str]:
         blockers.append("official four-row submission.csv evidence missing or invalid")
     if manifest["candidate_bank"].get("present") and not manifest["candidate_bank"].get("ok"):
         blockers.append("candidate bank lint/eval failed")
+    if not manifest.get("ledger", {}).get("ok", True):
+        blockers.append(manifest["ledger"].get("message") or "unresolved pending scored ref(s) in ledger")
     return blockers
 
 
@@ -431,6 +452,9 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
             "pending": pending_status(pending_refs, args.allow_pending),
             "commit_run_submission_csv": read_submission_csv(args.submission_csv),
         },
+        "ledger": unresolved_scored_refs(
+            DEFAULT_OUT_DIR / "ledger.json", args.allow_pending
+        ),
         "references": {
             "design_docs": [
                 "docs/project-engineering-design.md",
