@@ -26,3 +26,6 @@ submissions/tmp/
 
 # Kaggle kernel push scaffolding
 kaggle_push/
+
+# Local Chinese doc mirrors (English versions are the committed source of truth)
+*.zh.md
