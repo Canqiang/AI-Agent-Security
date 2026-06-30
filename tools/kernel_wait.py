@@ -25,7 +25,11 @@ def wait_for_fresh_complete(
     start = monotonic()
     saw_noncomplete = False
     while True:
-        status = str(poll_status() or "").strip().lower()
+        raw = str(poll_status() or "").strip().lower()
+        # kaggle client >=1.8 returns the enum repr, e.g.
+        # "KernelWorkerStatus.COMPLETE"; keep only the token after the dot so the
+        # comparisons below match (mirrors kaggle_status.py's rsplit normalization).
+        status = raw.rsplit(".", 1)[-1]
         elapsed = monotonic() - start
         if status in _FAIL_STATES:
             return {"ok": False, "status": status, "waited_s": round(elapsed, 3),
