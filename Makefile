@@ -74,6 +74,14 @@ bank-lint: bank-sample
 bank-scored-lint: bank-suppress
 	$(PYTHON) tools/lint_candidate_bank.py $(SCORED_BANK) --scored --max-total-messages $(MAX_MESSAGES) --fail-on-warning
 
+.PHONY: sweep-bank
+sweep-bank:
+	$(PYTHON) research/candidate_families.py --families read_post_exfil,read_post_stack --n 30 --out research/results/high_raw_sweep.jsonl
+	$(PYTHON) research/candidate_families.py --families sentinel_stack,read_post_no_secret --n 12 --start 1000 --out research/results/high_raw_sweep.controls.jsonl
+	cat research/results/high_raw_sweep.controls.jsonl >> research/results/high_raw_sweep.jsonl
+	rm -f research/results/high_raw_sweep.controls.jsonl
+	$(PYTHON) tools/lint_candidate_bank.py research/results/high_raw_sweep.jsonl
+
 .PHONY: validation-notebook-check
 validation-notebook-check:
 	$(PYTHON) tools/check_validation_notebook.py notebooks/validation.ipynb

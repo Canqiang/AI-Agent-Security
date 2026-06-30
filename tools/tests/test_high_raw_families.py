@@ -69,3 +69,11 @@ def test_read_post_no_secret_reads_safe_named_file():
 def test_families_registered():
     for fam in ("read_post_exfil", "read_post_stack", "sentinel_stack", "read_post_no_secret"):
         assert fam in cf.FAMILIES and fam in cf.DEFAULT_FAMILIES
+
+
+def test_sweep_bank_postures_are_research():
+    # All high-raw families are research_only/rejected: read_post_exfil reads a
+    # guardrail-blocked secret file (expected_guardrail=deny), so it can never be in
+    # a --scored bank; its v3.1.2 scored viability is exactly what the sweep tests.
+    for fam in ("read_post_exfil", "read_post_stack", "sentinel_stack", "read_post_no_secret"):
+        assert cf.FAMILIES[fam](0).public_score_posture in {"research_only", "rejected"}
