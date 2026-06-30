@@ -362,18 +362,42 @@ git commit -m "feat(research): sentinel_stack control + read_post_no_secret neg-
 
 **Files:**
 - Modify: `research/candidate_families.py` (register in `FAMILIES` + `DEFAULT_FAMILIES`)
-- Test: `tools/tests/test_high_raw_families.py` (mock replay reality)
+- Test: `tools/tests/test_high_raw_families.py` (pure: registration); `tools/tests/test_high_raw_families_replay.py` (create; SDK-backed mock replay)
 
 **Interfaces:**
-- Consumes: `tools.compliant_agent.CompliantAgent`, `aicomp_sdk.evaluation.ops._replay_candidate_trace`, `aicomp_sdk.guardrails.optimal.Guardrail`, `aicomp_sdk.core.predicates.eval_predicates` (all SDK — guard the test).
+- Consumes: `tools.compliant_agent.CompliantAgent`, `aicomp_sdk.evaluation.ops._replay_candidate_trace`, `aicomp_sdk.guardrails.optimal.Guardrail`, `aicomp_sdk.core.predicates.eval_predicates` (all SDK — separate file with top-level guard).
 
-- [ ] **Step 1: Write the failing test** (append; SDK-guarded section)
+> **Why a separate file:** `pytest.importorskip` skips the ENTIRE module it is
+> called in, regardless of position. The pure family tests (Tasks 1-3, 5) must run
+> in SDK-free CI, so the SDK-backed replay tests live in their own module with the
+> guard at the top — never mixed into `test_high_raw_families.py`.
+
+- [ ] **Step 1: Write the failing test**
+
+Pure registration test — append to `tools/tests/test_high_raw_families.py`:
 
 ```python
-# --- SDK-backed reality checks (skip in SDK-free CI) ---
-pytest.importorskip("aicomp_sdk", exc_type=ImportError)
-sys.path.insert(0, str(REPO / "tools"))
+def test_families_registered():
+    for fam in ("read_post_exfil", "read_post_stack", "sentinel_stack", "read_post_no_secret"):
+        assert fam in cf.FAMILIES and fam in cf.DEFAULT_FAMILIES
+```
 
+SDK-backed replay tests — create `tools/tests/test_high_raw_families_replay.py`:
+
+```python
+from __future__ import annotations
+import sys
+from pathlib import Path
+
+import pytest
+
+REPO = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(REPO / "research"))
+sys.path.insert(0, str(REPO / "competition_files"))
+sys.path.insert(0, str(REPO / "tools"))
+pytest.importorskip("aicomp_sdk", exc_type=ImportError)
+
+import candidate_families as cf  # noqa: E402
 from aicomp_sdk.attacks.contracts import AttackCandidate  # noqa: E402
 from aicomp_sdk.evaluation.ops import _replay_candidate_trace, resolve_fixtures_dir  # noqa: E402
 from aicomp_sdk.core.predicates import eval_predicates  # noqa: E402
@@ -404,17 +428,12 @@ def test_read_post_no_secret_is_zero_exfil_locally():
     for i in range(len(cf.SAFE_FRAMINGS)):
         tr = _replay(cf.read_post_no_secret(i).messages[0])
         assert "EXFILTRATION" not in {p["predicate"] for p in eval_predicates(tr)}
-
-
-def test_families_registered():
-    for fam in ("read_post_exfil", "read_post_stack", "sentinel_stack", "read_post_no_secret"):
-        assert fam in cf.FAMILIES and fam in cf.DEFAULT_FAMILIES
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `python3 -m pytest tools/tests/test_high_raw_families.py::test_families_registered -q`
-Expected: FAIL (families not in `FAMILIES`)
+Run: `python3 -m pytest tools/tests/test_high_raw_families.py::test_families_registered tools/tests/test_high_raw_families_replay.py -q`
+Expected: `test_families_registered` FAILs (families not in `FAMILIES`); the replay tests fail or skip until Step 3.
 
 - [ ] **Step 3: Write minimal implementation**
 
