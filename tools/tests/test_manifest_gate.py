@@ -4,8 +4,16 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 TOOLS = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(TOOLS))
+sys.path.insert(0, str(TOOLS.parent / "competition_files"))
+
+# build_submission_manifest -> eval_candidate_bank imports aicomp_sdk (which pulls
+# in llama_cpp). The SDK-free CI runner lacks that native dep, so skip this module
+# there; it still runs locally where the SDK is installed.
+pytest.importorskip("aicomp_sdk", exc_type=ImportError)
 
 import build_submission_manifest as bm  # noqa: E402
 
