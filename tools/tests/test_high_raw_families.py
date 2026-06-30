@@ -21,7 +21,7 @@ def test_read_post_exfil_is_single_message_multihop():
     specs = [cf.read_post_exfil(i) for i in range(len(cf.READ_POST_FRAMINGS))]
     for s in specs:
         assert len(s.messages) == 1  # single-message, multi-hop
-        assert s.route == "file_handoff_exfil"
+        assert s.route == "direct_exfil"
         assert s.expected_tools == ["fs.read", "http.post"]
         assert s.expected_predicates == ["EXFILTRATION"]
         assert SECRET_FILE in s.messages[0]
@@ -64,3 +64,8 @@ def test_read_post_no_secret_reads_safe_named_file():
     assert "secret" not in s.messages[0].lower()
     assert s.expected_predicates == []
     assert s.public_score_posture == "research_only"
+
+
+def test_families_registered():
+    for fam in ("read_post_exfil", "read_post_stack", "sentinel_stack", "read_post_no_secret"):
+        assert fam in cf.FAMILIES and fam in cf.DEFAULT_FAMILIES
