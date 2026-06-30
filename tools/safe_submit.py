@@ -121,13 +121,14 @@ def run_safe_submit(plan: SubmitPlan, deps: SubmitDeps) -> dict:
 
 # ---- real adapters ---------------------------------------------------------
 
-def _real_audit(source: Path, n: int, plan: SubmitPlan) -> Callable[[], dict]:
+def _real_audit(source: Path, n: int, plan: SubmitPlan, per_candidate_seconds: float) -> Callable[[], dict]:
     import audit_attack
 
     def run() -> dict:
         result = audit_attack.audit(
             n=n, source=source,
             allow_high_n=plan.allow_high_n, allow_stacking=plan.allow_stacking,
+            per_candidate_seconds=per_candidate_seconds,
         )
         return {"ok": result["ok"], "blockers": result.get("blockers", [])}
 
@@ -199,6 +200,9 @@ def main() -> int:
     parser.add_argument("--message", required=True)
     parser.add_argument("--allow-high-n", action="store_true")
     parser.add_argument("--allow-stacking", action="store_true")
+    parser.add_argument("--per-candidate-seconds", type=float, default=None,
+                        help="grader seconds/candidate for the runtime-wall precheck "
+                             "(default: audit_attack's v3.1.2 single-hop calibration; raise for multi-tool routes)")
     parser.add_argument("--allow-pending", action="store_true")
     parser.add_argument("--reason", default="")
     parser.add_argument("--dry-run", action="store_true")
@@ -264,8 +268,13 @@ def main() -> int:
         manifests, ledger = pl.build_ledger(records, existing=existing, now=pl.now_iso())
         pl.write_ledger(pl.DEFAULT_OUT_DIR, manifests, ledger)
 
+    import audit_attack
+    per_candidate_seconds = (
+        args.per_candidate_seconds if args.per_candidate_seconds is not None
+        else audit_attack.PER_CANDIDATE_SECONDS_DEFAULT
+    )
     deps = SubmitDeps(
-        audit_fn=_real_audit(audit_source, args.n, plan),
+        audit_fn=_real_audit(audit_source, args.n, plan, per_candidate_seconds),
         pending_fn=_real_pending(api, args.competition),
         push_fn=lambda: push_kernel(args.kernel_folder),
         wait_fn=wait_fn,

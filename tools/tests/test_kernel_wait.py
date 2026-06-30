@@ -72,3 +72,23 @@ def test_timeout_when_never_completes():
     res = _run(["running"] * 100, min_floor_s=240, timeout_s=120, poll_seconds=30)
     assert res["ok"] is False
     assert res["reason"] == "timeout"
+
+
+def test_dotted_enum_complete_accepted():
+    # kaggle client 1.8.2 returns str(KernelWorkerStatus.COMPLETE) == "KernelWorkerStatus.COMPLETE";
+    # the wait must normalize the enum-prefixed token, not loop to timeout.
+    res = _run(
+        ["KernelWorkerStatus.RUNNING", "KernelWorkerStatus.COMPLETE"],
+        min_floor_s=240,
+        poll_seconds=30,
+    )
+    assert res["ok"] is True
+    assert res["status"] == "complete"
+    assert res["saw_noncomplete"] is True
+
+
+def test_dotted_enum_error_fails_fast():
+    res = _run(["KernelWorkerStatus.RUNNING", "KernelWorkerStatus.ERROR"], min_floor_s=240, poll_seconds=30)
+    assert res["ok"] is False
+    assert res["reason"] == "kernel_failed"
+    assert res["status"] == "error"

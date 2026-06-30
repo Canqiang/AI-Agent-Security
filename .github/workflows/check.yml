@@ -15,5 +15,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: Install test deps
+        run: python -m pip install --upgrade pip pytest
       - name: Run SDK-free checks
         run: make ci

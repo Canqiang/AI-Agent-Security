@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "suppress-once n200 4-row-placeholder: env-vs-code discriminator post-v3.1.2 (reproduce 18.0 ref53942563). wait-adapter enum-status bug fixed (kernel_wait token-normalize).",
+  "error_description": "",
+  "first_seen_at": "2026-06-30T04:38:30+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-submission?scriptVersionId=331446475",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": null,
+  "ref": 54189970,
+  "resolved_at": null,
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "SubmissionStatus.PENDING",
+  "submitted_at": "2026-06-30T04:38:29.097Z",
+  "taxonomy": "pending"
+}
