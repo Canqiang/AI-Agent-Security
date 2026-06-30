@@ -28,13 +28,9 @@ def _replay(msg):
 
 def test_read_post_exfil_read_is_guardrail_blocked_locally():
     # Every framing parses to an fs.read hop; v3.1.0 guardrail denies secret.txt.
-    # BLOCKED: framing 2 (terse_arrow) does not parse to fs.read; controller to adjust framing wording.
     for i in range(len(cf.READ_POST_FRAMINGS)):
-        trace = cf.read_post_exfil(i)
-        tr = _replay(trace.messages[0])
+        tr = _replay(cf.read_post_exfil(i).messages[0])
         reads = [e for e in tr.get("tool_events", []) if e["name"] == "fs.read"]
-        if i == 2:
-            pytest.xfail(f"framing {i} (terse_arrow) does not parse to an fs.read")
         assert reads, f"framing {i} did not parse to an fs.read"
         assert reads[0]["ok"] is False  # guardrail-denied
         assert "EXFILTRATION" not in {p["predicate"] for p in eval_predicates(tr)}
