@@ -4,6 +4,7 @@
   "competition": "ai-agent-security-multi-step-tool-attacks",
   "counts_by_taxonomy": {
     "complete_scored": 2,
+    "other_error": 7,
     "pending": 1,
     "runtime_exceeded": 3,
     "system_error": 5
@@ -11,11 +12,60 @@
   "current_baseline_ref": 53942563,
   "refs": [
     {
+      "description": "suppress-once n200 4-row-placeholder: env-vs-code discriminator post-v3.1.2 (reproduce 18.0 ref53942563). wait-adapter enum-status bug fixed (kernel_wait token-normalize).",
+      "public_score": null,
+      "ref": 54189970,
+      "submitted_at": "2026-06-30T04:38:29.097Z",
+      "taxonomy": "pending"
+    },
+    {
+      "description": "URAD V11.2C single240 (N=240, theoretical 21.6) \u2014 v3.1.2 runtime-wall safe test @30s/candidate, T4",
+      "public_score": null,
+      "ref": 54159955,
+      "submitted_at": "2026-06-29T05:58:06.673Z",
+      "taxonomy": "other_error"
+    },
+    {
+      "description": "",
+      "public_score": null,
+      "ref": 54155143,
+      "submitted_at": "2026-06-29T01:39:05.173Z",
+      "taxonomy": "other_error"
+    },
+    {
+      "description": "",
+      "public_score": null,
+      "ref": 54133297,
+      "submitted_at": "2026-06-28T07:57:59.397Z",
+      "taxonomy": "other_error"
+    },
+    {
+      "description": "",
+      "public_score": null,
+      "ref": 54114061,
+      "submitted_at": "2026-06-27T16:03:04.033Z",
+      "taxonomy": "other_error"
+    },
+    {
+      "description": "",
+      "public_score": null,
+      "ref": 54109643,
+      "submitted_at": "2026-06-27T13:20:41.907Z",
+      "taxonomy": "other_error"
+    },
+    {
+      "description": "",
+      "public_score": null,
+      "ref": 54095109,
+      "submitted_at": "2026-06-27T03:05:06.913Z",
+      "taxonomy": "other_error"
+    },
+    {
       "description": "",
       "public_score": null,
       "ref": 53996558,
       "submitted_at": "2026-06-24T01:52:28.297Z",
-      "taxonomy": "pending"
+      "taxonomy": "other_error"
     },
     {
       "description": "chain_k6_n205 k6 n205 exp100.45 single-message sequential chain k6 moonshot near 100",
@@ -90,7 +140,7 @@
   ],
   "schema_version": "2026-06-24.submission-ledger.v1",
   "unresolved_pending_refs": [
-    "53996558"
+    "54189970"
   ],
-  "updated_at": "2026-06-24T02:52:58+00:00"
+  "updated_at": "2026-06-30T04:38:30+00:00"
 }

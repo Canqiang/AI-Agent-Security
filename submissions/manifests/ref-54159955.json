@@ -1,18 +1,18 @@
 {
   "competition": "ai-agent-security-multi-step-tool-attacks",
-  "description": "",
+  "description": "URAD V11.2C single240 (N=240, theoretical 21.6) \u2014 v3.1.2 runtime-wall safe test @30s/candidate, T4",
   "error_description": "Your notebook generated a submission file with incorrect format. Some examples causing this are: wrong number of rows or columns, empty values, an incorrect data type for a value, or invalid submission values from what is expected.",
-  "first_seen_at": "2026-06-24T02:52:58+00:00",
+  "first_seen_at": "2026-06-30T04:38:30+00:00",
   "kernel": null,
-  "kernel_version_url": "/code/canqiang/aiagsec-submission?scriptVersionId=329640745",
+  "kernel_version_url": "/code/canqiang/ai-security-urad-code?scriptVersionId=331199168",
   "log_excerpt": null,
   "notes": "",
   "private_score": null,
   "public_score": null,
-  "ref": 53996558,
+  "ref": 54159955,
   "resolved_at": "2026-06-30T04:38:30+00:00",
   "schema_version": "2026-06-24.submission-ref.v1",
   "status": "COMPLETE",
-  "submitted_at": "2026-06-24T01:52:28.297Z",
+  "submitted_at": "2026-06-29T05:58:06.673Z",
   "taxonomy": "other_error"
 }
