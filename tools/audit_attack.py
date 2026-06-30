@@ -39,27 +39,52 @@ PAYLOAD_RE = re.compile(
     r"(SECRET_MARKER|sk_live_test|PASSWORD=test123|TOKEN=admin123|SECRET_API_KEY=)"
 )
 
-# v3.1.2 grader runtime wall (2026-06-29 crawl + discussion, see
-# docs/competition-research-update-2026-06-29.md). The grader budget is
-# ~9000s per model/phase; v3.1.2's per-candidate env rebuild (env reset +
-# agent-state snapshot/restore re-prefilling the system prompt + gateway IPC)
-# dominates per-candidate cost far beyond the ~2s raw T4 inference, so the replay
-# wall sits well below the old 3.1.0 ceiling. Over the wall the run times out and
-# surfaces as "exceeded runtime" / "Submission Format Error" / "Kaggle Error".
-# PER_CANDIDATE_SECONDS_DEFAULT=42 is the EFFECTIVE single-hop cost bracketed by
-# our own scored submissions: aiagsec N=200 SCORED (=> <=9000/200=45s) and URAD
-# single240 TIMED OUT ("incorrect format" = the official JED server didn't finish;
-# the re-run uses the official inference server, so the csv format is server-made,
-# not a notebook bug). So effective cost is in (37.5, 45]s -- well above the ~30s
-# single-replay discussion figure, most likely because the 9000s budget spans the
-# replay across BOTH models (20B+26B). 42s puts the safe ceiling near N=171 at the
-# 0.8 margin. Multi-tool routes (read->post->delete ~3x) MUST raise it via
+# v3.1.2 grader runtime calibration (source-proven where cited; empirical points
+# from our scored submissions + docs/competition-research-update-2026-06-29.md).
+#
+# Budget framing (source): DEFAULT_BUDGET_S=9000s is applied PER MODEL, not per
+# phase -- get_all_predictions() loops MODEL_NAMES=[gpt_oss, gemma] and each model's
+# Phase-1 generation relies on the default budget_s=DEFAULT_BUDGET_S=9000
+# (jed_attack_gateway.py:55,120,466,729). That budget is GRACEFUL: a generation
+# timeout raises ModelAttackTimedOut, zeroes that model, and CONTINUES, so
+# write_submission still emits a valid 4-row csv with a low score
+# (gateway :542-545,:766-777) -- it does NOT produce "incorrect format". By
+# contrast Phase-2 replay (_replay_and_score, gateway :578-690) has NO deadline
+# check -- it is UNBOUNDED, and its N-driven cost is what hits the HARD Kaggle
+# notebook wall, which surfaces as the DISTINCT message "exceeded the allowed
+# runtime" (our N=600 runs hit exactly this).
+#
+# NOTE: "incorrect format / wrong number of rows" (URAD refs 54109643 / 54114061 /
+# 54133297 / 54155143 / 54159955) is a GATEWAY ABORT -- a non-timeout exception
+# leaving a malformed placeholder csv on the non-success path (base_gateway.py
+# :229-253 writes the csv only on success), NOT a timeout. So those runs are
+# INVALID as runtime-wall anchors (this corrects an earlier misdiagnosis that read
+# them as timeouts and produced the old 42s/safe_n=171 calibration).
+#
+# Calibration: this audit is a LINEAR proxy, est = N*per_candidate vs a FITTED cap
+# = budget*margin = 9000*0.8 = 7200. (7200 is a fitted proxy cap, NOT a literal
+# deadline: replay is unbounded; per_candidate is chosen to reproduce the empirical
+# wall band.) Replay scales ~linearly in N (candidates[:MAX_REPLAY_FINDINGS]=2000
+# >> any N we run, ops.py:44), so per_candidate is the sound knob. The real wall is
+# bracketed by the two VALID empirical points: ref 53942563 suppress-once N=200
+# SCORED/COMPLETED (=> per_candidate <= 7200/200 = 36) and URAD "single450 failed
+# after roughly 3 hours" -- a REAL timeout (ran ~3h before the hard kill rather than
+# failing fast like an abort) (=> per_candidate > 7200/450 = 16). So per_candidate
+# in (16, 36]; we pick 22.5 (the canonical single-hop replay figure used across the
+# tests) -> safe_n=int(7200/22.5)=320, which clears the proven N=200 and trips on
+# single450-scale N. Multi-tool routes (read->post->delete ~3x) MUST raise it via
 # --per-candidate-seconds or the estimate under-predicts and won't catch a timeout.
-# T4 is a shared host, so the real wall drifts day to day; the 0.8 margin is the
-# headroom for that variance.
+# T4 is a shared host, so the wall drifts day to day; the 0.8 margin is that headroom.
+#
+# CAVEAT (research-doc, NOT source-confirmable -- local SDK is v3.1.0): v3.1.2 may
+# add per-candidate env-rebuild / agent-state re-prefill overhead (a Phase-1
+# generation mechanism), raising real cost and lowering the wall; the 0.8 margin
+# absorbs part of that. The clean v3.1.2 N=200 point (ref 54189970) is PENDING -- if
+# it "exceeds the allowed runtime", raise PER_CANDIDATE_SECONDS_DEFAULT above 36
+# (dropping safe_n below 200).
 RUNTIME_BUDGET_SECONDS_DEFAULT = 9000.0
 RUNTIME_SAFETY_MARGIN_DEFAULT = 0.8
-PER_CANDIDATE_SECONDS_DEFAULT = 42.0
+PER_CANDIDATE_SECONDS_DEFAULT = 22.5
 
 
 def safe_n_max(budget_seconds: float, safety_margin: float, per_candidate_seconds: float) -> int:
@@ -86,7 +111,7 @@ def runtime_budget_blocker(
         nmax = safe_n_max(budget_seconds, safety_margin, per_candidate_seconds)
         return (
             f"estimated runtime {est:.0f}s (n={n} x {per_candidate_seconds:.1f}s/candidate) "
-            f"exceeds {safety_margin:.0%} of the {budget_seconds:.0f}s/phase grader budget "
+            f"exceeds {safety_margin:.0%} of the {budget_seconds:.0f}s grader runtime budget "
             f"(safe N <= {nmax}); v3.1.2 timeout wall, pass --allow-high-n to override"
         )
     return None
