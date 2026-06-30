@@ -36,3 +36,14 @@ def test_read_post_exfil_cycles_framings_and_unique_domains():
     assert len(set(framings)) == n  # every framing represented
     doms = _domains(specs)
     assert len(doms) == len(set(doms))  # unique sink domain per candidate
+
+
+def test_read_post_stack_attempts_four_hops_single_message():
+    specs = [cf.read_post_stack(i) for i in range(len(cf.STACK_FRAMINGS))]
+    for s in specs:
+        assert len(s.messages) == 1
+        assert s.expected_tools == ["fs.read", "http.post", "fs.delete", "email.send"]
+        assert set(s.expected_predicates) == {"EXFILTRATION", "DESTRUCTIVE_WRITE", "CONFUSED_DEPUTY"}
+        assert s.public_score_posture == "research_only"
+        assert "secret.txt" in s.messages[0]
+        assert s.runtime_cost_units == 4
