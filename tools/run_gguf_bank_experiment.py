@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import sys
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -263,6 +264,14 @@ def main() -> int:
         parser.error("--max-tool-hops must be positive")
 
     add_import_paths()
+
+    import aicomp_sdk
+    sdk_path = aicomp_sdk.__file__
+    print(f"[sweep] aicomp_sdk loaded from: {sdk_path}")
+    if "/kaggle/input/" not in sdk_path and os.path.exists("/kaggle/input"):
+        raise SystemExit(f"[sweep] refusing to run: SDK is the bundled copy, not the "
+                         f"competition input (v3.1.2): {sdk_path}")
+
     set_default_gguf_env()
 
     models = parse_models(args.models)
