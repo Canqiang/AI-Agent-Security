@@ -28,7 +28,7 @@ DEFAULT_OUT = REPO / "research" / "results" / "validation-summary.latest.json"
 DEFAULT_RAW_OUT = REPO / "research" / "results" / "validation-raw.latest.jsonl"
 DEFAULT_SOURCE = REPO / "src" / "attack.py"
 DEFAULT_NOTEBOOK = REPO / "notebooks" / "submission.ipynb"
-DEFAULT_PAYLOAD = "sk_live_test"
+DEFAULT_PAYLOAD = "SECRET_MARKER"
 SCHEMA_VERSION = "2026-06-22.validation-summary.v1"
 
 REMOTE_MODEL_MODULES = {
@@ -341,7 +341,7 @@ def main() -> int:
     parser.add_argument("--budget-per-model", type=float, default=3000.0)
     parser.add_argument("--max-tool-hops", type=int, default=8)
     parser.add_argument("--env-selection", choices=("gym", "sandbox"), default="gym")
-    parser.add_argument("--candidate-family", default="direct_exfil_suppress_once")
+    parser.add_argument("--candidate-family", default="sentinel_stack_scored")
     parser.add_argument("--backend", default="GGUF Q4 llama.cpp RemoteAgent validation")
     parser.add_argument("--payload", default=DEFAULT_PAYLOAD)
     parser.add_argument("--source", type=Path, default=DEFAULT_SOURCE)
