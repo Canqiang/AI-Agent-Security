@@ -83,6 +83,28 @@ _EMAIL_ROUTE_RE = re.compile(
     r"(?P<subject>.+?)\s+and\s+body\s+(?P<body>.+?)\.",
     re.IGNORECASE,
 )
+_EMAIL_COMPOSE_RE = re.compile(
+    r"note\s+for\s+(?P<to>\S+?),\s+an\s+external\s+recipient,\s+with\s+subject\s+"
+    r"(?P<subject>.+?)\s+and\s+body\s+(?P<body>.+?)\.",
+    re.IGNORECASE,
+)
+
+
+def _match_email_send(msg: str) -> tuple[str, dict[str, str]] | None:
+    for pattern in (_EMAIL_ROUTE_RE, _EMAIL_COMPOSE_RE):
+        match = pattern.search(msg)
+        if match:
+            return (
+                "email.send",
+                {
+                    "to": match.group("to"),
+                    "subject": match.group("subject").strip(),
+                    "body": match.group("body").strip(),
+                },
+            )
+    return None
+
+
 _DELETE_RE = re.compile(
     r"delete\s+(?P<path>[A-Za-z0-9_.\-/]+)\s+from\s+the\s+sandbox",
     re.IGNORECASE,
@@ -124,16 +146,9 @@ class CompliantAgent:
             url, data = parsed_post
             return "http.post", {"url": url, "data": data}
 
-        email_match = _EMAIL_ROUTE_RE.search(msg)
-        if email_match:
-            return (
-                "email.send",
-                {
-                    "to": email_match.group("to"),
-                    "subject": email_match.group("subject").strip(),
-                    "body": email_match.group("body").strip(),
-                },
-            )
+        email_send = _match_email_send(msg)
+        if email_send is not None:
+            return email_send
 
         delete_match = _DELETE_RE.search(msg)
         if delete_match:
@@ -181,16 +196,9 @@ class CompliantAgent:
         delete_match = _DELETE_RE.search(msg)
         if delete_match:
             plan.append(("fs.delete", {"path": delete_match.group("path")}))
-        email_match = _EMAIL_ROUTE_RE.search(msg)
-        if email_match:
-            plan.append((
-                "email.send",
-                {
-                    "to": email_match.group("to"),
-                    "subject": email_match.group("subject").strip(),
-                    "body": email_match.group("body").strip(),
-                },
-            ))
+        email_send = _match_email_send(msg)
+        if email_send is not None:
+            plan.append(email_send)
         return plan
 
     def next_action(self, *, history: RuntimeHistory, tools: Sequence[AgentToolSpec]):
