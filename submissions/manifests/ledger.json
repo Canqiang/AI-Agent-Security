@@ -4,8 +4,8 @@
   "competition": "ai-agent-security-multi-step-tool-attacks",
   "counts_by_taxonomy": {
     "complete_scored": 2,
+    "complete_zero": 1,
     "other_error": 7,
-    "pending": 1,
     "runtime_exceeded": 3,
     "system_error": 5
   },
@@ -13,10 +13,10 @@
   "refs": [
     {
       "description": "suppress-once n200 4-row-placeholder: env-vs-code discriminator post-v3.1.2 (reproduce 18.0 ref53942563). wait-adapter enum-status bug fixed (kernel_wait token-normalize).",
-      "public_score": null,
+      "public_score": 0.0,
       "ref": 54189970,
       "submitted_at": "2026-06-30T04:38:29.097Z",
-      "taxonomy": "pending"
+      "taxonomy": "complete_zero"
     },
     {
       "description": "URAD V11.2C single240 (N=240, theoretical 21.6) \u2014 v3.1.2 runtime-wall safe test @30s/candidate, T4",
@@ -139,8 +139,6 @@
     }
   ],
   "schema_version": "2026-06-24.submission-ledger.v1",
-  "unresolved_pending_refs": [
-    "54189970"
-  ],
-  "updated_at": "2026-06-30T04:38:30+00:00"
+  "unresolved_pending_refs": [],
+  "updated_at": "2026-07-01T08:33:01+00:00"
 }
