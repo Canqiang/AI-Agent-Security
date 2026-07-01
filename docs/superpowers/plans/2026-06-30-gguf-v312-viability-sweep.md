@@ -475,16 +475,24 @@ git commit -m "feat(research): register high-raw families; pin local guardrail r
 - [ ] **Step 1: Write the failing test** (append; pure, no SDK)
 
 ```python
-def test_sweep_bank_postures_split_scored_vs_research():
-    # score_track families pass --scored; research_only/rejected do not.
-    assert cf.read_post_exfil(0).public_score_posture == "score_track"
-    for fam in ("read_post_stack", "sentinel_stack", "read_post_no_secret"):
+def test_sweep_bank_postures_are_research():
+    # All high-raw families are research_only/rejected: read_post_exfil reads a
+    # guardrail-blocked secret file (expected_guardrail=deny), so it can never be in
+    # a --scored bank; its v3.1.2 scored viability is exactly what the sweep tests.
+    for fam in ("read_post_exfil", "read_post_stack", "sentinel_stack", "read_post_no_secret"):
         assert cf.FAMILIES[fam](0).public_score_posture in {"research_only", "rejected"}
 ```
 
+> NOTE (resolved plan conflict, 2026-06-30): the lint contract makes
+> read_post_exfil `score_track`/`file_handoff_exfil` impossible (file_handoff needs
+> fs.write; `--scored` needs guardrail=allow + a marker). Resolution: read_post_exfil
+> is `public_score_posture="research_only"`, `route="direct_exfil"` (kept from the
+> implementer's lint-passing change). The `make sweep-bank` step uses plain lint
+> (not `--scored`), which all four research_only families pass.
+
 - [ ] **Step 2: Run test to verify it fails / passes**
 
-Run: `python3 -m pytest tools/tests/test_high_raw_families.py::test_sweep_bank_postures_split_scored_vs_research -q`
+Run: `python3 -m pytest tools/tests/test_high_raw_families.py::test_sweep_bank_postures_are_research -q`
 Expected: PASS if Tasks 1-3 set postures as written (this pins them against drift).
 
 - [ ] **Step 3: Add the Makefile target**
