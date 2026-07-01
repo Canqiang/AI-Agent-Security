@@ -23,6 +23,7 @@ EMBEDDED_FILES = (
     "src/attack.py",
     "tools/run_gguf_validation.py",
     "tools/run_gguf_bank_experiment.py",
+    "tools/analyze_gguf_sweep.py",
     "tools/validate_validation_summary.py",
     "tools/check_submission_notebook.py",
     "tools/lint_candidate_bank.py",
