@@ -162,6 +162,14 @@ validation-kernel:
 push-validation-kernel: validation-kernel
 	$(PYTHON) tools/push_kaggle_kernel.py kaggle_push/validation
 
+.PHONY: submit-readiness-kernel
+submit-readiness-kernel:
+	$(PYTHON) tools/prepare_submit_readiness_kernel.py
+
+.PHONY: push-submit-readiness-kernel
+push-submit-readiness-kernel: submit-readiness-kernel
+	$(PYTHON) tools/push_kaggle_kernel.py kaggle_push/submit_readiness
+
 .PHONY: manifest-smoke
 manifest-smoke: sdk-present bank-suppress
 	$(PYTHON) tools/build_submission_manifest.py \
