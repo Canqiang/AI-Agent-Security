@@ -86,6 +86,10 @@ sweep-bank:
 validation-notebook-check:
 	$(PYTHON) tools/check_validation_notebook.py notebooks/validation.ipynb
 
+.PHONY: submit-readiness-notebook-check
+submit-readiness-notebook-check:
+	$(PYTHON) tools/check_validation_notebook.py notebooks/submit_readiness.ipynb
+
 .PHONY: test
 test:
 	$(PYTHON) -m pytest tools/tests -q
@@ -99,7 +103,7 @@ safe-submit:
 	$(PYTHON) tools/safe_submit.py --kernel-folder $(KERNEL_FOLDER) --message "$(MESSAGE)"
 
 .PHONY: ci
-ci: compile parity validation-notebook-check bank-lint bank-scored-lint test
+ci: compile parity validation-notebook-check submit-readiness-notebook-check bank-lint bank-scored-lint test
 
 .PHONY: sdk-present
 sdk-present:
