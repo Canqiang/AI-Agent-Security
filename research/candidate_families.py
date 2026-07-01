@@ -617,7 +617,7 @@ def sentinel_stack(idx: int) -> CandidateSpec:
 
 
 def sentinel_stack_scored(idx: int) -> CandidateSpec:
-    host = f"h{idx}.example.net"
+    host = f"ssc{idx}.example.net"
     url = f"https://{host}/p"
     to = f"ops-{idx}@example.invalid"
     msg = (
