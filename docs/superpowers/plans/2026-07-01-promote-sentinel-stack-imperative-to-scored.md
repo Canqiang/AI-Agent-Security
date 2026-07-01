@@ -15,7 +15,7 @@
 - `sentinel_stack` (the existing 3-framing research family) is **not modified** — it stays `research_only` for its own A/B comparison role. The new function must be separate.
 - `N_CANDIDATES` in `src/attack.py` stays `200` — an explicit placeholder, not a newly-validated value (the 2-hop template's real per-candidate cost in the scored gateway is unmeasured; see the design spec §5).
 - No GGUF validation kernel push and no real scored submission — this plan stops at local validation gates only.
-- `make ci` must stay green at every commit.
+- `make ci` must stay green at every commit, **with one explicit, approved exception**: Task 2's commit deliberately leaves `make ci` red at the `parity` check (`tools/check_submission_notebook.py`), because `notebooks/submission.ipynb` (the file Kaggle's scored rerun actually executes — not `src/attack.py` directly) is not synced until Task 3, per `src/archive/README.md`'s documented policy that this sync follows audit/promotion evidence. Task 3 restores `make ci` to green. This gap was discovered mid-implementation (not part of the original design) and resolved by the user rather than the plan author unilaterally deciding to relax the constraint — see the plan's revision history in `.superpowers/sdd/progress.md` if this needs to be re-derived later.
 
 ---
 
@@ -290,28 +290,45 @@ class AttackAlgorithm(AttackAlgorithmBase):
 Run: `python3 -m pytest tools/tests/test_attack.py -q`
 Expected: PASS (3 tests).
 
-- [ ] **Step 5: Run the full suite**
+- [ ] **Step 5: Run the full suite (NOT `make ci` yet — see note)**
 
-Run: `python3 -m pytest tools/tests -q && make ci`
-Expected: all pass, `make ci` green.
+Run: `python3 -m pytest tools/tests -q`
+Expected: PASS (70/70).
+
+**Do NOT run `make ci` as a commit gate for this task.** `make ci` includes a
+`parity` check (`tools/check_submission_notebook.py`) comparing `src/attack.py`
+against a `%%writefile attack.py` cell baked into `notebooks/submission.ipynb`
+(the actual notebook Kaggle's scored rerun executes — not `src/attack.py`
+directly). That notebook still embeds the OLD template and is deliberately
+NOT touched by this task — per `src/archive/README.md`'s documented policy,
+syncing it is its own gated step that happens after audit/manifest evidence
+exists, which is exactly Task 3's job. Expect (and accept) `make ci` to fail
+at `parity` after this commit — Task 3 resolves it. This is a deliberate,
+approved exception to this plan's usual "`make ci` green at every commit"
+discipline, scoped to the gap between this commit and Task 3's.
 
 - [ ] **Step 6: Commit**
 
 ```bash
 git add src/attack.py tools/tests/test_attack.py
-git commit -m "feat(attack): promote sentinel_stack's imperative framing to the scored path"
+git commit -m "feat(attack): promote sentinel_stack's imperative framing to the scored path
+
+make ci will fail at the parity check until Task 3 syncs
+notebooks/submission.ipynb's embedded attack.py copy -- expected,
+see Task 3."
 ```
 
 ---
 
-### Task 3: Repoint the scored bank and run local validation gates
+### Task 3: Repoint the scored bank, sync the submission notebook, and run local validation gates
 
 **Files:**
 - Modify: `Makefile` (`bank-suppress` target)
+- Modify: `notebooks/submission.ipynb` (cell 2's `%%writefile attack.py` body, synced to the new `src/attack.py`)
 
 **Interfaces:**
 - Consumes: `sentinel_stack_scored` (Task 1), `src/attack.py`'s new template (Task 2).
-- Produces: no new code — this task repoints existing tooling and runs it to prove the whole local pipeline works end to end against the promoted family.
+- Produces: no new code — this task repoints existing tooling, syncs the submission notebook, and runs the whole local pipeline end to end to prove it against the promoted family, restoring `make ci` to green.
 
 - [ ] **Step 1: Repoint `bank-suppress`**
 
@@ -360,16 +377,75 @@ make manifest-smoke
 ```
 Expected: builds a throwaway pre-submit manifest referencing the new bank — confirm it completes without error.
 
-- [ ] **Step 3: Run the full suite one more time**
+- [ ] **Step 3: Sync `notebooks/submission.ipynb`'s embedded `attack.py` copy**
 
-Run: `python3 -m pytest tools/tests -q && make ci`
-Expected: all pass, `make ci` green.
+Task 2 deliberately left this notebook stale (it still embeds the OLD
+`sk_live_test` template in a `%%writefile /kaggle/working/attack.py` cell —
+`notebooks/submission.ipynb` cell index 2 — the file Kaggle's scored rerun
+actually executes, per `tools/check_submission_notebook.py`'s own
+docstring). Now that Step 2's audit/lint/eval/manifest evidence exists for
+the new family, sync the notebook to match, per `src/archive/README.md`'s
+documented policy that this sync follows audit/promotion evidence, not the
+other way around.
 
-- [ ] **Step 4: Commit**
+Create a one-off script at the repo root, run it, then delete it before
+committing (this task's commit step only `git add`s `Makefile` and
+`notebooks/submission.ipynb` by name, so this file is never staged
+regardless):
+
+```python
+# _sync_submission_notebook.py (repo root, deleted after use, never committed)
+import json
+from pathlib import Path
+
+nb_path = Path("notebooks/submission.ipynb")
+attack_path = Path("src/attack.py")
+
+nb = json.loads(nb_path.read_text())
+cell = nb["cells"][2]
+old_source = cell["source"] if isinstance(cell["source"], list) else [cell["source"]]
+writefile_line = old_source[0]
+assert writefile_line.startswith("%%writefile") and "attack.py" in writefile_line, writefile_line
+
+new_body = attack_path.read_text().splitlines(keepends=True)
+cell["source"] = [writefile_line] + new_body
+
+nb_path.write_text(json.dumps(nb, indent=1) + "\n")
+print("synced notebooks/submission.ipynb cell 2 to current src/attack.py")
+```
+
+Run: `python3 _sync_submission_notebook.py`
+Expected: prints `synced notebooks/submission.ipynb cell 2 to current src/attack.py`.
+
+Verify parity now holds:
 
 ```bash
-git add Makefile
-git commit -m "feat(attack): repoint the scored bank at sentinel_stack_scored"
+python tools/check_submission_notebook.py
+```
+Expected: `"ok": true`, `"match": true`, `notebook_attack_sha256` equal to `source_sha256`.
+
+Clean up the one-off script:
+
+```bash
+rm _sync_submission_notebook.py
+```
+
+- [ ] **Step 4: Run the full suite one more time**
+
+Run: `python3 -m pytest tools/tests -q && make ci`
+Expected: all pass, `make ci` green — including `parity`, now that the notebook is synced.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add Makefile notebooks/submission.ipynb
+git commit -m "feat(attack): repoint the scored bank at sentinel_stack_scored; sync submission notebook
+
+Syncs notebooks/submission.ipynb's embedded attack.py copy to the
+promoted sentinel_stack imperative template (src/attack.py, this
+plan's Task 2), following audit/manifest evidence per
+src/archive/README.md's documented policy. make ci is green again
+(parity restored)."
 ```
 
 ---
