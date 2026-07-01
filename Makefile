@@ -43,6 +43,8 @@ help:
 	@echo "  make validation-gguf run real GGUF validation and write summary"
 	@echo "  make validation-kernel build self-contained Kaggle validation kernel"
 	@echo "  make push-validation-kernel push validation kernel with explicit T4"
+	@echo "  make submit-readiness-kernel build self-contained Kaggle submit-readiness kernel"
+	@echo "  make push-submit-readiness-kernel push submit-readiness kernel with explicit T4"
 	@echo "  make experiment-suppress-ab run local suppressor A/B experiment"
 	@echo "  make experiment-gguf-suppress-ab run GGUF suppressor A/B experiment"
 

@@ -183,8 +183,10 @@ and hop cap produced it.
 
 ## 6. Validation Contract
 
-`notebooks/validation.ipynb` is the load-bearing research entry point and calls
-`tools/run_gguf_validation.py`. A result is promotable only if it records:
+`notebooks/submit_readiness.ipynb` is the load-bearing entry point for this
+contract and calls `tools/run_gguf_validation.py` (`notebooks/validation.ipynb`
+is a separate, research-only GGUF sweep notebook and is not part of this
+contract). A result is promotable only if it records:
 
 - exact source SHA and generated candidate manifest;
 - model backend and quantization, especially GGUF/Q4 path;

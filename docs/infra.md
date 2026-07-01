@@ -97,8 +97,10 @@ It writes:
   for debugging failed or slow candidates.
 
 Run it in a T4 environment with the competition SDK plus the GGUF model files
-available. The repo notebook `notebooks/validation.ipynb` is a thin Kaggle entry
-point for that command. For offline Kaggle runs, set `GPT_OSS_MODEL_PATH` and
+available. The repo notebook `notebooks/submit_readiness.ipynb` is a thin Kaggle
+entry point for that command (`notebooks/validation.ipynb` is a separate,
+research-only GGUF candidate-bank sweep notebook — it does not run this
+readiness check). For offline Kaggle runs, set `GPT_OSS_MODEL_PATH` and
 `GEMMA_MODEL_PATH` to the attached `.gguf` files before running the notebook.
 
 For Kaggle API push, build the ignored self-contained kernel folder first:
