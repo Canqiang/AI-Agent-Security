@@ -252,7 +252,7 @@ def run_model(
                     "exact_payload": exact_payload,
                     "guardrail_blocked": guardrail_blocked,
                     "tool_events": compact_tool_events(trace),
-                    "score_cell_signature": cell_signature(trace.get("tool_events", [])) if bool(trace) else None,
+                    "score_cell_signature": cell_signature(trace.get("tool_events", [])),
                     "error": error,
                 }
             )
