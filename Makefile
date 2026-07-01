@@ -62,7 +62,7 @@ bank-sample:
 
 .PHONY: bank-suppress
 bank-suppress:
-	$(PYTHON) research/candidate_families.py --families direct_exfil_suppress_once --n 5 --out $(SCORED_BANK)
+	$(PYTHON) research/candidate_families.py --families sentinel_stack_scored --n 5 --out $(SCORED_BANK)
 
 .PHONY: bank-suppress-ab
 bank-suppress-ab:
