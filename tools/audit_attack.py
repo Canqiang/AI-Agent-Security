@@ -196,6 +196,7 @@ def audit(
     per_candidate_seconds: float = PER_CANDIDATE_SECONDS_DEFAULT,
     budget_seconds: float = RUNTIME_BUDGET_SECONDS_DEFAULT,
     safety_margin: float = RUNTIME_SAFETY_MARGIN_DEFAULT,
+    allow_env_probe: bool = False,
 ) -> dict[str, Any]:
     source_text = source.read_text()
     tree = ast.parse(source_text, filename=str(source))
@@ -242,6 +243,26 @@ def audit(
         blockers.append(
             f"module default N_CANDIDATES={default_n} is stale/high-risk; ref 53800639 timed out"
         )
+
+    # Adaptive-fill templates ignore the forced audit n and size N at runtime up to
+    # HARD_N_CAP. That ceiling -- not the forced n -- is the real worst case for the
+    # runtime wall, so gate on it directly (name-agnostic; survives constant renames).
+    hard_n_cap = constants.get("HARD_N_CAP")
+    fallback_n = constants.get("FALLBACK_N")
+    if isinstance(hard_n_cap, int):
+        if hard_n_cap >= 600 and not allow_high_n:
+            blockers.append(
+                f"module HARD_N_CAP={hard_n_cap} >= 600 without --allow-high-n"
+            )
+        cap_runtime_blocker = runtime_budget_blocker(
+            n=hard_n_cap,
+            per_candidate_seconds=per_candidate_seconds,
+            budget_seconds=budget_seconds,
+            safety_margin=safety_margin,
+            allow_high_n=allow_high_n,
+        )
+        if cap_runtime_blocker:
+            blockers.append(f"HARD_N_CAP {cap_runtime_blocker}")
     if len(candidates) != n:
         blockers.append(f"requested {n} candidates but AttackAlgorithm returned {len(candidates)}")
     if any(len(chain) == 0 for chain in messages_by_candidate):
@@ -258,7 +279,16 @@ def audit(
     if runtime_blocker:
         blockers.append(runtime_blocker)
     if static_env_calls:
-        blockers.append(f"scored source contains env calls: {', '.join(static_env_calls)}")
+        # Adaptive per-model fill legitimately probes the live env (env.interact
+        # to time the current model, then sizes N). That is an intended pattern,
+        # not the old static-template leak, so gate it behind an explicit flag.
+        if allow_env_probe:
+            warnings.append(
+                f"scored source contains env calls: {', '.join(static_env_calls)} "
+                "(allowed: adaptive-fill probe)"
+            )
+        else:
+            blockers.append(f"scored source contains env calls: {', '.join(static_env_calls)}")
     if max_messages_per_candidate > 1 and not allow_stacking:
         blockers.append(
             f"max_messages_per_candidate={max_messages_per_candidate}; stacking/multi-turn is not promoted"
@@ -285,6 +315,8 @@ def audit(
         "source_sha256": sha256_file(source),
         "requested_n_candidates": n,
         "module_default_n_candidates": default_n,
+        "module_hard_n_cap": hard_n_cap,
+        "module_fallback_n": fallback_n,
         "total_candidates": len(candidates),
         "total_messages": len(all_messages),
         "max_messages_per_candidate": max_messages_per_candidate,
@@ -312,6 +344,8 @@ def main() -> int:
     parser.add_argument("--source", type=Path, default=SRC, help="attack.py path")
     parser.add_argument("--allow-high-n", action="store_true", help="do not fail for n >= 600")
     parser.add_argument("--allow-stacking", action="store_true", help="do not fail for >1 message/candidate")
+    parser.add_argument("--allow-env-probe", action="store_true",
+                        help="permit env.interact/probe calls (required by adaptive per-model fill)")
     parser.add_argument("--per-candidate-seconds", type=float, default=PER_CANDIDATE_SECONDS_DEFAULT,
                         help="estimated grader seconds per candidate (raise for multi-tool routes)")
     parser.add_argument("--runtime-budget-seconds", type=float, default=RUNTIME_BUDGET_SECONDS_DEFAULT,
@@ -328,6 +362,7 @@ def main() -> int:
         per_candidate_seconds=args.per_candidate_seconds,
         budget_seconds=args.runtime_budget_seconds,
         safety_margin=args.safety_margin,
+        allow_env_probe=args.allow_env_probe,
     )
     print(json.dumps(result, indent=2, sort_keys=True))
     return 0 if result["ok"] else 2

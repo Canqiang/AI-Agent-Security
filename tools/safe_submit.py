@@ -67,6 +67,7 @@ class SubmitPlan:
     allow_high_n: bool = False
     allow_stacking: bool = False
     allow_pending: bool = False
+    allow_env_probe: bool = False
     dry_run: bool = False
     reason: str = ""
 
@@ -129,6 +130,7 @@ def _real_audit(source: Path, n: int, plan: SubmitPlan, per_candidate_seconds: f
             n=n, source=source,
             allow_high_n=plan.allow_high_n, allow_stacking=plan.allow_stacking,
             per_candidate_seconds=per_candidate_seconds,
+            allow_env_probe=plan.allow_env_probe,
         )
         return {"ok": result["ok"], "blockers": result.get("blockers", [])}
 
@@ -200,6 +202,8 @@ def main() -> int:
     parser.add_argument("--message", required=True)
     parser.add_argument("--allow-high-n", action="store_true")
     parser.add_argument("--allow-stacking", action="store_true")
+    parser.add_argument("--allow-env-probe", action="store_true",
+                        help="permit env.interact/probe in the scored source (adaptive per-model fill)")
     parser.add_argument("--per-candidate-seconds", type=float, default=None,
                         help="grader seconds/candidate for the runtime-wall precheck "
                              "(default: audit_attack's v3.1.2 single-hop calibration; raise for multi-tool routes)")
@@ -213,7 +217,7 @@ def main() -> int:
     parser.add_argument("--poll-seconds", type=float, default=POLL_SECONDS)
     args = parser.parse_args()
 
-    if (args.allow_stacking or args.allow_high_n or args.allow_pending) and not args.reason:
+    if (args.allow_stacking or args.allow_high_n or args.allow_pending or args.allow_env_probe) and not args.reason:
         print(json.dumps({"ok": False, "stage": "args",
                           "blockers": ["override flags require --reason"]}, indent=2))
         return 2
@@ -227,7 +231,8 @@ def main() -> int:
     api.authenticate()
     plan = SubmitPlan(
         allow_high_n=args.allow_high_n, allow_stacking=args.allow_stacking,
-        allow_pending=args.allow_pending, dry_run=args.dry_run, reason=args.reason,
+        allow_pending=args.allow_pending, allow_env_probe=args.allow_env_probe,
+        dry_run=args.dry_run, reason=args.reason,
     )
 
     # Resolve the audited source from the kernel folder (what actually ships)

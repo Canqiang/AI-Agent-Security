@@ -6,11 +6,19 @@
     "complete_scored": 2,
     "complete_zero": 1,
     "other_error": 7,
+    "pending": 1,
     "runtime_exceeded": 3,
     "system_error": 5
   },
   "current_baseline_ref": 53942563,
   "refs": [
+    {
+      "description": "adaptive per-model fill: single-hop TOKEN=admin123, probe-sized N (margin 0.55, cap 1100)",
+      "public_score": null,
+      "ref": 54249769,
+      "submitted_at": "2026-07-02T02:14:05.320Z",
+      "taxonomy": "pending"
+    },
     {
       "description": "suppress-once n200 4-row-placeholder: env-vs-code discriminator post-v3.1.2 (reproduce 18.0 ref53942563). wait-adapter enum-status bug fixed (kernel_wait token-normalize).",
       "public_score": 0.0,
@@ -139,6 +147,8 @@
     }
   ],
   "schema_version": "2026-06-24.submission-ledger.v1",
-  "unresolved_pending_refs": [],
-  "updated_at": "2026-07-01T08:33:01+00:00"
+  "unresolved_pending_refs": [
+    "54249769"
+  ],
+  "updated_at": "2026-07-02T02:14:06+00:00"
 }

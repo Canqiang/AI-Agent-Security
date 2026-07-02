@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "adaptive per-model fill: single-hop TOKEN=admin123, probe-sized N (margin 0.55, cap 1100)",
+  "error_description": "",
+  "first_seen_at": "2026-07-02T02:14:06+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-submission?scriptVersionId=331967722",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": null,
+  "ref": 54249769,
+  "resolved_at": null,
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "SubmissionStatus.PENDING",
+  "submitted_at": "2026-07-02T02:14:05.320Z",
+  "taxonomy": "pending"
+}
