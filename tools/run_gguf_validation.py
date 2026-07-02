@@ -28,7 +28,7 @@ DEFAULT_OUT = REPO / "research" / "results" / "validation-summary.latest.json"
 DEFAULT_RAW_OUT = REPO / "research" / "results" / "validation-raw.latest.jsonl"
 DEFAULT_SOURCE = REPO / "src" / "attack.py"
 DEFAULT_NOTEBOOK = REPO / "notebooks" / "submission.ipynb"
-DEFAULT_PAYLOAD = "TOKEN=admin123"
+DEFAULT_PAYLOAD = "SECRET_MARKER"
 SCHEMA_VERSION = "2026-06-22.validation-summary.v1"
 
 REMOTE_MODEL_MODULES = {
