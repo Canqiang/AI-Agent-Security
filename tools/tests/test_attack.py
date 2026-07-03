@@ -47,12 +47,37 @@ def test_each_candidate_has_a_unique_clean_domain():
     urls = []
     for candidate in _candidates(HARD_N_CAP):
         msg = candidate.user_messages[0]
-        match = re.search(r"url=(http://\S+?),", msg)
+        match = re.search(r"url=(http://\S+?)\s", msg)
         assert match, msg
         url = match.group(1)
         urls.append(url)
         assert not any(w in url.lower() for w in _SENSITIVE_URL_WORDS), url
     assert len(set(urls)) == len(urls)
+
+
+def test_probe_excludes_cold_start_from_measured_latency():
+    # ref 54257709 regression: a naive probe that times its FIRST rep averages
+    # in the one-time model-load cost (observed 75-146s), drastically
+    # undersizing N (~95 instead of ~500-1100). The probe must pay that cost
+    # via a throwaway warm-up BEFORE timing starts.
+    calls = {"n": 0}
+
+    class ColdStartEnv:
+        def reset(self):
+            pass
+
+        def interact(self, _msg, max_tool_hops=8):
+            calls["n"] += 1
+            import time
+            time.sleep(0.25 if calls["n"] == 1 else 0.02)
+
+        def export_trace_dict(self):
+            return {"tool_events": [{"name": "http.post", "args": {"data": PAYLOAD}}]}
+
+    algo = AttackAlgorithm(config={})
+    lat = algo._probe_latency(ColdStartEnv(), 8)
+    assert lat is not None
+    assert lat < 0.15, f"cold-start leaked into measured latency: {lat}"
 
 
 def test_falls_back_to_fixed_n_when_env_not_probeable():
