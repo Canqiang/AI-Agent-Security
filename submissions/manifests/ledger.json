@@ -3,21 +3,35 @@
   "best_scored_ref": 53765988,
   "competition": "ai-agent-security-multi-step-tool-attacks",
   "counts_by_taxonomy": {
-    "complete_scored": 3,
+    "complete_scored": 4,
     "complete_zero": 2,
     "other_error": 7,
-    "pending": 1,
+    "pending": 2,
     "runtime_exceeded": 3,
     "system_error": 5
   },
-  "current_baseline_ref": 54257709,
+  "current_baseline_ref": 54283427,
   "refs": [
     {
-      "description": "fix cold-start probe pollution + adopt tested fast template; expect N gpt_oss~300-900 gemma~1100",
+      "description": "static N=1150 aggressive v2 #1-attempt (SECRET_MARKER)",
       "public_score": null,
+      "ref": 54293763,
+      "submitted_at": "2026-07-03T09:43:42.587Z",
+      "taxonomy": "pending"
+    },
+    {
+      "description": "static N=900 aggressive bank v1 (SECRET_MARKER, pre-evaluator-update)",
+      "public_score": null,
+      "ref": 54293686,
+      "submitted_at": "2026-07-03T09:40:23.337Z",
+      "taxonomy": "pending"
+    },
+    {
+      "description": "fix cold-start probe pollution + adopt tested fast template; expect N gpt_oss~300-900 gemma~1100",
+      "public_score": 32.415,
       "ref": 54283427,
       "submitted_at": "2026-07-03T02:22:04.043Z",
-      "taxonomy": "pending"
+      "taxonomy": "complete_scored"
     },
     {
       "description": "adaptive per-model fill: single-hop SECRET_MARKER, probe-sized N (margin 0.55, cap 1100)",
@@ -162,7 +176,8 @@
   ],
   "schema_version": "2026-06-24.submission-ledger.v1",
   "unresolved_pending_refs": [
-    "54283427"
+    "54293686",
+    "54293763"
   ],
-  "updated_at": "2026-07-03T02:22:05+00:00"
+  "updated_at": "2026-07-03T09:44:18+00:00"
 }

@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "static N=900 aggressive bank v1 (SECRET_MARKER, pre-evaluator-update)",
+  "error_description": "",
+  "first_seen_at": "2026-07-03T09:40:24+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-submission?scriptVersionId=332366284",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": null,
+  "ref": 54293686,
+  "resolved_at": null,
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "SubmissionStatus.PENDING",
+  "submitted_at": "2026-07-03T09:40:23.337Z",
+  "taxonomy": "pending"
+}

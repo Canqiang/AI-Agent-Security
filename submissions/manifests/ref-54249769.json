@@ -5,14 +5,14 @@
   "first_seen_at": "2026-07-02T02:14:06+00:00",
   "kernel": null,
   "kernel_version_url": "/code/canqiang/aiagsec-submission?scriptVersionId=331967722",
-  "log_excerpt": null,
+  "log_excerpt": "[{\"stream_name\":\"stderr\",\"time\":10.745260522,\"data\":\"/usr/local/lib/python3.12/dist-packages/nbformat/__init__.py:96: MissingIDFieldWarning: Cell is missing an id field, this will become a hard error in future nbformat versions. You may want to use `normalize()` on your notebooks before validations (available since nbformat 5.1.4). Previous versions of nbformat are fixing this issue transparently, and will stop doing so in the future.\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":10.745322414,\"data\":\"  validate(nb)\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":12.120244064,\"data\":\"0.00s - Debugger warning: It seems that frozen modules are being used, which may\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":12.120271893,\"data\":\"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":12.120277151,\"data\":\"0.00s - to python to disable frozen modules.\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":12.120281374,\"data\":\"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":12.904538386,\"data\":\"0.00s - Debugger warning: It seems that frozen modules are being used, which may\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":12.904570614,\"data\":\"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":12.904576044,\"data\":\"0.00s - to python to disable frozen modules.\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":12.904579891000001,\"data\":\"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\\n\"}\n,{\"stream_name\":\"stdout\",\"time\":14.275937465,\"data\":\"Writing /kaggle/working/attack.py\\n\"}\n,{\"stream_name\":\"stdout\",\"time\":18.378822047,\"data\":\"placeholder submission.csv written. Set Accelerator = GPU T4 x2, then Submit.\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":21.064525561,\"data\":\"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\\\|'\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":21.064554736,\"data\":\"  cells[i][c] = re.sub('\\\\\\\\\\\\\\\\\\\\|', '|', cell)\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":21.265158971,\"data\":\"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\\\_'\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":21.265188714,\"data\":\"  text = re.sub(r'_', '\\\\_', text) # Escape underscores in display text\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":22.152455438,\"data\":\"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":22.448762587,\"data\":\"[NbConvertApp] Writing 16991 bytes to __notebook__.ipynb\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":24.98653891,\"data\":\"[NbConvertApp] Converting notebook __notebook__.ipynb to html\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":25.810315078,\"data\":\"[NbConvertApp] Writing 307128 bytes to __results__.html\\n\"}\n]",
   "notes": "",
   "private_score": null,
-  "public_score": null,
+  "public_score": 0.0,
   "ref": 54249769,
-  "resolved_at": null,
+  "resolved_at": "2026-07-02T07:34:55+00:00",
   "schema_version": "2026-06-24.submission-ref.v1",
-  "status": "SubmissionStatus.PENDING",
+  "status": "COMPLETE",
   "submitted_at": "2026-07-02T02:14:05.320Z",
-  "taxonomy": "pending"
+  "taxonomy": "complete_zero"
 }
