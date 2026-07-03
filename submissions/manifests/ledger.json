@@ -3,21 +3,28 @@
   "best_scored_ref": 53765988,
   "competition": "ai-agent-security-multi-step-tool-attacks",
   "counts_by_taxonomy": {
-    "complete_scored": 2,
+    "complete_scored": 3,
     "complete_zero": 2,
     "other_error": 7,
     "pending": 1,
     "runtime_exceeded": 3,
     "system_error": 5
   },
-  "current_baseline_ref": 53942563,
+  "current_baseline_ref": 54257709,
   "refs": [
     {
-      "description": "adaptive per-model fill: single-hop SECRET_MARKER, probe-sized N (margin 0.55, cap 1100)",
+      "description": "fix cold-start probe pollution + adopt tested fast template; expect N gpt_oss~300-900 gemma~1100",
       "public_score": null,
+      "ref": 54283427,
+      "submitted_at": "2026-07-03T02:22:04.043Z",
+      "taxonomy": "pending"
+    },
+    {
+      "description": "adaptive per-model fill: single-hop SECRET_MARKER, probe-sized N (margin 0.55, cap 1100)",
+      "public_score": 8.1,
       "ref": 54257709,
       "submitted_at": "2026-07-02T07:34:54.637Z",
-      "taxonomy": "pending"
+      "taxonomy": "complete_scored"
     },
     {
       "description": "adaptive per-model fill: single-hop TOKEN=admin123, probe-sized N (margin 0.55, cap 1100)",
@@ -155,7 +162,7 @@
   ],
   "schema_version": "2026-06-24.submission-ledger.v1",
   "unresolved_pending_refs": [
-    "54257709"
+    "54283427"
   ],
-  "updated_at": "2026-07-02T07:34:55+00:00"
+  "updated_at": "2026-07-03T02:22:05+00:00"
 }
