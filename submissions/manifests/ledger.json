@@ -5,8 +5,7 @@
   "counts_by_taxonomy": {
     "complete_scored": 8,
     "complete_zero": 2,
-    "other_error": 10,
-    "pending": 1,
+    "other_error": 11,
     "runtime_exceeded": 3,
     "system_error": 5
   },
@@ -17,7 +16,7 @@
       "public_score": null,
       "ref": 54346768,
       "submitted_at": "2026-07-05T01:43:42.580Z",
-      "taxonomy": "pending"
+      "taxonomy": "other_error"
     },
     {
       "description": "step_m085_cap1700 k1 n1700 exp153.0 aggressive step, probing toward the Victor-Merckle-scale ceiling",
@@ -217,8 +216,6 @@
     }
   ],
   "schema_version": "2026-06-24.submission-ledger.v1",
-  "unresolved_pending_refs": [
-    "54346768"
-  ],
-  "updated_at": "2026-07-05T02:21:12+00:00"
+  "unresolved_pending_refs": [],
+  "updated_at": "2026-07-05T08:58:55+00:00"
 }

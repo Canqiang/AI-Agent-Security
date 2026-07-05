@@ -1,18 +1,18 @@
 {
   "competition": "ai-agent-security-multi-step-tool-attacks",
   "description": "moonshot_m095_cap1950 k1 n1950 exp175.5 moonshot: near-max margin, cap near the SDK's 2000-candidate ceiling",
-  "error_description": "",
+  "error_description": "Your notebook generated a submission file with incorrect format. Some examples causing this are: wrong number of rows or columns, empty values, an incorrect data type for a value, or invalid submission values from what is expected.",
   "first_seen_at": "2026-07-05T01:43:43+00:00",
   "kernel": null,
   "kernel_version_url": "/code/canqiang/aiagsec-submission?scriptVersionId=332785522",
-  "log_excerpt": null,
+  "log_excerpt": "[{\"stream_name\":\"stderr\",\"time\":5.623975521,\"data\":\"/usr/local/lib/python3.12/dist-packages/nbformat/__init__.py:96: MissingIDFieldWarning: Cell is missing an id field, this will become a hard error in future nbformat versions. You may want to use `normalize()` on your notebooks before validations (available since nbformat 5.1.4). Previous versions of nbformat are fixing this issue transparently, and will stop doing so in the future.\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":5.6240436240000005,\"data\":\"  validate(nb)\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":6.399649849,\"data\":\"0.00s - Debugger warning: It seems that frozen modules are being used, which may\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":6.399684246,\"data\":\"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":6.399687819,\"data\":\"0.00s - to python to disable frozen modules.\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":6.399690399,\"data\":\"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":6.985698434,\"data\":\"0.00s - Debugger warning: It seems that frozen modules are being used, which may\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":6.985732677,\"data\":\"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":6.985738646,\"data\":\"0.00s - to python to disable frozen modules.\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":6.98574319,\"data\":\"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\\n\"}\n,{\"stream_name\":\"stdout\",\"time\":8.015937887,\"data\":\"Writing /kaggle/working/attack.py\\n\"}\n,{\"stream_name\":\"stdout\",\"time\":10.401678431,\"data\":\"placeholder submission.csv written. Set Accelerator = GPU T4 x2, then Submit.\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":13.054272522,\"data\":\"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\\\|'\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":13.054307048,\"data\":\"  cells[i][c] = re.sub('\\\\\\\\\\\\\\\\\\\\|', '|', cell)\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":13.20151074,\"data\":\"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\\\_'\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":13.201539625,\"data\":\"  text = re.sub(r'_', '\\\\_', text) # Escape underscores in display text\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":13.90705123,\"data\":\"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":14.207433601,\"data\":\"[NbConvertApp] Writing 18370 bytes to __notebook__.ipynb\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":16.670841427,\"data\":\"[NbConvertApp] Converting notebook __notebook__.ipynb to html\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":17.472963125,\"data\":\"[NbConvertApp] Writing 308809 bytes to __results__.html\\n\"}\n]",
   "notes": "",
   "private_score": null,
   "public_score": null,
   "ref": 54346768,
-  "resolved_at": null,
+  "resolved_at": "2026-07-05T08:58:55+00:00",
   "schema_version": "2026-06-24.submission-ref.v1",
-  "status": "SubmissionStatus.PENDING",
+  "status": "COMPLETE",
   "submitted_at": "2026-07-05T01:43:42.580Z",
-  "taxonomy": "pending"
+  "taxonomy": "other_error"
 }
