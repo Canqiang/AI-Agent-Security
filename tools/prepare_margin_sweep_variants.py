@@ -44,29 +44,35 @@ class Rung:
 
 
 RUNGS: dict[str, Rung] = {
-    "canary_m030_cap600": Rung(
-        name="canary_m030_cap600",
-        budget_margin=0.30,
-        hard_n_cap=600,
-        description="conservative canary: confirms SECRET_MARKER still scores + today's contention, high land-confidence",
+    # 2026-07-05 BARE-template sweep. Margins chosen to reuse the verbose sweep's
+    # datapoints (0.55->30.57, 0.85->47.02, 0.95->format-error) so each rung is a
+    # direct bare-vs-verbose delta on the same-day grader. bare is ~1.35-2.3x
+    # faster per candidate, so N=budget*margin/lat is higher at every margin ->
+    # the whole margin->score curve shifts up; the moonshot tests whether bare's
+    # faster replay now LANDS where verbose format-errored (m0.95).
+    "bare_canary_m055_cap1100": Rung(
+        name="bare_canary_m055_cap1100",
+        budget_margin=0.55,
+        hard_n_cap=1100,
+        description="bare canary: validates gemma+bare fire on the real grader; verbose scored 30.57 here",
     ),
-    "step_m070_cap1400": Rung(
-        name="step_m070_cap1400",
-        budget_margin=0.70,
-        hard_n_cap=1400,
-        description="moderate step above the proven 07-03 config (margin 0.55/cap 1100)",
+    "bare_step_m072_cap1500": Rung(
+        name="bare_step_m072_cap1500",
+        budget_margin=0.72,
+        hard_n_cap=1500,
+        description="bare moderate step",
     ),
-    "step_m085_cap1700": Rung(
-        name="step_m085_cap1700",
+    "bare_step_m085_cap1800": Rung(
+        name="bare_step_m085_cap1800",
         budget_margin=0.85,
-        hard_n_cap=1700,
-        description="aggressive step, probing toward the Victor-Merckle-scale ceiling",
+        hard_n_cap=1800,
+        description="bare aggressive step; verbose scored 47.02 here -> bare should clear it, maybe >55.8",
     ),
-    "moonshot_m095_cap1950": Rung(
-        name="moonshot_m095_cap1950",
+    "bare_moonshot_m095_cap2000": Rung(
+        name="bare_moonshot_m095_cap2000",
         budget_margin=0.95,
-        hard_n_cap=1950,
-        description="moonshot: near-max margin, cap near the SDK's 2000-candidate ceiling",
+        hard_n_cap=2000,
+        description="bare moonshot: verbose FORMAT-ERRORED at m0.95; does bare's faster replay land here (>55.8)?",
     ),
 }
 

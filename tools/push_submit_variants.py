@@ -86,6 +86,7 @@ def submit_variant(
     kernel: str,
     poll_seconds: float,
     timeout_seconds: float,
+    allow_pending: bool = False,
 ) -> dict[str, Any]:
     import kernel_wait
     import safe_submit as ss
@@ -99,8 +100,11 @@ def submit_variant(
     # Variants are stacking/high-N: they MUST be explicitly allowed with a reason,
     # and they go through the same gated path. By default the audit gate refuses
     # them — which is the correct, safe behavior after the 2026-06-23 incident.
+    # allow_pending stacks concurrent scored reruns (needed to fire a full sweep
+    # in one day) — opt-in only, since concurrent reruns can worsen our own
+    # shared-backend contention.
     plan = ss.SubmitPlan(
-        allow_high_n=True, allow_stacking=True, allow_pending=False,
+        allow_high_n=True, allow_stacking=True, allow_pending=allow_pending,
         allow_env_probe=True, dry_run=False,
         reason=f"variant batch: {manifest['name']}",
     )
@@ -146,6 +150,8 @@ def main() -> int:
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
     parser.add_argument("--poll-seconds", type=float, default=30.0)
     parser.add_argument("--timeout-seconds", type=float, default=900.0)
+    parser.add_argument("--allow-pending", action="store_true",
+                        help="stack concurrent scored reruns (fire a full sweep in one day)")
     args = parser.parse_args()
 
     from kaggle.api.kaggle_api_extended import KaggleApi
@@ -162,6 +168,7 @@ def main() -> int:
             kernel=args.kernel,
             poll_seconds=args.poll_seconds,
             timeout_seconds=args.timeout_seconds,
+            allow_pending=args.allow_pending,
         )
         append_jsonl(args.out, row)
         rows.append(row)
