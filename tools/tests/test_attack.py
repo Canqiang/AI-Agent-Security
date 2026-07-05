@@ -13,7 +13,7 @@ pytest.importorskip("aicomp_sdk", exc_type=ImportError)
 
 from aicomp_sdk.attacks.contracts import AttackRunConfig  # noqa: E402
 
-from attack import AttackAlgorithm, HARD_N_CAP, PAYLOAD, STATIC_N  # noqa: E402
+from attack import AttackAlgorithm, FALLBACK_N, HARD_N_CAP, PAYLOAD  # noqa: E402
 
 _SENSITIVE_URL_WORDS = (
     "secret", "password", "token", "key", "credential",
@@ -55,24 +55,41 @@ def test_each_candidate_has_a_unique_clean_domain():
     assert len(set(urls)) == len(urls)
 
 
-def test_run_emits_static_n_without_touching_env():
-    # Static-N design: run() must ignore env entirely (no probe) and emit exactly
-    # STATIC_N. A RaisingEnv proves env is never touched -- any attribute access
-    # blows up -- so there is no cold-start / replay-drift probe surface left.
+def test_probe_excludes_cold_start_from_measured_latency():
+    # ref 54257709 regression: a naive probe that times its FIRST rep averages
+    # in the one-time model-load cost (observed 75-146s), drastically
+    # undersizing N (~95 instead of ~500-1100). The probe must pay that cost
+    # via a throwaway warm-up BEFORE timing starts.
+    calls = {"n": 0}
+
+    class ColdStartEnv:
+        def reset(self):
+            pass
+
+        def interact(self, _msg, max_tool_hops=8):
+            calls["n"] += 1
+            import time
+            time.sleep(0.25 if calls["n"] == 1 else 0.02)
+
+        def export_trace_dict(self):
+            return {"tool_events": [{"name": "http.post", "args": {"data": PAYLOAD}}]}
+
+    algo = AttackAlgorithm(config={})
+    lat = algo._probe_latency(ColdStartEnv(), 8)
+    assert lat is not None
+    assert lat < 0.15, f"cold-start leaked into measured latency: {lat}"
+
+
+def test_falls_back_to_fixed_n_when_env_not_probeable():
+    # No n_candidates override + a non-probeable env must not raise and must
+    # yield the fixed fallback count (audit / dry-run / gateway-probe-failure).
     class RaisingEnv:
         def __getattr__(self, _name):
             def _boom(*_a, **_k):
-                raise AssertionError("static run() must never touch env")
+                raise RuntimeError("env not probeable")
             return _boom
 
     for env in (None, RaisingEnv()):
         cands = AttackAlgorithm(config={}).run(env, AttackRunConfig())
-        assert len(cands) == STATIC_N
-
-
-def test_static_n_is_exposed_as_hard_n_cap_for_audit():
-    # tools/audit_attack.py reads HARD_N_CAP as the real worst-case N; for a
-    # static design the emitted N *is* the cap, and it must be within the SDK's
-    # 2000-candidate hard limit.
-    assert HARD_N_CAP == STATIC_N
-    assert 1 <= STATIC_N <= 2000
+        assert len(cands) == FALLBACK_N
+        assert FALLBACK_N < 600  # never trips audit's stale-default guard

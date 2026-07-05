@@ -101,7 +101,8 @@ def submit_variant(
     # them — which is the correct, safe behavior after the 2026-06-23 incident.
     plan = ss.SubmitPlan(
         allow_high_n=True, allow_stacking=True, allow_pending=False,
-        dry_run=False, reason=f"variant batch: {manifest['name']}",
+        allow_env_probe=True, dry_run=False,
+        reason=f"variant batch: {manifest['name']}",
     )
     source = ss.resolve_kernel_source(folder)
 
@@ -113,8 +114,13 @@ def submit_variant(
             poll_seconds=poll_seconds,
         )
 
+    import audit_attack
+
     deps = ss.SubmitDeps(
-        audit_fn=ss._real_audit(source, int(manifest["n_candidates"]), plan),
+        audit_fn=ss._real_audit(
+            source, int(manifest["n_candidates"]), plan,
+            audit_attack.PER_CANDIDATE_SECONDS_DEFAULT,
+        ),
         pending_fn=ss._real_pending(api, competition),
         push_fn=lambda: push_kernel(folder),
         wait_fn=wait_fn,
