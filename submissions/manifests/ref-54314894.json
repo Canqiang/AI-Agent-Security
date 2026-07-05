@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "canary_m030_cap600 k1 n600 exp54.0 conservative canary: confirms SECRET_MARKER still scores + today's contention, high land-confidence",
+  "error_description": "",
+  "first_seen_at": "2026-07-04T02:47:12+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-submission?scriptVersionId=332553721",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": 16.76,
+  "ref": 54314894,
+  "resolved_at": "2026-07-04T04:51:12+00:00",
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "COMPLETE",
+  "submitted_at": "2026-07-04T02:13:54.057Z",
+  "taxonomy": "complete_scored"
+}

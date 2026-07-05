@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "moonshot_m095_cap1950 k1 n1950 exp175.5 moonshot: near-max margin, cap near the SDK's 2000-candidate ceiling",
+  "error_description": "",
+  "first_seen_at": "2026-07-05T01:43:43+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-submission?scriptVersionId=332785522",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": null,
+  "ref": 54346768,
+  "resolved_at": null,
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "SubmissionStatus.PENDING",
+  "submitted_at": "2026-07-05T01:43:42.580Z",
+  "taxonomy": "pending"
+}

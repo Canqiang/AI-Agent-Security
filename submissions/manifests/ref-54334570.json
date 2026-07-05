@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "step_m085_cap1700 k1 n1700 exp153.0 aggressive step, probing toward the Victor-Merckle-scale ceiling",
+  "error_description": "",
+  "first_seen_at": "2026-07-04T15:16:00+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-submission?scriptVersionId=332698433",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": 47.02,
+  "ref": 54334570,
+  "resolved_at": "2026-07-05T01:38:42+00:00",
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "COMPLETE",
+  "submitted_at": "2026-07-04T15:16:00.023Z",
+  "taxonomy": "complete_scored"
+}

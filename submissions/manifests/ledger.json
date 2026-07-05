@@ -3,28 +3,70 @@
   "best_scored_ref": 53765988,
   "competition": "ai-agent-security-multi-step-tool-attacks",
   "counts_by_taxonomy": {
-    "complete_scored": 4,
+    "complete_scored": 8,
     "complete_zero": 2,
-    "other_error": 7,
-    "pending": 2,
+    "other_error": 10,
+    "pending": 1,
     "runtime_exceeded": 3,
     "system_error": 5
   },
-  "current_baseline_ref": 54283427,
+  "current_baseline_ref": 54334570,
   "refs": [
+    {
+      "description": "moonshot_m095_cap1950 k1 n1950 exp175.5 moonshot: near-max margin, cap near the SDK's 2000-candidate ceiling",
+      "public_score": null,
+      "ref": 54346768,
+      "submitted_at": "2026-07-05T01:43:42.580Z",
+      "taxonomy": "pending"
+    },
+    {
+      "description": "step_m085_cap1700 k1 n1700 exp153.0 aggressive step, probing toward the Victor-Merckle-scale ceiling",
+      "public_score": 47.02,
+      "ref": 54334570,
+      "submitted_at": "2026-07-04T15:16:00.023Z",
+      "taxonomy": "complete_scored"
+    },
+    {
+      "description": "step_m070_cap1400 k1 n1400 exp126.0 moderate step above the proven 07-03 config (margin 0.55/cap 1100)",
+      "public_score": 37.8,
+      "ref": 54325761,
+      "submitted_at": "2026-07-04T09:23:30.727Z",
+      "taxonomy": "complete_scored"
+    },
+    {
+      "description": "adaptive_m055_cap1100 proven repeat: same-day recheck of the 07-03 working config (ref 54283427, public 32.415) after reverting from the failed static-N ladder",
+      "public_score": 30.57,
+      "ref": 54318747,
+      "submitted_at": "2026-07-04T04:52:20.727Z",
+      "taxonomy": "complete_scored"
+    },
+    {
+      "description": "canary_m030_cap600 k1 n600 exp54.0 conservative canary: confirms SECRET_MARKER still scores + today's contention, high land-confidence",
+      "public_score": 16.76,
+      "ref": 54314894,
+      "submitted_at": "2026-07-04T02:13:54.057Z",
+      "taxonomy": "complete_scored"
+    },
+    {
+      "description": "static N=670 (mirror caoyupeng proven-667; after 900/1150 hit wall)",
+      "public_score": null,
+      "ref": 54298294,
+      "submitted_at": "2026-07-03T12:43:20.953Z",
+      "taxonomy": "other_error"
+    },
     {
       "description": "static N=1150 aggressive v2 #1-attempt (SECRET_MARKER)",
       "public_score": null,
       "ref": 54293763,
       "submitted_at": "2026-07-03T09:43:42.587Z",
-      "taxonomy": "pending"
+      "taxonomy": "other_error"
     },
     {
       "description": "static N=900 aggressive bank v1 (SECRET_MARKER, pre-evaluator-update)",
       "public_score": null,
       "ref": 54293686,
       "submitted_at": "2026-07-03T09:40:23.337Z",
-      "taxonomy": "pending"
+      "taxonomy": "other_error"
     },
     {
       "description": "fix cold-start probe pollution + adopt tested fast template; expect N gpt_oss~300-900 gemma~1100",
@@ -176,8 +218,7 @@
   ],
   "schema_version": "2026-06-24.submission-ledger.v1",
   "unresolved_pending_refs": [
-    "54293686",
-    "54293763"
+    "54346768"
   ],
-  "updated_at": "2026-07-03T09:44:18+00:00"
+  "updated_at": "2026-07-05T02:21:12+00:00"
 }

@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "adaptive_m055_cap1100 proven repeat: same-day recheck of the 07-03 working config (ref 54283427, public 32.415) after reverting from the failed static-N ladder",
+  "error_description": "",
+  "first_seen_at": "2026-07-04T04:52:21+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-submission?scriptVersionId=332581548",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": 30.57,
+  "ref": 54318747,
+  "resolved_at": "2026-07-04T09:22:38+00:00",
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "COMPLETE",
+  "submitted_at": "2026-07-04T04:52:20.727Z",
+  "taxonomy": "complete_scored"
+}
