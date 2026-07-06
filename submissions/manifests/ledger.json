@@ -3,14 +3,42 @@
   "best_scored_ref": 53765988,
   "competition": "ai-agent-security-multi-step-tool-attacks",
   "counts_by_taxonomy": {
-    "complete_scored": 8,
+    "complete_scored": 12,
     "complete_zero": 2,
     "other_error": 11,
     "runtime_exceeded": 3,
     "system_error": 5
   },
-  "current_baseline_ref": 54334570,
+  "current_baseline_ref": 54364773,
   "refs": [
+    {
+      "description": "bare_moonshot_m095_cap2000 k1 n2000 exp180.0 bare moonshot: verbose FORMAT-ERRORED at m0.95; does bare's faster replay land here (>55.8)?",
+      "public_score": 44.705,
+      "ref": 54364773,
+      "submitted_at": "2026-07-05T14:17:26.240Z",
+      "taxonomy": "complete_scored"
+    },
+    {
+      "description": "bare_step_m085_cap1800 k1 n1800 exp162.0 bare aggressive step; verbose scored 47.02 here -> bare should clear it, maybe >55.8",
+      "public_score": 41.015,
+      "ref": 54364751,
+      "submitted_at": "2026-07-05T14:16:43.840Z",
+      "taxonomy": "complete_scored"
+    },
+    {
+      "description": "bare_step_m072_cap1500 k1 n1500 exp135.0 bare moderate step",
+      "public_score": 34.595,
+      "ref": 54364732,
+      "submitted_at": "2026-07-05T14:16:04.400Z",
+      "taxonomy": "complete_scored"
+    },
+    {
+      "description": "bare_canary_m055_cap1100 k1 n1100 exp99.0 bare canary: validates gemma+bare fire on the real grader; verbose scored 30.57 here",
+      "public_score": 26.14,
+      "ref": 54364711,
+      "submitted_at": "2026-07-05T14:15:25.357Z",
+      "taxonomy": "complete_scored"
+    },
     {
       "description": "moonshot_m095_cap1950 k1 n1950 exp175.5 moonshot: near-max margin, cap near the SDK's 2000-candidate ceiling",
       "public_score": null,
@@ -217,5 +245,5 @@
   ],
   "schema_version": "2026-06-24.submission-ledger.v1",
   "unresolved_pending_refs": [],
-  "updated_at": "2026-07-05T08:58:55+00:00"
+  "updated_at": "2026-07-06T01:32:20+00:00"
 }

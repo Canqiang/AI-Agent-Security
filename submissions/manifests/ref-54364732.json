@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "bare_step_m072_cap1500 k1 n1500 exp135.0 bare moderate step",
+  "error_description": "",
+  "first_seen_at": "2026-07-06T01:32:20+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-submission?scriptVersionId=332904557",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": 34.595,
+  "ref": 54364732,
+  "resolved_at": "2026-07-06T01:32:20+00:00",
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "COMPLETE",
+  "submitted_at": "2026-07-05T14:16:04.400Z",
+  "taxonomy": "complete_scored"
+}

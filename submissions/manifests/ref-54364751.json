@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "bare_step_m085_cap1800 k1 n1800 exp162.0 bare aggressive step; verbose scored 47.02 here -> bare should clear it, maybe >55.8",
+  "error_description": "",
+  "first_seen_at": "2026-07-06T01:32:20+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-submission?scriptVersionId=332904677",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": 41.015,
+  "ref": 54364751,
+  "resolved_at": "2026-07-06T01:32:20+00:00",
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "COMPLETE",
+  "submitted_at": "2026-07-05T14:16:43.840Z",
+  "taxonomy": "complete_scored"
+}

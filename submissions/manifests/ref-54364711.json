@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "bare_canary_m055_cap1100 k1 n1100 exp99.0 bare canary: validates gemma+bare fire on the real grader; verbose scored 30.57 here",
+  "error_description": "",
+  "first_seen_at": "2026-07-06T01:32:20+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-submission?scriptVersionId=332904426",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": 26.14,
+  "ref": 54364711,
+  "resolved_at": "2026-07-06T01:32:20+00:00",
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "COMPLETE",
+  "submitted_at": "2026-07-05T14:15:25.357Z",
+  "taxonomy": "complete_scored"
+}
