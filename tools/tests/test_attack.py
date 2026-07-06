@@ -1,6 +1,7 @@
 from __future__ import annotations
 import re
 import sys
+import time
 from pathlib import Path
 
 import pytest
@@ -24,6 +25,8 @@ _SENSITIVE_URL_WORDS = (
 def _candidates(n: int):
     return AttackAlgorithm(config={"n_candidates": n}).run(None, AttackRunConfig())
 
+
+# --- static / audit override path (env-free, deterministic) ------------------
 
 def test_generates_requested_candidate_count():
     candidates = _candidates(5)
@@ -55,29 +58,83 @@ def test_each_candidate_has_a_unique_clean_domain():
     assert len(set(urls)) == len(urls)
 
 
-def test_probe_excludes_cold_start_from_measured_latency():
-    # ref 54257709 regression: a naive probe that times its FIRST rep averages
-    # in the one-time model-load cost (observed 75-146s), drastically
-    # undersizing N (~95 instead of ~500-1100). The probe must pay that cost
-    # via a throwaway warm-up BEFORE timing starts.
-    calls = {"n": 0}
+# --- live validation-fill path -----------------------------------------------
 
-    class ColdStartEnv:
-        def reset(self):
-            pass
+class FakeEnv:
+    """Deterministic env stub. interact() call #1 is the warm-up (sleeps `cold`);
+    real candidates are calls #2,#3,... (0-indexed real position = call_n - 2),
+    each sleeping `latency` and firing unless its real position is in
+    `misfire_idx`. Raises once call_n exceeds `die_after`."""
 
-        def interact(self, _msg, max_tool_hops=8):
-            calls["n"] += 1
-            import time
-            time.sleep(0.25 if calls["n"] == 1 else 0.02)
+    def __init__(self, latency=0.01, cold=0.30, misfire_idx=(), die_after=None):
+        self.latency = latency
+        self.cold = cold
+        self.misfire_idx = set(misfire_idx)
+        self.die_after = die_after
+        self.n = 0
+        self._fired = False
 
-        def export_trace_dict(self):
-            return {"tool_events": [{"name": "http.post", "args": {"data": PAYLOAD}}]}
+    def reset(self):
+        self._fired = False
 
-    algo = AttackAlgorithm(config={})
-    lat = algo._probe_latency(ColdStartEnv(), 8)
-    assert lat is not None
-    assert lat < 0.15, f"cold-start leaked into measured latency: {lat}"
+    def interact(self, msg, max_tool_hops=8):
+        self.n += 1
+        if self.die_after is not None and self.n > self.die_after:
+            raise RuntimeError("env died mid-fill")
+        time.sleep(self.cold if self.n == 1 else self.latency)
+        real_pos = self.n - 2  # -1 == warm-up
+        self._fired = real_pos >= 0 and real_pos not in self.misfire_idx
+
+    def export_trace_dict(self):
+        data = PAYLOAD if self._fired else "nope"
+        return {"tool_events": [{"name": "http.post", "args": {"data": data}}]}
+
+
+# small, test-scale fill knobs injected via the algorithm config (module
+# defaults MARGIN_S/SLOWEST0/FILL_BUDGET_FRAC are sized for the real 9000s budget)
+_FAST_KNOBS = {"margin_s": 0.15, "slowest0": 0.02, "fill_budget_frac": 1.0}
+
+
+def _run(env, algo_cfg=None, **run_cfg):
+    config = AttackRunConfig(**run_cfg)
+    ac = dict(_FAST_KNOBS)
+    if algo_cfg:
+        ac.update(algo_cfg)
+    return AttackAlgorithm(config=ac).run(env, config)
+
+
+def test_fill_returns_only_validated_firing_candidates():
+    # Real candidates 1 and 3 misfire; a generous budget runs well past them.
+    # Every RETURNED candidate must be one that fired.
+    env = FakeEnv(latency=0.01, cold=0.05, misfire_idx=(1, 3))
+    cands = _run(env, time_budget_s=2.0, max_tool_hops=4)
+    assert len(cands) >= 5
+    assert len(cands) < env.n  # kept (fired only) < total attempts (warm-up + misfires)
+
+
+def test_fill_stops_before_deadline_cushion():
+    # ~0.10s per candidate + a tiny budget: the loop must stop EARLY
+    # (deadline-aware), never running to HARD_N_CAP.
+    env = FakeEnv(latency=0.10, cold=0.05)
+    cands = _run(env, time_budget_s=1.5, max_tool_hops=4)
+    assert 0 < len(cands) < HARD_N_CAP
+
+
+def test_warmup_excludes_cold_start_from_stopping_the_loop():
+    # ref 54257709 regression, live-fill form: a 0.30s cold first interact must
+    # NOT set `slowest` and prematurely end the loop. With warm-up, the loop
+    # sizes to the ~0.01s warm latency and fills many candidates.
+    env = FakeEnv(latency=0.01, cold=0.30)
+    cands = _run(env, time_budget_s=2.0, max_tool_hops=4)
+    assert len(cands) >= 20, f"cold-start truncated the fill: {len(cands)}"
+
+
+def test_fill_keeps_candidates_when_env_dies_midway():
+    # env raises after 6 interacts (1 warm-up + 5 real). Those 5 fired candidates
+    # must be RETURNED, not discarded to the fallback.
+    env = FakeEnv(latency=0.01, cold=0.02, die_after=6)
+    cands = _run(env, time_budget_s=5.0, max_tool_hops=4)
+    assert 1 <= len(cands) <= 5
 
 
 def test_falls_back_to_fixed_n_when_env_not_probeable():
