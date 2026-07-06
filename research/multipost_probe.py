@@ -196,7 +196,13 @@ def run_kaggle_probe(
                 agent_factory=factory,
                 agent_label=model,
                 budget_s=budget_s,
-                attack_run_config=AttackRunConfig(max_tool_hops=max(int(hops), int(k))),
+                # BOTH must be set: passing an attack_run_config REPLACES the
+                # budget-plan default, and AttackRunConfig.time_budget_s defaults to
+                # 30.0s -- omitting it clobbers `budget_s` to 30s -> instant timeout.
+                attack_run_config=AttackRunConfig(
+                    time_budget_s=float(budget_s),
+                    max_tool_hops=max(int(hops), int(k)),
+                ),
                 attack_config={"k": int(k), "reps": int(reps)},
             )
             out[model][int(k)] = kbar_from_findings(res.attack.findings, reps)
