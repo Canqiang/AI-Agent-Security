@@ -27,5 +27,8 @@ submissions/tmp/
 # Kaggle kernel push scaffolding
 kaggle_push/
 
+# Talk / presentation materials (local only, not committed)
+talks/
+
 # Local Chinese doc mirrors (English versions are the committed source of truth)
 *.zh.md
