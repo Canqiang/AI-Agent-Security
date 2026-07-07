@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "fill_iso_m60_f100 k1 n2000 expNone OFAT isolation: proven-safe margin=60, push fill_frac to max -- isolates whether frac=1.0 alone (not margin=40) caused the fill_push_m40_f100 format-error",
+  "error_description": "",
+  "first_seen_at": "2026-07-07T14:51:51+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-submission?scriptVersionId=333381880",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": null,
+  "ref": 54432248,
+  "resolved_at": null,
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "SubmissionStatus.PENDING",
+  "submitted_at": "2026-07-07T14:38:54.207Z",
+  "taxonomy": "pending"
+}

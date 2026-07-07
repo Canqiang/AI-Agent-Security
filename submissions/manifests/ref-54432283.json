@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "fill_diag_m50_f095 k1 n2000 expNone diagonal hedge between proven-safe m60/f0.90 (58.755) and the risky m45/f0.95(pending)+m40/f1.00(failed) region; same frac as the pending m45 rung but more margin cushion",
+  "error_description": "",
+  "first_seen_at": "2026-07-07T14:51:51+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-submission?scriptVersionId=333382152",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": null,
+  "ref": 54432283,
+  "resolved_at": null,
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "SubmissionStatus.PENDING",
+  "submitted_at": "2026-07-07T14:40:12.283Z",
+  "taxonomy": "pending"
+}

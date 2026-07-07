@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "fill_canary_m90_f085 k1 n2000 expNone canary == engine default; confirm live-fill LANDS (no format-error) and > 47",
+  "error_description": "",
+  "first_seen_at": "2026-07-07T14:51:51+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-submission?scriptVersionId=333006023",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": 53.1,
+  "ref": 54379893,
+  "resolved_at": "2026-07-07T14:51:51+00:00",
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "COMPLETE",
+  "submitted_at": "2026-07-06T02:16:20.037Z",
+  "taxonomy": "complete_scored"
+}
