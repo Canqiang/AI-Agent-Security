@@ -49,6 +49,20 @@ the budget): a replay-drift timeout zeroes a whole model row and halves the mean
 so we stop filling early on purpose. MARGIN_S is the primary tuning knob --
 yusuke laddered it 50->45->44->42->37, each tighter margin gaining points up to
 the whole-submission-0 timeout edge.
+
+Per-model adaptive margin (2026-07-09): MARGIN_S used to be applied as one flat
+floor shared by both scored models regardless of how fast either one actually
+runs. `run()` never learns which model it's talking to -- the only per-model
+signal available is the OBSERVED `slowest` latency the loop itself measures --
+so a genuinely fast model's own `slowest * SLOWEST_MULT` sits far below any
+MARGIN_S value we've proven safe, meaning its stop condition was governed
+entirely by the flat floor, wasting fill capacity it could safely use.
+`_adaptive_margin()` replaces the flat floor with one that scales with the
+observed slowest: small while slowest is small, ramping up via MARGIN_SLOWEST_COEF
+and capped at MARGIN_S once slowest is large enough. A model that shows itself to
+be genuinely slow gets MARGIN_S exactly -- identical protection to the old
+flat-margin design -- so this can only reclaim cushion for a fast model, never
+weaken protection for a slow one.
 """
 
 from __future__ import annotations
@@ -81,6 +95,17 @@ MARGIN_S = 90.0               # seconds of headroom left before the per-model de
 SLOWEST0 = 25.0               # seed for the slowest-candidate estimate (a cushion floor
                               # for fast models; the loop tracks the real max upward)
 SLOWEST_MULT = 1.35           # multiply the observed slowest latency for the cushion
+MARGIN_FLOOR_MIN = 15.0       # adaptive margin floor as observed slowest -> 0 (2026-07-09:
+                              # MARGIN_S used to be one flat floor shared by both scored
+                              # models; a fast model's own slowest*SLOWEST_MULT is far
+                              # below any MARGIN_S value proven safe, so its stop was
+                              # governed entirely by the flat floor, wasting fill capacity
+                              # it could safely use -- see _adaptive_margin())
+MARGIN_SLOWEST_COEF = 2.5     # ramps the adaptive margin up toward MARGIN_S as observed
+                              # slowest grows; MARGIN_S is reached once slowest >=
+                              # (MARGIN_S - MARGIN_FLOOR_MIN) / MARGIN_SLOWEST_COEF (~30s
+                              # at the module defaults) -- a model at or above that gets
+                              # IDENTICAL protection to the old flat-margin design
 FILL_BUDGET_FRAC = 0.85       # fraction of the per-model budget the fill may consume
 HARD_N_CAP = 2000             # absolute ceiling (== SDK MAX_REPLAY_FINDINGS)
 FALLBACK_N = 300              # emitted when the env cannot be probed (< 600 so
@@ -112,6 +137,16 @@ def _url(i: int) -> str:
 
 def _msg(i: int) -> str:
     return TEMPLATE.format(url=_url(i), payload=PAYLOAD)
+
+
+def _adaptive_margin(slowest: float, margin_s: float, floor_min: float, slowest_coef: float) -> float:
+    """Interpolates from `floor_min` (as `slowest` -> 0) up to `margin_s` (capped),
+    scaling linearly with the OBSERVED slowest -- the only per-model signal `run()`
+    ever has, since model identity is never available. A model whose slowest is
+    large enough gets `margin_s` exactly, identical to the old flat-margin design,
+    so this can only shrink cushion for a genuinely fast model, never grow it past
+    the already-proven-safe cap."""
+    return min(margin_s, floor_min + slowest * slowest_coef)
 
 
 def _emit(n: int) -> list[AttackCandidate]:
@@ -148,7 +183,9 @@ class AttackAlgorithm(AttackAlgorithmBase):
         ones that fire, until the deadline cushion. Returns the fired candidates
         (possibly empty if the env is not probeable)."""
         hops = max(1, min(int(max_hops), 8))
-        margin = float(self.config.get("margin_s", MARGIN_S))
+        margin_s = float(self.config.get("margin_s", MARGIN_S))
+        floor_min = float(self.config.get("floor_min", MARGIN_FLOOR_MIN))
+        slowest_coef = float(self.config.get("slowest_coef", MARGIN_SLOWEST_COEF))
         slowest = float(self.config.get("slowest0", SLOWEST0))
         frac = float(self.config.get("fill_budget_frac", FILL_BUDGET_FRAC))
         cap = int(self.config.get("hard_n_cap", HARD_N_CAP))
@@ -167,6 +204,7 @@ class AttackAlgorithm(AttackAlgorithmBase):
         cands: list[AttackCandidate] = []
         idx = 0
         while len(cands) < cap:
+            margin = _adaptive_margin(slowest, margin_s, floor_min, slowest_coef)
             if time.monotonic() + max(slowest * SLOWEST_MULT, margin) >= deadline:
                 break
             msg = _msg(idx)

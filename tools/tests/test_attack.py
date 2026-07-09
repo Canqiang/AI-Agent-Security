@@ -14,7 +14,13 @@ pytest.importorskip("aicomp_sdk", exc_type=ImportError)
 
 from aicomp_sdk.attacks.contracts import AttackRunConfig  # noqa: E402
 
-from attack import AttackAlgorithm, FALLBACK_N, HARD_N_CAP, PAYLOAD  # noqa: E402
+from attack import (  # noqa: E402
+    AttackAlgorithm,
+    FALLBACK_N,
+    HARD_N_CAP,
+    PAYLOAD,
+    _adaptive_margin,
+)
 
 _SENSITIVE_URL_WORDS = (
     "secret", "password", "token", "key", "credential",
@@ -159,6 +165,48 @@ def test_fill_keeps_candidates_when_env_dies_midway():
     env = FakeEnv(latency=0.01, cold=0.02, die_after=6)
     cands = _run(env, time_budget_s=5.0, max_tool_hops=4)
     assert 1 <= len(cands) <= 5
+
+
+# --- per-model adaptive margin floor (2026-07-09) ----------------------------
+# MARGIN_S used to be one flat constant shared by both scored models. A fast
+# model's own `slowest * SLOWEST_MULT` is far below any MARGIN_S value we've
+# proven safe (45-90s), so its stop condition was governed entirely by the flat
+# floor -- wasting fill capacity a fast model could safely use. `_adaptive_margin`
+# replaces the flat floor with one that scales with the OBSERVED slowest (no
+# model identity available, so it can only fall out of measured timing): small
+# when slowest is small, capped at margin_s (the proven-safe value) once slowest
+# is large enough -- so a genuinely slow model gets IDENTICAL protection to the
+# old flat-margin design, and only a genuinely fast model's cushion shrinks.
+
+def test_adaptive_margin_is_the_floor_when_slowest_is_zero():
+    assert _adaptive_margin(0.0, margin_s=47.0, floor_min=15.0, slowest_coef=2.5) == 15.0
+
+
+def test_adaptive_margin_interpolates_linearly_below_the_cap():
+    # 15.0 + 5.0 * 2.5 == 27.5, below the 47.0 cap.
+    assert _adaptive_margin(5.0, margin_s=47.0, floor_min=15.0, slowest_coef=2.5) == 27.5
+
+
+def test_adaptive_margin_never_exceeds_margin_s():
+    # 15.0 + 100.0 * 2.5 == 265.0, way past the cap -- must clamp to margin_s, so
+    # a genuinely slow model is never LESS protected than the flat-margin design.
+    assert _adaptive_margin(100.0, margin_s=47.0, floor_min=15.0, slowest_coef=2.5) == 47.0
+
+
+def test_fill_reclaims_cushion_for_a_fast_env_vs_flat_margin():
+    # Same fast env + same margin_s, only `floor_min` differs: floor_min==margin_s
+    # disables adaptation (reproduces the OLD flat-margin behavior exactly, since
+    # min(margin_s, margin_s + slowest*coef) == margin_s for any slowest >= 0);
+    # a genuinely small floor_min must fill MORE candidates in the same budget.
+    old_flat_cfg = {"margin_s": 0.15, "floor_min": 0.15, "slowest_coef": 2.5, "slowest0": 0.02}
+    new_adaptive_cfg = {"margin_s": 0.15, "floor_min": 0.03, "slowest_coef": 2.5, "slowest0": 0.02}
+
+    old_env = FakeEnv(latency=0.01, cold=0.02)
+    new_env = FakeEnv(latency=0.01, cold=0.02)
+    old_cands = _run(old_env, algo_cfg=old_flat_cfg, time_budget_s=2.0, max_tool_hops=4)
+    new_cands = _run(new_env, algo_cfg=new_adaptive_cfg, time_budget_s=2.0, max_tool_hops=4)
+
+    assert len(new_cands) > len(old_cands)
 
 
 def test_falls_back_to_fixed_n_when_env_not_probeable():
