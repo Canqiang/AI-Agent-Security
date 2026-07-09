@@ -1,44 +1,79 @@
 {
-  "best_public_score": 58.755,
-  "best_scored_ref": 54412806,
+  "best_public_score": 63.015,
+  "best_scored_ref": 54447620,
   "competition": "ai-agent-security-multi-step-tool-attacks",
   "counts_by_taxonomy": {
-    "complete_scored": 14,
+    "complete_scored": 18,
     "complete_zero": 2,
-    "other_error": 12,
-    "pending": 4,
+    "other_error": 15,
+    "pending": 2,
     "runtime_exceeded": 3,
     "system_error": 5
   },
-  "current_baseline_ref": 54412806,
+  "current_baseline_ref": 54447650,
   "refs": [
+    {
+      "description": "fill_probe_m55_f095 k1 n2000 expNone 07-08 second batch: fill the 50(fail)-60(safe@diff frac) gap at f0.95, more conservative than the failed m50",
+      "public_score": null,
+      "ref": 54464414,
+      "submitted_at": "2026-07-08T14:17:59.373Z",
+      "taxonomy": "pending"
+    },
+    {
+      "description": "fill_probe_m45_f097 k1 n2000 expNone 07-08 second batch: proven-safe margin=45, push frac beyond the proven 0.95",
+      "public_score": null,
+      "ref": 54464397,
+      "submitted_at": "2026-07-08T14:17:20.387Z",
+      "taxonomy": "pending"
+    },
+    {
+      "description": "fill_probe_m49_f095 k1 n2000 expNone 07-08 bisect: safe-m45/fail-m50 gap at f0.95, closer to failed 50",
+      "public_score": 61.7,
+      "ref": 54447650,
+      "submitted_at": "2026-07-08T03:05:29.047Z",
+      "taxonomy": "complete_scored"
+    },
+    {
+      "description": "fill_probe_m47_f095 k1 n2000 expNone 07-08 bisect: safe-m45/fail-m50 gap at f0.95, closer to proven-safe 45",
+      "public_score": 63.015,
+      "ref": 54447620,
+      "submitted_at": "2026-07-08T03:04:19.877Z",
+      "taxonomy": "complete_scored"
+    },
+    {
+      "description": "fill_step_m45_f095 k1 n2000 expNone aggressive tighten; approaching yusuke's ladder",
+      "public_score": 60.755,
+      "ref": 54447606,
+      "submitted_at": "2026-07-08T03:03:41.063Z",
+      "taxonomy": "complete_scored"
+    },
     {
       "description": "fill_diag_m50_f095 k1 n2000 expNone diagonal hedge between proven-safe m60/f0.90 (58.755) and the risky m45/f0.95(pending)+m40/f1.00(failed) region; same frac as the pending m45 rung but more margin cushion",
       "public_score": null,
       "ref": 54432283,
       "submitted_at": "2026-07-07T14:40:12.283Z",
-      "taxonomy": "pending"
+      "taxonomy": "other_error"
     },
     {
       "description": "fill_iso_m40_f090 k1 n2000 expNone OFAT isolation: proven-safe frac=0.90, push margin down to the exact value (40) that failed at frac=1.0 -- decisive test of which knob actually caused that failure",
       "public_score": null,
       "ref": 54432263,
       "submitted_at": "2026-07-07T14:39:33.130Z",
-      "taxonomy": "pending"
+      "taxonomy": "other_error"
     },
     {
       "description": "fill_iso_m60_f100 k1 n2000 expNone OFAT isolation: proven-safe margin=60, push fill_frac to max -- isolates whether frac=1.0 alone (not margin=40) caused the fill_push_m40_f100 format-error",
       "public_score": null,
       "ref": 54432248,
       "submitted_at": "2026-07-07T14:38:54.207Z",
-      "taxonomy": "pending"
+      "taxonomy": "other_error"
     },
     {
       "description": "fill_step_m45_f095 k1 n2000 expNone aggressive tighten; approaching yusuke's ladder",
-      "public_score": null,
+      "public_score": 61.005,
       "ref": 54431619,
       "submitted_at": "2026-07-07T14:18:15.990Z",
-      "taxonomy": "pending"
+      "taxonomy": "complete_scored"
     },
     {
       "description": "fill_step_m60_f090 k1 n2000 expNone moderate tighten",
@@ -295,10 +330,8 @@
   ],
   "schema_version": "2026-06-24.submission-ledger.v1",
   "unresolved_pending_refs": [
-    "54432283",
-    "54432263",
-    "54432248",
-    "54431619"
+    "54464414",
+    "54464397"
   ],
-  "updated_at": "2026-07-07T14:51:51+00:00"
+  "updated_at": "2026-07-09T02:28:39+00:00"
 }

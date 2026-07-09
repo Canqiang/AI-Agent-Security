@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "fill_probe_m49_f095 k1 n2000 expNone 07-08 bisect: safe-m45/fail-m50 gap at f0.95, closer to failed 50",
+  "error_description": "",
+  "first_seen_at": "2026-07-09T02:28:39+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-submission?scriptVersionId=333482254",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": 61.7,
+  "ref": 54447650,
+  "resolved_at": "2026-07-09T02:28:39+00:00",
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "COMPLETE",
+  "submitted_at": "2026-07-08T03:05:29.047Z",
+  "taxonomy": "complete_scored"
+}

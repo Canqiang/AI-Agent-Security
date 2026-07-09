@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "fill_probe_m55_f095 k1 n2000 expNone 07-08 second batch: fill the 50(fail)-60(safe@diff frac) gap at f0.95, more conservative than the failed m50",
+  "error_description": "",
+  "first_seen_at": "2026-07-09T02:28:39+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-live-fill?scriptVersionId=333613982",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": null,
+  "ref": 54464414,
+  "resolved_at": null,
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "SubmissionStatus.PENDING",
+  "submitted_at": "2026-07-08T14:17:59.373Z",
+  "taxonomy": "pending"
+}

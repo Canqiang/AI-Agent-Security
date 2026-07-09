@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "fill_probe_m45_f097 k1 n2000 expNone 07-08 second batch: proven-safe margin=45, push frac beyond the proven 0.95",
+  "error_description": "",
+  "first_seen_at": "2026-07-09T02:28:39+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-live-fill?scriptVersionId=333613851",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": null,
+  "ref": 54464397,
+  "resolved_at": null,
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "SubmissionStatus.PENDING",
+  "submitted_at": "2026-07-08T14:17:20.387Z",
+  "taxonomy": "pending"
+}
