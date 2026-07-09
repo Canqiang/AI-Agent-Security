@@ -3,28 +3,27 @@
   "best_scored_ref": 54447620,
   "competition": "ai-agent-security-multi-step-tool-attacks",
   "counts_by_taxonomy": {
-    "complete_scored": 18,
+    "complete_scored": 20,
     "complete_zero": 2,
     "other_error": 15,
-    "pending": 2,
     "runtime_exceeded": 3,
     "system_error": 5
   },
-  "current_baseline_ref": 54447650,
+  "current_baseline_ref": 54464414,
   "refs": [
     {
       "description": "fill_probe_m55_f095 k1 n2000 expNone 07-08 second batch: fill the 50(fail)-60(safe@diff frac) gap at f0.95, more conservative than the failed m50",
-      "public_score": null,
+      "public_score": 61.07,
       "ref": 54464414,
       "submitted_at": "2026-07-08T14:17:59.373Z",
-      "taxonomy": "pending"
+      "taxonomy": "complete_scored"
     },
     {
       "description": "fill_probe_m45_f097 k1 n2000 expNone 07-08 second batch: proven-safe margin=45, push frac beyond the proven 0.95",
-      "public_score": null,
+      "public_score": 61.52,
       "ref": 54464397,
       "submitted_at": "2026-07-08T14:17:20.387Z",
-      "taxonomy": "pending"
+      "taxonomy": "complete_scored"
     },
     {
       "description": "fill_probe_m49_f095 k1 n2000 expNone 07-08 bisect: safe-m45/fail-m50 gap at f0.95, closer to failed 50",
@@ -329,9 +328,6 @@
     }
   ],
   "schema_version": "2026-06-24.submission-ledger.v1",
-  "unresolved_pending_refs": [
-    "54464414",
-    "54464397"
-  ],
-  "updated_at": "2026-07-09T02:28:39+00:00"
+  "unresolved_pending_refs": [],
+  "updated_at": "2026-07-09T03:01:16+00:00"
 }
