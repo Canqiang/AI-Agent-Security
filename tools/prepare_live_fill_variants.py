@@ -31,15 +31,6 @@ DEFAULT_OUT_ROOT = REPO / "kaggle_push" / "submission_variants"
 KERNEL_ID = "canqiang/aiagsec-submission"
 KERNEL_TITLE = "AIAgSec Submission"
 
-_MARGIN_RE = re.compile(r"^MARGIN_S = [0-9.]+(\s*#.*)?$", re.MULTILINE)
-_FRAC_RE = re.compile(r"^FILL_BUDGET_FRAC = [0-9.]+(\s*#.*)?$", re.MULTILINE)
-# 2026-07-09: the engine gained a per-model adaptive margin floor. Sweeping
-# MARGIN_FLOOR_MIN down (toward 0) reclaims fill cushion for a genuinely fast
-# model; setting it >= MARGIN_S degenerates the adaptive margin back to the old
-# flat floor (a clean "flat" anchor). Only the assignment line is matched -- the
-# constant's multi-line explanatory comment below it is left byte-identical.
-_FLOOR_RE = re.compile(r"^MARGIN_FLOOR_MIN = [0-9.]+(\s*#.*)?$", re.MULTILINE)
-
 
 @dataclass(frozen=True)
 class Rung:
@@ -108,26 +99,44 @@ def kernel_metadata() -> dict[str, Any]:
     }
 
 
+def _substitute_once(text: str, const: str, value: float, comment: str) -> str:
+    r"""Replace the single `<const> = <number>` assignment (with any inline
+    `# comment`) by `<const> = <value>       # <comment>`, matching ONLY that
+    one line and raising if it is not found exactly once.
+
+    The optional inline-comment group uses `[ \t]*` (horizontal whitespace), NOT
+    `\s*`: `\s` matches newlines, so `\s*#.*` on an assignment that carries no
+    inline comment would span the line boundary and silently swallow a following
+    comment-only continuation line -- breaking the tool's
+    byte-identical-outside-the-swept-line invariant while the exactly-once guard
+    still sees one match. The replacement is a *function* so backslashes / group
+    references in `comment` (e.g. a rung name like `fm\1`) stay literal instead
+    of being interpreted as regex replacement escapes.
+    """
+    pattern = re.compile(rf"^{re.escape(const)} = [0-9.]+([ \t]*#.*)?$", re.MULTILINE)
+    new_line = f"{const} = {value}       # {comment}"
+    text, n = pattern.subn(lambda _m: new_line, text)
+    if n != 1:
+        raise ValueError(f"expected exactly one {const} assignment, found {n}")
+    return text
+
+
+def _source_value(text: str, const: str) -> float | None:
+    """Read the numeric value of `<const> = <number>` from source text, or None
+    if the constant is absent -- used to record the value a rung actually bakes
+    into its variant when it leaves that knob unswept (rather than a bare null)."""
+    match = re.search(rf"^{re.escape(const)} = ([0-9.]+)", text, re.MULTILINE)
+    return float(match.group(1)) if match else None
+
+
 def rung_attack_code(rung: Rung, base_source: str) -> str:
-    text, n_margin = _MARGIN_RE.subn(
-        f"MARGIN_S = {rung.margin_s}               # 07-06 live-fill sweep rung: {rung.name}",
-        base_source,
-    )
-    if n_margin != 1:
-        raise ValueError(f"expected exactly one MARGIN_S assignment, found {n_margin}")
-    text, n_frac = _FRAC_RE.subn(
-        f"FILL_BUDGET_FRAC = {rung.fill_budget_frac}       # 07-06 live-fill sweep rung: {rung.name}",
-        text,
-    )
-    if n_frac != 1:
-        raise ValueError(f"expected exactly one FILL_BUDGET_FRAC assignment, found {n_frac}")
+    text = _substitute_once(base_source, "MARGIN_S", rung.margin_s,
+                            f"07-06 live-fill sweep rung: {rung.name}")
+    text = _substitute_once(text, "FILL_BUDGET_FRAC", rung.fill_budget_frac,
+                            f"07-06 live-fill sweep rung: {rung.name}")
     if rung.floor_min is not None:
-        text, n_floor = _FLOOR_RE.subn(
-            f"MARGIN_FLOOR_MIN = {rung.floor_min}       # 07-09 adaptive floor_min sweep rung: {rung.name}",
-            text,
-        )
-        if n_floor != 1:
-            raise ValueError(f"expected exactly one MARGIN_FLOOR_MIN assignment, found {n_floor}")
+        text = _substitute_once(text, "MARGIN_FLOOR_MIN", rung.floor_min,
+                                f"07-09 adaptive floor_min sweep rung: {rung.name}")
     return text
 
 
@@ -165,7 +174,11 @@ def write_variant(rung: Rung, out_root: Path) -> dict[str, Any]:
         "n_candidates": 2000,
         "margin_s": rung.margin_s,
         "fill_budget_frac": rung.fill_budget_frac,
-        "floor_min": rung.floor_min,
+        # None means the rung left MARGIN_FLOOR_MIN at the source default, but the
+        # variant still bakes that default in -- record the effective value so a
+        # later knob->score correlation reads the baseline point, not a null.
+        "floor_min": (rung.floor_min if rung.floor_min is not None
+                      else _source_value(base_source, "MARGIN_FLOOR_MIN")),
         "expected_public_score": None,
         "description": rung.description,
         "folder": str(out_dir),
