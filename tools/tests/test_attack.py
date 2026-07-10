@@ -117,7 +117,11 @@ class FakeEnv:
 
     def export_trace_dict(self):
         data = PAYLOAD if self._fired else "nope"
-        return {"tool_events": [{"name": "http.post", "args": {"data": data}}]}
+        return {
+            "tool_events": [
+                {"name": "http.post", "args": {"data": data}, "ok": self._fired}
+            ]
+        }
 
 
 # small, test-scale fill knobs injected via the algorithm config (module
@@ -131,6 +135,23 @@ def _run(env, algo_cfg=None, **run_cfg):
     if algo_cfg:
         ac.update(algo_cfg)
     return AttackAlgorithm(config=ac).run(env, config)
+
+
+def test_fired_rejects_denied_post_even_when_trace_keeps_name_and_args():
+    class DeniedPostEnv:
+        def export_trace_dict(self):
+            return {
+                "tool_events": [
+                    {
+                        "name": "http.post",
+                        "args": {"data": PAYLOAD},
+                        "ok": False,
+                        "error": "Denied by guardrail",
+                    }
+                ]
+            }
+
+    assert AttackAlgorithm._fired(DeniedPostEnv()) is False
 
 
 def test_fill_returns_only_validated_firing_candidates():
