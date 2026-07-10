@@ -1,16 +1,51 @@
 {
-  "best_public_score": 63.015,
-  "best_scored_ref": 54447620,
+  "best_public_score": 63.85,
+  "best_scored_ref": 54490676,
   "competition": "ai-agent-security-multi-step-tool-attacks",
   "counts_by_taxonomy": {
-    "complete_scored": 20,
+    "complete_scored": 23,
     "complete_zero": 2,
-    "other_error": 15,
+    "other_error": 17,
     "runtime_exceeded": 3,
     "system_error": 5
   },
-  "current_baseline_ref": 54464414,
+  "current_baseline_ref": 54490706,
   "refs": [
+    {
+      "description": "fill_fm01_m47_f095 k1 n2000 expNone adaptive floor_min=1: maximal reclaim, near the m40-flat failure edge if gpt_oss is moderately slow, floor_min-curve step 3",
+      "public_score": 61.06,
+      "ref": 54490706,
+      "submitted_at": "2026-07-09T10:33:13.200Z",
+      "taxonomy": "complete_scored"
+    },
+    {
+      "description": "fill_fm04_m47_f095 k1 n2000 expNone adaptive floor_min=4: aggressive fast-model cushion reclaim, floor_min-curve step 2",
+      "public_score": 63.85,
+      "ref": 54490676,
+      "submitted_at": "2026-07-09T10:32:34.473Z",
+      "taxonomy": "complete_scored"
+    },
+    {
+      "description": "fill_fm08_m47_f095 k1 n2000 expNone adaptive floor_min=8 (below the pending control's 15): reclaim fast-model cushion, floor_min-curve step 1",
+      "public_score": null,
+      "ref": 54490655,
+      "submitted_at": "2026-07-09T10:31:56.403Z",
+      "taxonomy": "other_error"
+    },
+    {
+      "description": "fill_flat_m47_f095 k1 n2000 expNone FLAT anchor (floor_min==margin_s -> old flat engine): reproduce the 63.015 config on today's draw + same-day contention anchor for the floor_min curve",
+      "public_score": 62.05,
+      "ref": 54490639,
+      "submitted_at": "2026-07-09T10:31:17.497Z",
+      "taxonomy": "complete_scored"
+    },
+    {
+      "description": "fill_adaptive_m47_f095 k1 n2000 expNone 2026-07-09: per-model adaptive margin floor (_adaptive_margin), isolated at the proven-safe m47/f0.95 operating point (best-ever 63.015) -- tests the NEW mechanism, not a new margin/frac point",
+      "public_score": null,
+      "ref": 54483063,
+      "submitted_at": "2026-07-09T05:14:25.563Z",
+      "taxonomy": "other_error"
+    },
     {
       "description": "fill_probe_m55_f095 k1 n2000 expNone 07-08 second batch: fill the 50(fail)-60(safe@diff frac) gap at f0.95, more conservative than the failed m50",
       "public_score": 61.07,
@@ -329,5 +364,5 @@
   ],
   "schema_version": "2026-06-24.submission-ledger.v1",
   "unresolved_pending_refs": [],
-  "updated_at": "2026-07-09T03:01:16+00:00"
+  "updated_at": "2026-07-10T02:04:10+00:00"
 }

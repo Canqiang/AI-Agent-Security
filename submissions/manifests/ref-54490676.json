@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "fill_fm04_m47_f095 k1 n2000 expNone adaptive floor_min=4: aggressive fast-model cushion reclaim, floor_min-curve step 2",
+  "error_description": "",
+  "first_seen_at": "2026-07-10T02:04:10+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-live-fill?scriptVersionId=333814681",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": 63.85,
+  "ref": 54490676,
+  "resolved_at": "2026-07-10T02:04:10+00:00",
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "COMPLETE",
+  "submitted_at": "2026-07-09T10:32:34.473Z",
+  "taxonomy": "complete_scored"
+}

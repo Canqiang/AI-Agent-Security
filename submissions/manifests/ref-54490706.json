@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "fill_fm01_m47_f095 k1 n2000 expNone adaptive floor_min=1: maximal reclaim, near the m40-flat failure edge if gpt_oss is moderately slow, floor_min-curve step 3",
+  "error_description": "",
+  "first_seen_at": "2026-07-10T02:04:10+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-live-fill?scriptVersionId=333814838",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": 61.06,
+  "ref": 54490706,
+  "resolved_at": "2026-07-10T02:04:10+00:00",
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "COMPLETE",
+  "submitted_at": "2026-07-09T10:33:13.200Z",
+  "taxonomy": "complete_scored"
+}

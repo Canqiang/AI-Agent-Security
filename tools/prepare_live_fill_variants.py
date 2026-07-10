@@ -33,6 +33,12 @@ KERNEL_TITLE = "AIAgSec Submission"
 
 _MARGIN_RE = re.compile(r"^MARGIN_S = [0-9.]+(\s*#.*)?$", re.MULTILINE)
 _FRAC_RE = re.compile(r"^FILL_BUDGET_FRAC = [0-9.]+(\s*#.*)?$", re.MULTILINE)
+# 2026-07-09: the engine gained a per-model adaptive margin floor. Sweeping
+# MARGIN_FLOOR_MIN down (toward 0) reclaims fill cushion for a genuinely fast
+# model; setting it >= MARGIN_S degenerates the adaptive margin back to the old
+# flat floor (a clean "flat" anchor). Only the assignment line is matched -- the
+# constant's multi-line explanatory comment below it is left byte-identical.
+_FLOOR_RE = re.compile(r"^MARGIN_FLOOR_MIN = [0-9.]+(\s*#.*)?$", re.MULTILINE)
 
 
 @dataclass(frozen=True)
@@ -41,6 +47,10 @@ class Rung:
     margin_s: float
     fill_budget_frac: float
     description: str
+    # None -> leave MARGIN_FLOOR_MIN at the source default (backward compatible
+    # with the pre-adaptive-engine rungs). A value bakes an adaptive floor_min
+    # (or, when >= margin_s, a flat-margin anchor).
+    floor_min: float | None = None
 
 
 RUNGS: dict[str, Rung] = {
@@ -111,6 +121,13 @@ def rung_attack_code(rung: Rung, base_source: str) -> str:
     )
     if n_frac != 1:
         raise ValueError(f"expected exactly one FILL_BUDGET_FRAC assignment, found {n_frac}")
+    if rung.floor_min is not None:
+        text, n_floor = _FLOOR_RE.subn(
+            f"MARGIN_FLOOR_MIN = {rung.floor_min}       # 07-09 adaptive floor_min sweep rung: {rung.name}",
+            text,
+        )
+        if n_floor != 1:
+            raise ValueError(f"expected exactly one MARGIN_FLOOR_MIN assignment, found {n_floor}")
     return text
 
 
@@ -148,6 +165,7 @@ def write_variant(rung: Rung, out_root: Path) -> dict[str, Any]:
         "n_candidates": 2000,
         "margin_s": rung.margin_s,
         "fill_budget_frac": rung.fill_budget_frac,
+        "floor_min": rung.floor_min,
         "expected_public_score": None,
         "description": rung.description,
         "folder": str(out_dir),

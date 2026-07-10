@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "fill_flat_m47_f095 k1 n2000 expNone FLAT anchor (floor_min==margin_s -> old flat engine): reproduce the 63.015 config on today's draw + same-day contention anchor for the floor_min curve",
+  "error_description": "",
+  "first_seen_at": "2026-07-10T02:04:10+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-live-fill?scriptVersionId=333814423",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": 62.05,
+  "ref": 54490639,
+  "resolved_at": "2026-07-10T02:04:10+00:00",
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "COMPLETE",
+  "submitted_at": "2026-07-09T10:31:17.497Z",
+  "taxonomy": "complete_scored"
+}
