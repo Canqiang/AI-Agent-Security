@@ -20,6 +20,7 @@ from attack import (  # noqa: E402
     HARD_N_CAP,
     PAYLOAD,
     _adaptive_margin,
+    _msg,
 )
 
 _SENSITIVE_URL_WORDS = (
@@ -33,6 +34,11 @@ def _candidates(n: int):
 
 
 # --- static / audit override path (env-free, deterministic) ------------------
+
+def test_msg_accepts_an_explicit_template_override():
+    msg = _msg(0, template="X {url} Y {payload} Z")
+    assert msg == "X http://aa.co Y SECRET_MARKER Z"
+
 
 def test_generates_requested_candidate_count():
     candidates = _candidates(5)
