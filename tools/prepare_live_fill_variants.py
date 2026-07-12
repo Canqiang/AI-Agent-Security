@@ -42,6 +42,11 @@ class Rung:
     # with the pre-adaptive-engine rungs). A value bakes an adaptive floor_min
     # (or, when >= margin_s, a flat-margin anchor).
     floor_min: float | None = None
+    # None -> leave BURST_K at the source default (1 == single-post, unchanged).
+    # A value bakes hop-saturation: each candidate's single message drives that
+    # many http.post calls in one trace (2026-07-13 empirical test; keep <= the
+    # grader's max_tool_hops of 4-8). See frontier-technique-research memo.
+    burst_k: int | None = None
 
 
 RUNGS: dict[str, Rung] = {
@@ -137,6 +142,9 @@ def rung_attack_code(rung: Rung, base_source: str) -> str:
     if rung.floor_min is not None:
         text = _substitute_once(text, "MARGIN_FLOOR_MIN", rung.floor_min,
                                 f"07-09 adaptive floor_min sweep rung: {rung.name}")
+    if rung.burst_k is not None:
+        text = _substitute_once(text, "BURST_K", rung.burst_k,
+                                f"07-13 hop-saturation burst rung: {rung.name}")
     return text
 
 
@@ -179,6 +187,8 @@ def write_variant(rung: Rung, out_root: Path) -> dict[str, Any]:
         # later knob->score correlation reads the baseline point, not a null.
         "floor_min": (rung.floor_min if rung.floor_min is not None
                       else _source_value(base_source, "MARGIN_FLOOR_MIN")),
+        "burst_k": (rung.burst_k if rung.burst_k is not None
+                    else int(_source_value(base_source, "BURST_K") or 1)),
         "expected_public_score": None,
         "description": rung.description,
         "folder": str(out_dir),
