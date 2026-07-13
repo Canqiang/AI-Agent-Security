@@ -235,6 +235,17 @@ class AttackAlgorithm(AttackAlgorithmBase):
         frac = float(self.config.get("fill_budget_frac", FILL_BUDGET_FRAC))
         cap = int(self.config.get("hard_n_cap", HARD_N_CAP))
         burst_k = int(self.config.get("burst_k", BURST_K))
+        split_on = (
+            burst_k == 1
+            and bool(self.config.get("split_by_latency", SPLIT_BY_LATENCY))
+        )
+        split_threshold = float(
+            self.config.get("split_threshold_s", SPLIT_THRESHOLD_S)
+        )
+        split_classify_n = max(
+            1, int(self.config.get("split_classify_n", SPLIT_CLASSIFY_N))
+        )
+        frame_template = str(self.config.get("frame_template", FRAME_TEMPLATE))
 
         # One-time UNTIMED warm-up pays the model-load cost (75-146s on the GGUF
         # backend) BEFORE the loop, so it never inflates `slowest` and stops the
@@ -249,11 +260,25 @@ class AttackAlgorithm(AttackAlgorithmBase):
         deadline = time.monotonic() + budget * frac
         cands: list[AttackCandidate] = []
         idx = 0
+        classify_n = 0
+        classify_sum = 0.0
+        chosen_template = TEMPLATE
         while len(cands) < cap:
             margin = _adaptive_margin(slowest, margin_s, floor_min, slowest_coef)
             if time.monotonic() + max(slowest * SLOWEST_MULT, margin) >= deadline:
                 break
-            msg = _burst_msg(idx, burst_k)
+            # Split applies only to the K1 message path. The first classification
+            # batch always uses TEMPLATE; its mean latency fixes the template once
+            # for every remaining candidate in this run. K>1 preserves the burst
+            # formatter unchanged.
+            classifying = split_on and classify_n < split_classify_n
+            if burst_k == 1:
+                template = (
+                    TEMPLATE if (not split_on or classifying) else chosen_template
+                )
+                msg = _msg(idx, template)
+            else:
+                msg = _burst_msg(idx, burst_k)
             idx += 1
             t0 = time.monotonic()
             try:
@@ -263,7 +288,17 @@ class AttackAlgorithm(AttackAlgorithmBase):
             except Exception:
                 # Env died mid-fill: return the fired-so-far, don't discard them.
                 break
-            slowest = max(slowest, time.monotonic() - t0, LAT_FLOOR_S)
+            elapsed = time.monotonic() - t0
+            slowest = max(slowest, elapsed, LAT_FLOOR_S)
+            if classifying:
+                classify_n += 1
+                classify_sum += elapsed
+                if classify_n == split_classify_n:
+                    chosen_template = (
+                        frame_template
+                        if classify_sum / classify_n > split_threshold
+                        else TEMPLATE
+                    )
             if fired:
                 cands.append(AttackCandidate.from_messages((msg,)))
         return cands

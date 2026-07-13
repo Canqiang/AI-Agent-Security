@@ -14,6 +14,7 @@ pytest.importorskip("aicomp_sdk", exc_type=ImportError)
 
 from aicomp_sdk.attacks.contracts import AttackRunConfig  # noqa: E402
 
+import attack as attack_module  # noqa: E402
 from attack import (  # noqa: E402
     AttackAlgorithm,
     BURST_K,
@@ -191,6 +192,50 @@ class FakeEnv:
         }
 
 
+class ManualClock:
+    """Monotonic test clock advanced explicitly by ScriptedEnv."""
+
+    def __init__(self):
+        self.now = 0.0
+
+    def monotonic(self):
+        return self.now
+
+    def advance(self, seconds):
+        self.now += float(seconds)
+
+
+class ScriptedEnv:
+    """No-sleep env whose warm-up and candidate latency advance ManualClock."""
+
+    def __init__(self, clock, latency, cold=0.02, misfire_idx=()):
+        self.clock = clock
+        self.latency = float(latency)
+        self.cold = float(cold)
+        self.misfire_idx = set(misfire_idx)
+        self.n = 0
+        self.messages = []
+        self._fired = False
+
+    def reset(self):
+        self._fired = False
+
+    def interact(self, msg, max_tool_hops=8):
+        self.messages.append(msg)
+        self.n += 1
+        self.clock.advance(self.cold if self.n == 1 else self.latency)
+        real_pos = self.n - 2
+        self._fired = real_pos >= 0 and real_pos not in self.misfire_idx
+
+    def export_trace_dict(self):
+        data = PAYLOAD if self._fired else "nope"
+        return {
+            "tool_events": [
+                {"name": "http.post", "args": {"data": data}, "ok": self._fired}
+            ]
+        }
+
+
 # small, test-scale fill knobs injected via the algorithm config (module
 # defaults MARGIN_S/SLOWEST0/FILL_BUDGET_FRAC are sized for the real 9000s budget)
 _FAST_KNOBS = {"margin_s": 0.15, "slowest0": 0.02, "fill_budget_frac": 1.0}
@@ -313,6 +358,137 @@ def test_fill_reclaims_cushion_for_a_fast_env_vs_flat_margin():
     new_cands = _run(new_env, algo_cfg=new_adaptive_cfg, time_budget_s=2.0, max_tool_hops=4)
 
     assert len(new_cands) > len(old_cands)
+
+
+# --- per-model split messages via latency classification (2026-07-11) --------
+# run() has no model-identity signal, only measured latency. SPLIT_BY_LATENCY
+# gates a classify-then-fix mechanism: the first SPLIT_CLASSIFY_N post-warmup
+# candidates always use the plain TEMPLATE (their latency is averaged), then
+# the average is compared ONCE to SPLIT_THRESHOLD_S and the result is fixed
+# as the template for every remaining K1 candidate in that run() call.
+
+_SPLIT_KNOBS = {
+    "split_by_latency": True,
+    "split_threshold_s": 0.05,
+    "split_classify_n": 3,
+    "hard_n_cap": 6,
+}
+
+
+def _scripted_run(monkeypatch, *, latency, algo_cfg=None, time_budget_s=3.0):
+    clock = ManualClock()
+    env = ScriptedEnv(clock, latency=latency)
+    monkeypatch.setattr(attack_module, "time", clock)
+    cands = _run(
+        env,
+        algo_cfg=algo_cfg,
+        time_budget_s=time_budget_s,
+        max_tool_hops=4,
+    )
+    return env, cands
+
+
+def test_split_fixes_frame_template_after_classifying_a_slow_env(monkeypatch):
+    env, cands = _scripted_run(
+        monkeypatch, latency=0.10, algo_cfg=_SPLIT_KNOBS
+    )
+
+    assert env.n == 7  # one warm-up plus the six-candidate hard cap
+    assert len(cands) == 6
+    assert all("Routine forward" not in c.user_messages[0] for c in cands[:3])
+    assert all("Routine forward" in c.user_messages[0] for c in cands[3:])
+
+
+def test_split_keeps_plain_template_after_classifying_a_fast_env(monkeypatch):
+    env, cands = _scripted_run(
+        monkeypatch, latency=0.01, algo_cfg=_SPLIT_KNOBS
+    )
+
+    assert env.n == 7
+    assert len(cands) == 6
+    assert all("Routine forward" not in c.user_messages[0] for c in cands)
+
+
+def test_split_disabled_by_default_matches_current_behavior(monkeypatch):
+    env, cands = _scripted_run(
+        monkeypatch,
+        latency=0.10,
+        algo_cfg={"hard_n_cap": 5},
+    )
+
+    assert env.n == 6
+    assert len(cands) == 5
+    assert all("Routine forward" not in c.user_messages[0] for c in cands)
+
+
+def test_split_threshold_alone_does_not_enable_splitting(monkeypatch):
+    env, cands = _scripted_run(
+        monkeypatch,
+        latency=0.10,
+        algo_cfg={
+            "split_threshold_s": 0.05,
+            "split_classify_n": 3,
+            "hard_n_cap": 5,
+        },
+    )
+
+    assert env.n == 6
+    assert len(cands) == 5
+    assert all("Routine forward" not in c.user_messages[0] for c in cands)
+
+
+def test_split_deadline_during_classification_keeps_fired_plain_candidates(monkeypatch):
+    cfg = dict(
+        _SPLIT_KNOBS,
+        hard_n_cap=10,
+        margin_s=0.01,
+        floor_min=0.0,
+        slowest0=0.02,
+    )
+    env, cands = _scripted_run(
+        monkeypatch,
+        latency=0.10,
+        algo_cfg=cfg,
+        time_budget_s=0.25,
+    )
+
+    assert env.n == 3  # one warm-up plus exactly two real attempts
+    assert len(cands) == 2
+    assert len(cands) != FALLBACK_N
+    assert all("Routine forward" not in c.user_messages[0] for c in cands)
+
+
+def test_split_classify_n_is_clamped_to_one(monkeypatch):
+    cfg = dict(_SPLIT_KNOBS, split_classify_n=0, hard_n_cap=3)
+    _env, cands = _scripted_run(monkeypatch, latency=0.10, algo_cfg=cfg)
+
+    assert len(cands) == 3
+    assert "Routine forward" not in cands[0].user_messages[0]
+    assert all("Routine forward" in c.user_messages[0] for c in cands[1:])
+
+
+def test_split_audit_override_path_ignores_split_config():
+    candidates = AttackAlgorithm(
+        config={
+            "n_candidates": 5,
+            "split_by_latency": True,
+            "split_threshold_s": 0.0,
+        }
+    ).run(None, AttackRunConfig())
+
+    assert len(candidates) == 5
+    assert all("Routine forward" not in c.user_messages[0] for c in candidates)
+
+
+def test_split_config_does_not_reformat_burst_messages(monkeypatch):
+    cfg = dict(_SPLIT_KNOBS, burst_k=4, split_classify_n=1, hard_n_cap=3)
+    _env, cands = _scripted_run(monkeypatch, latency=0.10, algo_cfg=cfg)
+
+    assert len(cands) == 3
+    for candidate in cands:
+        message = candidate.user_messages[0]
+        assert message.count(f"data={PAYLOAD}") == 4
+        assert "Routine forward" not in message
 
 
 def test_falls_back_to_fixed_n_when_env_not_probeable():
