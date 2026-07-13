@@ -151,6 +151,25 @@ def test_source_default_burst_above_one_with_split_by_latency_is_rejected():
         )
 
 
+@pytest.mark.parametrize("source_burst_k", [0, -1])
+def test_source_default_nonpositive_burst_with_split_by_latency_is_rejected(
+    source_burst_k,
+):
+    source = _BASE_SRC_WITH_SPLIT.replace(
+        "BURST_K = 1", f"BURST_K = {source_burst_k}"
+    )
+
+    with pytest.raises(ValueError, match="burst_k.*split_by_latency"):
+        plfv.rung_attack_code(
+            _rung(
+                margin_s=47.0,
+                fill_budget_frac=0.95,
+                split_by_latency=True,
+            ),
+            source,
+        )
+
+
 def test_effective_nonpositive_burst_with_split_by_latency_is_rejected():
     with pytest.raises(ValueError, match="burst_k.*split_by_latency"):
         plfv.rung_attack_code(
@@ -177,6 +196,24 @@ def test_effective_k1_with_split_by_latency_is_legal():
 
     assert "BURST_K = 1" in out
     assert "SPLIT_BY_LATENCY = True" in out
+
+
+def test_burst_k4_with_split_disabled_still_generates_and_records_four(tmp_path):
+    rung = _rung(
+        name="fill_burst_k4_m47_f095",
+        margin_s=47.0,
+        fill_budget_frac=0.95,
+        burst_k=4,
+        split_by_latency=False,
+    )
+
+    manifest = plfv.write_variant(rung, tmp_path)
+    code = (tmp_path / rung.name / "attack.py").read_text()
+
+    assert manifest["burst_k"] == 4
+    assert manifest["split_by_latency"] is False
+    assert "BURST_K = 4" in code
+    assert "SPLIT_BY_LATENCY = False" in code
 
 
 def test_manifest_records_true_split_with_effective_k1(tmp_path):

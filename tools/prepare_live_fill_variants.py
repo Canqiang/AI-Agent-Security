@@ -149,18 +149,32 @@ def _source_value_bool(text: str, const: str) -> bool | None:
     return match.group(1) == "True" if match else None
 
 
+def _source_value_int(text: str, const: str) -> int | None:
+    """Read a signed integer assignment without conflating zero with missing."""
+    match = re.search(rf"^{re.escape(const)} = (-?[0-9]+)", text, re.MULTILINE)
+    return int(match.group(1)) if match else None
+
+
+def _effective_burst_k(rung: Rung, base_source: str) -> int:
+    """Return the configured BURST_K shared by validation and the manifest."""
+    if rung.burst_k is not None:
+        return int(rung.burst_k)
+    source_value = _source_value_int(base_source, "BURST_K")
+    return source_value if source_value is not None else 1
+
+
 def rung_attack_code(rung: Rung, base_source: str) -> str:
-    effective_burst_k = (
-        rung.burst_k
-        if rung.burst_k is not None
-        else int(_source_value(base_source, "BURST_K") or 1)
-    )
+    effective_burst_k = _effective_burst_k(rung, base_source)
     source_split = _source_value_bool(base_source, "SPLIT_BY_LATENCY")
     effective_split = (
         rung.split_by_latency
         if rung.split_by_latency is not None
         else bool(source_split)
     )
+    if effective_burst_k < 1:
+        raise ValueError(
+            "effective burst_k must be at least 1; invalid with split_by_latency"
+        )
     if effective_burst_k != 1 and effective_split:
         raise ValueError(
             "effective burst_k must equal 1 when split_by_latency=True"
@@ -189,6 +203,7 @@ def rung_attack_code(rung: Rung, base_source: str) -> str:
 def write_variant(rung: Rung, out_root: Path) -> dict[str, Any]:
     base_source = BASE_SOURCE.read_text(encoding="utf-8")
     code = rung_attack_code(rung, base_source)
+    effective_burst_k = _effective_burst_k(rung, base_source)
     source_split = _source_value_bool(base_source, "SPLIT_BY_LATENCY")
     effective_split = (
         rung.split_by_latency
@@ -233,8 +248,7 @@ def write_variant(rung: Rung, out_root: Path) -> dict[str, Any]:
         # later knob->score correlation reads the baseline point, not a null.
         "floor_min": (rung.floor_min if rung.floor_min is not None
                       else _source_value(base_source, "MARGIN_FLOOR_MIN")),
-        "burst_k": (rung.burst_k if rung.burst_k is not None
-                    else int(_source_value(base_source, "BURST_K") or 1)),
+        "burst_k": effective_burst_k,
         "split_by_latency": effective_split,
         "split_threshold_s": split_threshold_s,
         "split_classify_n": (
