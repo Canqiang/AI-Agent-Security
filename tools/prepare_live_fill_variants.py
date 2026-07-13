@@ -47,6 +47,9 @@ class Rung:
     # many http.post calls in one trace (2026-07-13 empirical test; keep <= the
     # grader's max_tool_hops of 4-8). See frontier-technique-research memo.
     burst_k: int | None = None
+    # None -> leave SPLIT_BY_LATENCY at the source default (False). A value
+    # bakes the per-model split-messages mechanism on/off for this variant.
+    split_by_latency: bool | None = None
 
 
 RUNGS: dict[str, Rung] = {
@@ -104,10 +107,13 @@ def kernel_metadata() -> dict[str, Any]:
     }
 
 
-def _substitute_once(text: str, const: str, value: float, comment: str) -> str:
-    r"""Replace the single `<const> = <number>` assignment (with any inline
+def _substitute_once(
+    text: str, const: str, value: int | float | bool, comment: str
+) -> str:
+    r"""Replace the single `<const> = <value>` assignment (with any inline
     `# comment`) by `<const> = <value>       # <comment>`, matching ONLY that
-    one line and raising if it is not found exactly once.
+    one line and raising if it is not found exactly once. Values may be ints,
+    floats, or the Python boolean literals True/False.
 
     The optional inline-comment group uses `[ \t]*` (horizontal whitespace), NOT
     `\s*`: `\s` matches newlines, so `\s*#.*` on an assignment that carries no
@@ -118,7 +124,10 @@ def _substitute_once(text: str, const: str, value: float, comment: str) -> str:
     references in `comment` (e.g. a rung name like `fm\1`) stay literal instead
     of being interpreted as regex replacement escapes.
     """
-    pattern = re.compile(rf"^{re.escape(const)} = [0-9.]+([ \t]*#.*)?$", re.MULTILINE)
+    pattern = re.compile(
+        rf"^{re.escape(const)} = (?:[0-9.]+|True|False)([ \t]*#.*)?$",
+        re.MULTILINE,
+    )
     new_line = f"{const} = {value}       # {comment}"
     text, n = pattern.subn(lambda _m: new_line, text)
     if n != 1:
@@ -134,7 +143,29 @@ def _source_value(text: str, const: str) -> float | None:
     return float(match.group(1)) if match else None
 
 
+def _source_value_bool(text: str, const: str) -> bool | None:
+    """Read `<const> = True|False` from source text, or None if absent."""
+    match = re.search(rf"^{re.escape(const)} = (True|False)", text, re.MULTILINE)
+    return match.group(1) == "True" if match else None
+
+
 def rung_attack_code(rung: Rung, base_source: str) -> str:
+    effective_burst_k = (
+        rung.burst_k
+        if rung.burst_k is not None
+        else int(_source_value(base_source, "BURST_K") or 1)
+    )
+    source_split = _source_value_bool(base_source, "SPLIT_BY_LATENCY")
+    effective_split = (
+        rung.split_by_latency
+        if rung.split_by_latency is not None
+        else bool(source_split)
+    )
+    if effective_burst_k != 1 and effective_split:
+        raise ValueError(
+            "effective burst_k must equal 1 when split_by_latency=True"
+        )
+
     text = _substitute_once(base_source, "MARGIN_S", rung.margin_s,
                             f"07-06 live-fill sweep rung: {rung.name}")
     text = _substitute_once(text, "FILL_BUDGET_FRAC", rung.fill_budget_frac,
@@ -145,12 +176,27 @@ def rung_attack_code(rung: Rung, base_source: str) -> str:
     if rung.burst_k is not None:
         text = _substitute_once(text, "BURST_K", rung.burst_k,
                                 f"07-13 hop-saturation burst rung: {rung.name}")
+    if rung.split_by_latency is not None:
+        text = _substitute_once(
+            text,
+            "SPLIT_BY_LATENCY",
+            rung.split_by_latency,
+            f"07-11 per-model split-messages rung: {rung.name}",
+        )
     return text
 
 
 def write_variant(rung: Rung, out_root: Path) -> dict[str, Any]:
     base_source = BASE_SOURCE.read_text(encoding="utf-8")
     code = rung_attack_code(rung, base_source)
+    source_split = _source_value_bool(base_source, "SPLIT_BY_LATENCY")
+    effective_split = (
+        rung.split_by_latency
+        if rung.split_by_latency is not None
+        else bool(source_split)
+    )
+    split_threshold_s = _source_value(base_source, "SPLIT_THRESHOLD_S")
+    split_classify_n = _source_value(base_source, "SPLIT_CLASSIFY_N")
 
     notebook = load_notebook(BASE_NOTEBOOK)
     code_cell = notebook["cells"][2]
@@ -189,6 +235,13 @@ def write_variant(rung: Rung, out_root: Path) -> dict[str, Any]:
                       else _source_value(base_source, "MARGIN_FLOOR_MIN")),
         "burst_k": (rung.burst_k if rung.burst_k is not None
                     else int(_source_value(base_source, "BURST_K") or 1)),
+        "split_by_latency": effective_split,
+        "split_threshold_s": split_threshold_s,
+        "split_classify_n": (
+            max(1, int(split_classify_n))
+            if split_classify_n is not None
+            else None
+        ),
         "expected_public_score": None,
         "description": rung.description,
         "folder": str(out_dir),
