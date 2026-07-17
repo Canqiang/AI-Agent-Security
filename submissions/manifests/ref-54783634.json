@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "fill_split_m47_f095 k1 n2000 expNone per-model split-by-latency (classify-then-fix, SPLIT_CLASSIFY_N=8/SPLIT_THRESHOLD_S=12.0) on the flat m47/f0.95 base (floor_min=47 degenerate); REGENERATED 2026-07-17 with the corrected FRAME_TEMPLATE (real Harmony analysis-channel token forgery, verified against 5 independent real-scoring 79-86 public notebooks) replacing the 07-13 null prose framing; only the classified-slow row gets the injected template, the classified-fast row keeps plain TEMPLATE",
+  "error_description": "",
+  "first_seen_at": "2026-07-17T13:10:01+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-fill-harmony?scriptVersionId=335953629",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": null,
+  "ref": 54783634,
+  "resolved_at": null,
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "SubmissionStatus.PENDING",
+  "submitted_at": "2026-07-17T13:07:10.173Z",
+  "taxonomy": "pending"
+}

@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "",
+  "error_description": "",
+  "first_seen_at": "2026-07-13T08:28:43+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-live-fill?scriptVersionId=333814681",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": 42.14,
+  "ref": 54532419,
+  "resolved_at": "2026-07-13T08:28:43+00:00",
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "COMPLETE",
+  "submitted_at": "2026-07-10T15:35:01.247Z",
+  "taxonomy": "complete_scored"
+}

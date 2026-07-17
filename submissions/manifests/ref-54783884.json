@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "fill_frame_m47_f095 k1 n2000 expNone UNIFORM corrected Harmony-token template (base TEMPLATE swapped, applied to BOTH model rows unconditionally, no per-model split) at the flat m47/f0.95/floor_min=47 baseline. Cell (split=False, floor_min=47) of the 2x2 -- directly comparable to the EXISTING real 07-12 null result at this exact config (ref 54615779, 63.72, old English-prose framing) -- cleanest possible before/after on the mechanism correction alone.",
+  "error_description": "",
+  "first_seen_at": "2026-07-17T13:21:18+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-frame47-harmony?scriptVersionId=335956139",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": null,
+  "ref": 54783884,
+  "resolved_at": null,
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "SubmissionStatus.PENDING",
+  "submitted_at": "2026-07-17T13:20:07.197Z",
+  "taxonomy": "pending"
+}

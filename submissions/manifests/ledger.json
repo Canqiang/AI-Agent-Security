@@ -3,14 +3,99 @@
   "best_scored_ref": 54490676,
   "competition": "ai-agent-security-multi-step-tool-attacks",
   "counts_by_taxonomy": {
-    "complete_scored": 23,
+    "complete_scored": 28,
     "complete_zero": 2,
-    "other_error": 17,
+    "other_error": 19,
+    "pending": 5,
     "runtime_exceeded": 3,
     "system_error": 5
   },
-  "current_baseline_ref": 54490706,
+  "current_baseline_ref": 54615779,
   "refs": [
+    {
+      "description": "fill_frame_fm04_m47_f095 k1 n2000 expNone UNIFORM corrected Harmony-token template (base TEMPLATE swapped, applied to BOTH model rows unconditionally, no per-model split) at the AGGRESSIVE floor_min=4 cushion (our historical best raw config, 63.850). Cell (split=False, floor_min=4) of the 2x2 -- tests whether the new lever helps even without per-model classification, stacked on our best-known cushion.",
+      "public_score": null,
+      "ref": 54783943,
+      "submitted_at": "2026-07-17T13:23:23.023Z",
+      "taxonomy": "pending"
+    },
+    {
+      "description": "fill_frame_m47_f095 k1 n2000 expNone UNIFORM corrected Harmony-token template (base TEMPLATE swapped, applied to BOTH model rows unconditionally, no per-model split) at the flat m47/f0.95/floor_min=47 baseline. Cell (split=False, floor_min=47) of the 2x2 -- directly comparable to the EXISTING real 07-12 null result at this exact config (ref 54615779, 63.72, old English-prose framing) -- cleanest possible before/after on the mechanism correction alone.",
+      "public_score": null,
+      "ref": 54783884,
+      "submitted_at": "2026-07-17T13:20:07.197Z",
+      "taxonomy": "pending"
+    },
+    {
+      "description": "fill_split_fm04_m47_f095 k1 n2000 expNone per-model split-by-latency (classify-then-fix) + corrected Harmony-token FRAME_TEMPLATE, on the AGGRESSIVE floor_min=4 cushion (our historical best raw config, 63.850). Cell (split=True, floor_min=4) of the 2x2 vs today fill_split_m47_f095 (split=True, floor=47) and the two frame_* variants (split=False) -- isolates whether stacking the new lever on our best-known cushion helps further.",
+      "public_score": null,
+      "ref": 54783875,
+      "submitted_at": "2026-07-17T13:19:47.800Z",
+      "taxonomy": "pending"
+    },
+    {
+      "description": "fill_split_m47_f095 k1 n2000 expNone per-model split-by-latency (classify-then-fix, SPLIT_CLASSIFY_N=8/SPLIT_THRESHOLD_S=12.0) on the flat m47/f0.95 base (floor_min=47 degenerate); REGENERATED 2026-07-17 with the corrected FRAME_TEMPLATE (real Harmony analysis-channel token forgery, verified against 5 independent real-scoring 79-86 public notebooks) replacing the 07-13 null prose framing; only the classified-slow row gets the injected template, the classified-fast row keeps plain TEMPLATE",
+      "public_score": null,
+      "ref": 54783634,
+      "submitted_at": "2026-07-17T13:07:10.173Z",
+      "taxonomy": "pending"
+    },
+    {
+      "description": "",
+      "public_score": null,
+      "ref": 54782982,
+      "submitted_at": "2026-07-17T12:37:22.563Z",
+      "taxonomy": "pending"
+    },
+    {
+      "description": "",
+      "public_score": 63.72,
+      "ref": 54615779,
+      "submitted_at": "2026-07-12T16:43:52.100Z",
+      "taxonomy": "complete_scored"
+    },
+    {
+      "description": "",
+      "public_score": null,
+      "ref": 54615769,
+      "submitted_at": "2026-07-12T16:43:33.300Z",
+      "taxonomy": "other_error"
+    },
+    {
+      "description": "",
+      "public_score": 42.14,
+      "ref": 54532419,
+      "submitted_at": "2026-07-10T15:35:01.247Z",
+      "taxonomy": "complete_scored"
+    },
+    {
+      "description": "",
+      "public_score": 47.495,
+      "ref": 54532411,
+      "submitted_at": "2026-07-10T15:34:35.497Z",
+      "taxonomy": "complete_scored"
+    },
+    {
+      "description": "",
+      "public_score": 61.94,
+      "ref": 54532406,
+      "submitted_at": "2026-07-10T15:34:20.433Z",
+      "taxonomy": "complete_scored"
+    },
+    {
+      "description": "",
+      "public_score": null,
+      "ref": 54532401,
+      "submitted_at": "2026-07-10T15:34:07.863Z",
+      "taxonomy": "other_error"
+    },
+    {
+      "description": "",
+      "public_score": 61.76,
+      "ref": 54532390,
+      "submitted_at": "2026-07-10T15:33:54.720Z",
+      "taxonomy": "complete_scored"
+    },
     {
       "description": "fill_fm01_m47_f095 k1 n2000 expNone adaptive floor_min=1: maximal reclaim, near the m40-flat failure edge if gpt_oss is moderately slow, floor_min-curve step 3",
       "public_score": 61.06,
@@ -363,6 +448,12 @@
     }
   ],
   "schema_version": "2026-06-24.submission-ledger.v1",
-  "unresolved_pending_refs": [],
-  "updated_at": "2026-07-10T02:04:10+00:00"
+  "unresolved_pending_refs": [
+    "54783884",
+    "54783875",
+    "54783634",
+    "54782982",
+    "54783943"
+  ],
+  "updated_at": "2026-07-17T13:23:53+00:00"
 }

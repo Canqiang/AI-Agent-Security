@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "fill_split_fm04_m47_f095 k1 n2000 expNone per-model split-by-latency (classify-then-fix) + corrected Harmony-token FRAME_TEMPLATE, on the AGGRESSIVE floor_min=4 cushion (our historical best raw config, 63.850). Cell (split=True, floor_min=4) of the 2x2 vs today fill_split_m47_f095 (split=True, floor=47) and the two frame_* variants (split=False) -- isolates whether stacking the new lever on our best-known cushion helps further.",
+  "error_description": "",
+  "first_seen_at": "2026-07-17T13:21:18+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-split-fm04-harmony?scriptVersionId=335956087",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": null,
+  "ref": 54783875,
+  "resolved_at": null,
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "SubmissionStatus.PENDING",
+  "submitted_at": "2026-07-17T13:19:47.800Z",
+  "taxonomy": "pending"
+}
