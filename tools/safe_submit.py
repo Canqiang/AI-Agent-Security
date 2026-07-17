@@ -32,6 +32,12 @@ DEFAULT_KERNEL = "canqiang/aiagsec-submission"
 MIN_FLOOR_SECONDS = 240.0
 POLL_SECONDS = 30.0
 TIMEOUT_SECONDS = 5400.0
+# A brand-new kernel's session can 403/404 on GetKernelSessionStatus for a
+# short window right after creation (half-created-state race on Kaggle's
+# side -- see memory scored-submission-ledger's 2026-07-09 "INFRA INCIDENT"
+# and 2026-07-17 re-confirmation). Tolerate a bounded window of that before
+# giving up, so a genuinely fresh kernel slug isn't wrongly declared dead.
+FRESH_KERNEL_POLL_ERROR_GRACE_S = 90.0
 
 
 def resolve_kernel_source(kernel_folder: Path) -> Path:
@@ -215,6 +221,8 @@ def main() -> int:
     parser.add_argument("--min-floor-seconds", type=float, default=MIN_FLOOR_SECONDS)
     parser.add_argument("--timeout-seconds", type=float, default=TIMEOUT_SECONDS)
     parser.add_argument("--poll-seconds", type=float, default=POLL_SECONDS)
+    parser.add_argument("--poll-error-grace-seconds", type=float,
+                        default=FRESH_KERNEL_POLL_ERROR_GRACE_S)
     args = parser.parse_args()
 
     if (args.allow_stacking or args.allow_high_n or args.allow_pending or args.allow_env_probe) and not args.reason:
@@ -260,6 +268,7 @@ def main() -> int:
             sleep=time.sleep, monotonic=time.monotonic,
             min_floor_s=args.min_floor_seconds, timeout_s=args.timeout_seconds,
             poll_seconds=args.poll_seconds,
+            poll_error_grace_s=args.poll_error_grace_seconds,
         )
 
     def verify_fn() -> dict:

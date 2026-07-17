@@ -87,6 +87,7 @@ def submit_variant(
     poll_seconds: float,
     timeout_seconds: float,
     allow_pending: bool = False,
+    poll_error_grace_seconds: float | None = None,
 ) -> dict[str, Any]:
     import kernel_wait
     import safe_submit as ss
@@ -110,12 +111,19 @@ def submit_variant(
     )
     source = ss.resolve_kernel_source(folder)
 
+    grace_s = (
+        ss.FRESH_KERNEL_POLL_ERROR_GRACE_S
+        if poll_error_grace_seconds is None
+        else poll_error_grace_seconds
+    )
+
     def wait_fn(version: int) -> dict:
         return kernel_wait.wait_for_fresh_complete(
             poll_status=lambda: ss._status_text(api, kernel),
             sleep=time.sleep, monotonic=time.monotonic,
             min_floor_s=ss.MIN_FLOOR_SECONDS, timeout_s=timeout_seconds,
             poll_seconds=poll_seconds,
+            poll_error_grace_s=grace_s,
         )
 
     import audit_attack
@@ -150,6 +158,12 @@ def main() -> int:
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
     parser.add_argument("--poll-seconds", type=float, default=30.0)
     parser.add_argument("--timeout-seconds", type=float, default=900.0)
+    parser.add_argument("--poll-error-grace-seconds", type=float, default=None,
+                        help="tolerate this many contiguous seconds of "
+                             "kernels_status errors before giving up (default: "
+                             "safe_submit.FRESH_KERNEL_POLL_ERROR_GRACE_S) -- "
+                             "covers a brand-new kernel slug's brief "
+                             "half-created-state 403/404 window")
     parser.add_argument("--allow-pending", action="store_true",
                         help="stack concurrent scored reruns (fire a full sweep in one day)")
     args = parser.parse_args()
@@ -169,6 +183,7 @@ def main() -> int:
             poll_seconds=args.poll_seconds,
             timeout_seconds=args.timeout_seconds,
             allow_pending=args.allow_pending,
+            poll_error_grace_seconds=args.poll_error_grace_seconds,
         )
         append_jsonl(args.out, row)
         rows.append(row)

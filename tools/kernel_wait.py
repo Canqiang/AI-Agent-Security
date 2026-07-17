@@ -21,11 +21,31 @@ def wait_for_fresh_complete(
     min_floor_s: float,
     timeout_s: float,
     poll_seconds: float,
+    poll_error_grace_s: float = 0.0,
 ) -> dict:
     start = monotonic()
     saw_noncomplete = False
+    error_streak_start: float | None = None
     while True:
-        raw = str(poll_status() or "").strip().lower()
+        try:
+            raw = str(poll_status() or "").strip().lower()
+        except Exception as exc:
+            # A brand-new kernel's session can 403/404 for a short window right
+            # after creation (a half-created-state race on Kaggle's side, not a
+            # real failure) -- tolerate up to poll_error_grace_s of CONTIGUOUS
+            # errors before giving up; the default (0.0) fails on the very
+            # first error, same practical outcome as before this existed, just
+            # caught gracefully instead of crashing the caller.
+            if error_streak_start is None:
+                error_streak_start = monotonic()
+            elapsed = monotonic() - start
+            if monotonic() - error_streak_start >= poll_error_grace_s or elapsed > timeout_s:
+                return {"ok": False, "status": None, "waited_s": round(elapsed, 3),
+                        "saw_noncomplete": saw_noncomplete, "reason": "poll_error",
+                        "error": str(exc)}
+            sleep(poll_seconds)
+            continue
+        error_streak_start = None
         # kaggle client >=1.8 returns the enum repr, e.g.
         # "KernelWorkerStatus.COMPLETE"; keep only the token after the dot so the
         # comparisons below match (mirrors kaggle_status.py's rsplit normalization).
