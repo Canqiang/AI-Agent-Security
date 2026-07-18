@@ -1,7 +1,7 @@
 {
   "competition": "ai-agent-security-multi-step-tool-attacks",
   "description": "",
-  "error_description": "",
+  "error_description": "Your notebook generated a submission file with incorrect format. Some examples causing this are: wrong number of rows or columns, empty values, an incorrect data type for a value, or invalid submission values from what is expected.",
   "first_seen_at": "2026-07-17T13:10:01+00:00",
   "kernel": null,
   "kernel_version_url": "/code/canqiang/aiagsec-submission?scriptVersionId=335946545",
@@ -10,9 +10,9 @@
   "private_score": null,
   "public_score": null,
   "ref": 54782982,
-  "resolved_at": null,
+  "resolved_at": "2026-07-18T03:24:55+00:00",
   "schema_version": "2026-06-24.submission-ref.v1",
-  "status": "SubmissionStatus.PENDING",
+  "status": "COMPLETE",
   "submitted_at": "2026-07-17T12:37:22.563Z",
-  "taxonomy": "pending"
+  "taxonomy": "other_error"
 }

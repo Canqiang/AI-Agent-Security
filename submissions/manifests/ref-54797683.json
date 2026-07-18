@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "fill_rsafe_split_r099a k1 n2000 expNone per-model split-by-latency (Harmony analysis-channel token forgery on the classified-slow row) + REPLAY-SAFE sizing (accumulate KEPT candidates' measured replay cost, stop at 0.99*replay_budget, warm-up-subtracted; wall-clock bound at run_start+0.99*budget). floor_min=4/m47/f0.95 baked as degrade-safe fallback (ignored while replay-safe engaged). 07-18 ladder: max clamp, draw A. First real test of replay-safe sizing on our engine, chasing 80+ from the 75.825 split/floor4 base.",
+  "error_description": "",
+  "first_seen_at": "2026-07-18T03:24:55+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-rsafe-split-r099a?scriptVersionId=336146875",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": null,
+  "ref": 54797683,
+  "resolved_at": null,
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "SubmissionStatus.PENDING",
+  "submitted_at": "2026-07-18T03:08:49.380Z",
+  "taxonomy": "pending"
+}

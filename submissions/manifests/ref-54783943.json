@@ -1,7 +1,7 @@
 {
   "competition": "ai-agent-security-multi-step-tool-attacks",
   "description": "fill_frame_fm04_m47_f095 k1 n2000 expNone UNIFORM corrected Harmony-token template (base TEMPLATE swapped, applied to BOTH model rows unconditionally, no per-model split) at the AGGRESSIVE floor_min=4 cushion (our historical best raw config, 63.850). Cell (split=False, floor_min=4) of the 2x2 -- tests whether the new lever helps even without per-model classification, stacked on our best-known cushion.",
-  "error_description": "",
+  "error_description": "Your notebook generated a submission file with incorrect format. Some examples causing this are: wrong number of rows or columns, empty values, an incorrect data type for a value, or invalid submission values from what is expected.",
   "first_seen_at": "2026-07-17T13:23:53+00:00",
   "kernel": null,
   "kernel_version_url": "/code/canqiang/aiagsec-frame-fm04-harmony?scriptVersionId=335956752",
@@ -10,9 +10,9 @@
   "private_score": null,
   "public_score": null,
   "ref": 54783943,
-  "resolved_at": null,
+  "resolved_at": "2026-07-18T03:24:55+00:00",
   "schema_version": "2026-06-24.submission-ref.v1",
-  "status": "SubmissionStatus.PENDING",
+  "status": "COMPLETE",
   "submitted_at": "2026-07-17T13:23:23.023Z",
-  "taxonomy": "pending"
+  "taxonomy": "other_error"
 }
