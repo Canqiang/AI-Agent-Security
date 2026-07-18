@@ -396,9 +396,9 @@ _SPLIT_KNOBS = {
 }
 
 
-def _scripted_run(monkeypatch, *, latency, algo_cfg=None, time_budget_s=3.0):
+def _scripted_run(monkeypatch, *, latency, algo_cfg=None, time_budget_s=3.0, cold=0.02):
     clock = ManualClock()
-    env = ScriptedEnv(clock, latency=latency)
+    env = ScriptedEnv(clock, latency=latency, cold=cold)
     monkeypatch.setattr(attack_module, "time", clock)
     cands = _run(
         env,
@@ -510,6 +510,89 @@ def test_split_config_does_not_reformat_burst_messages(monkeypatch):
         message = candidate.user_messages[0]
         assert message.count(f"data={PAYLOAD}") == 4
         assert "<|channel|>analysis" not in message
+
+
+# --- replay-safe sizing (2026-07-18) -----------------------------------------
+# The gateway replays every RETURNED candidate at forced max_tool_hops=8 in its
+# OWN fresh per-model budget; an overrun voids the WHOLE submission. The disclosed
+# 79-86 recipe (see memory frontier-technique-research-2026-07-17) replaces the
+# flat margin/frac cushion with: accumulate each KEPT candidate's measured cost
+# (fill latency == the real replay cost) and stop once it would exceed
+# REPLAY_SAFE_FRAC * replay_budget, letting the returned set grow toward the true
+# replay limit. A wall-clock bound (anchored at the true run start, so warm-up is
+# folded in) keeps the fill itself inside run()'s own budget; the replay cap
+# subtracts the measured warm-up so the fresh replay budget has room for its own
+# model-load. Config-gated OFF by default -- default candidates are byte-identical.
+
+
+def test_replay_safe_sizing_defaults_off():
+    from attack import REPLAY_SAFE_SIZING
+    assert REPLAY_SAFE_SIZING is False
+
+
+def test_replay_stop_triggers_when_kept_cost_would_exceed_replay_cap():
+    from attack import _replay_stop
+    # kept replay cost 8.0 + next candidate estimate 1.0 == 9.0 >= cap 9.0 -> stop.
+    assert _replay_stop(
+        replay_cost=8.0, wall_now=0.0, next_est=1.0, replay_cap=9.0, wall_deadline=1e9
+    ) is True
+
+
+def test_replay_stop_allows_when_both_bounds_have_room():
+    from attack import _replay_stop
+    assert _replay_stop(
+        replay_cost=1.0, wall_now=1.0, next_est=1.0, replay_cap=9.0, wall_deadline=9.0
+    ) is False
+
+
+def test_replay_stop_triggers_on_wall_deadline_even_when_replay_cost_has_room():
+    from attack import _replay_stop
+    # Many misfires -> tiny kept cost, but the fill's own wall-clock is at the
+    # run-budget edge: the wall bound must still stop it (else run() overruns).
+    assert _replay_stop(
+        replay_cost=0.0, wall_now=8.5, next_est=1.0, replay_cap=9.0, wall_deadline=9.0
+    ) is True
+
+
+def test_replay_safe_sizing_fills_more_than_flat_margin_at_same_budget(monkeypatch):
+    # The whole point: reclaiming the flat frac(0.85)/margin cushion for the true
+    # 0.99 replay budget must return strictly MORE candidates at the same budget.
+    flat = {
+        "margin_s": 0.15, "floor_min": 0.15, "slowest0": 0.02,
+        "fill_budget_frac": 0.85, "hard_n_cap": 10000,
+    }
+    rs = dict(flat, replay_safe_sizing=True, replay_safe_frac=0.99)
+    _fe, flat_cands = _scripted_run(
+        monkeypatch, latency=0.10, algo_cfg=flat, time_budget_s=3.0
+    )
+    _re, rs_cands = _scripted_run(
+        monkeypatch, latency=0.10, algo_cfg=rs, time_budget_s=3.0
+    )
+    assert len(rs_cands) > len(flat_cands)
+
+
+def test_replay_safe_cap_subtracts_measured_warmup(monkeypatch):
+    # A larger warm-up leaves less room in the fresh replay budget for candidates,
+    # so replay-safe sizing must return FEWER of them (proves warm-up is charged
+    # against the replay cap, not silently ignored).
+    rs = {
+        "slowest0": 0.02, "hard_n_cap": 10000,
+        "replay_safe_sizing": True, "replay_safe_frac": 1.0, "replay_budget_s": 3.0,
+    }
+    _se, small_warmup = _scripted_run(
+        monkeypatch, latency=0.10, algo_cfg=rs, time_budget_s=3.0, cold=0.02
+    )
+    _be, big_warmup = _scripted_run(
+        monkeypatch, latency=0.10, algo_cfg=rs, time_budget_s=3.0, cold=1.0
+    )
+    assert len(big_warmup) < len(small_warmup)
+
+
+def test_replay_safe_audit_override_path_ignores_replay_config():
+    candidates = AttackAlgorithm(
+        config={"n_candidates": 5, "replay_safe_sizing": True, "replay_safe_frac": 0.99}
+    ).run(None, AttackRunConfig())
+    assert len(candidates) == 5
 
 
 def test_falls_back_to_fixed_n_when_env_not_probeable():

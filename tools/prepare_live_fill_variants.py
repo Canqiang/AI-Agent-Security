@@ -50,6 +50,13 @@ class Rung:
     # None -> leave SPLIT_BY_LATENCY at the source default (False). A value
     # bakes the per-model split-messages mechanism on/off for this variant.
     split_by_latency: bool | None = None
+    # None -> leave REPLAY_SAFE_SIZING at the source default (False). A value bakes
+    # the 2026-07-18 replay-safe sizing stop (accumulate KEPT candidates' measured
+    # replay cost, cap at REPLAY_SAFE_FRAC * replay budget) on/off for this variant.
+    replay_safe_sizing: bool | None = None
+    # None -> leave REPLAY_SAFE_FRAC at the source default (0.99). A value bakes a
+    # tighter/looser clamp (e.g. 0.97 as a hedge against the replay-overrun void).
+    replay_safe_frac: float | None = None
 
 
 RUNGS: dict[str, Rung] = {
@@ -197,6 +204,20 @@ def rung_attack_code(rung: Rung, base_source: str) -> str:
             rung.split_by_latency,
             f"07-11 per-model split-messages rung: {rung.name}",
         )
+    if rung.replay_safe_sizing is not None:
+        text = _substitute_once(
+            text,
+            "REPLAY_SAFE_SIZING",
+            rung.replay_safe_sizing,
+            f"07-18 replay-safe sizing rung: {rung.name}",
+        )
+    if rung.replay_safe_frac is not None:
+        text = _substitute_once(
+            text,
+            "REPLAY_SAFE_FRAC",
+            rung.replay_safe_frac,
+            f"07-18 replay-safe sizing rung: {rung.name}",
+        )
     return text
 
 
@@ -255,6 +276,16 @@ def write_variant(rung: Rung, out_root: Path) -> dict[str, Any]:
             max(1, int(split_classify_n))
             if split_classify_n is not None
             else None
+        ),
+        # None means the rung left the knob at the source default; still record the
+        # effective baked value (not a bare null) for a later knob->score read.
+        "replay_safe_sizing": (
+            rung.replay_safe_sizing if rung.replay_safe_sizing is not None
+            else _source_value_bool(base_source, "REPLAY_SAFE_SIZING")
+        ),
+        "replay_safe_frac": (
+            rung.replay_safe_frac if rung.replay_safe_frac is not None
+            else _source_value(base_source, "REPLAY_SAFE_FRAC")
         ),
         "expected_public_score": None,
         "description": rung.description,

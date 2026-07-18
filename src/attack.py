@@ -146,6 +146,22 @@ SPLIT_CLASSIFY_N = 8           # candidates sampled (plain TEMPLATE) before fixi
 # even a 4-hop cap. See [[frontier-technique-research-2026-07-12]] for the EV
 # caveats -- this is an empirical test, not a proven climb.
 BURST_K = 1
+# Replay-safe sizing (2026-07-18): the scored gateway replays every RETURNED
+# candidate at forced max_tool_hops=8 inside its OWN fresh per-model budget; an
+# overrun voids the WHOLE submission. Instead of the flat MARGIN_S/FILL_BUDGET_FRAC
+# cushion, accumulate each KEPT candidate's measured cost (fill latency == the real
+# replay cost, since the fill already runs each candidate once at max_tool_hops=8)
+# and stop once it would exceed REPLAY_SAFE_FRAC * replay_budget; a wall-clock bound
+# anchored at the true run start (so warm-up is folded in) keeps the fill inside
+# run()'s own budget, and the replay cap subtracts the measured warm-up so the fresh
+# replay budget has room for its own model-load. Lets the returned set grow toward
+# HARD_N_CAP at the true replay limit instead of a conservative flat cushion.
+# Default OFF == today's proven flat-margin behavior, BYTE-IDENTICAL; a generated
+# variant flips it on via the same source-substitution mechanism as
+# SPLIT_BY_LATENCY. The 5 disclosed 79-86 public notebooks all use this (see memory
+# frontier-technique-research-2026-07-17).
+REPLAY_SAFE_SIZING = False    # opt-in gate; False == today's flat-margin stop
+REPLAY_SAFE_FRAC = 0.99       # hard clamp: KEPT replay cost <= this * replay budget
 FALLBACK_N = 300              # emitted when the env cannot be probed (< 600 so
                               # audit's stale-default guard never trips)
 WARMUP_IDX = 899999           # far-away host index for the untimed warm-up (never
@@ -202,6 +218,21 @@ def _adaptive_margin(slowest: float, margin_s: float, floor_min: float, slowest_
     return min(margin_s, floor_min + slowest * slowest_coef)
 
 
+def _replay_stop(
+    replay_cost: float,
+    wall_now: float,
+    next_est: float,
+    replay_cap: float,
+    wall_deadline: float,
+) -> bool:
+    """Replay-safe stop test: True when adding one more candidate of ~`next_est`
+    cost would push either the KEPT set's accumulated replay cost past `replay_cap`
+    (the fresh replay budget, warm-up-adjusted) or the fill's own wall-clock past
+    `wall_deadline` (run()'s own budget). Either overrun voids the whole submission,
+    so stop if EITHER bound would be exceeded."""
+    return (replay_cost + next_est >= replay_cap) or (wall_now + next_est >= wall_deadline)
+
+
 def _emit(n: int) -> list[AttackCandidate]:
     n = max(1, min(int(n), HARD_N_CAP))
     return [AttackCandidate.from_messages((_burst_msg(i, BURST_K),)) for i in range(n)]
@@ -254,11 +285,18 @@ class AttackAlgorithm(AttackAlgorithmBase):
             1, int(self.config.get("split_classify_n", SPLIT_CLASSIFY_N))
         )
         frame_template = str(self.config.get("frame_template", FRAME_TEMPLATE))
+        replay_safe_sizing = bool(
+            self.config.get("replay_safe_sizing", REPLAY_SAFE_SIZING)
+        )
+        replay_safe_frac = float(self.config.get("replay_safe_frac", REPLAY_SAFE_FRAC))
+        replay_budget = float(self.config.get("replay_budget_s", budget))
 
         # One-time UNTIMED warm-up pays the model-load cost (75-146s on the GGUF
         # backend) BEFORE the loop, so it never inflates `slowest` and stops the
         # fill at ~1 candidate. Its outcome is irrelevant; a raise means the env
-        # is not probeable -> [] -> caller falls back.
+        # is not probeable -> [] -> caller falls back. `run_start` is captured
+        # BEFORE it so replay-safe sizing can fold the warm-up into its budgets.
+        run_start = time.monotonic()
         try:
             env.reset()
             env.interact(_msg(WARMUP_IDX), max_tool_hops=hops)
@@ -266,15 +304,32 @@ class AttackAlgorithm(AttackAlgorithmBase):
             return []
 
         deadline = time.monotonic() + budget * frac
+        # Replay-safe sizing bounds (opt-in): the KEPT set's accumulated replay cost
+        # must fit the fresh replay budget minus the measured warm-up (so the replay's
+        # own model-load has room), and the fill's own wall-clock must fit run()'s
+        # budget (anchored at run_start, folding warm-up in). Unused when off.
+        replay_cap = replay_safe_frac * replay_budget - (time.monotonic() - run_start)
+        wall_deadline = run_start + replay_safe_frac * budget
+        replay_cost = 0.0
         cands: list[AttackCandidate] = []
         idx = 0
         classify_n = 0
         classify_sum = 0.0
         chosen_template = TEMPLATE
         while len(cands) < cap:
-            margin = _adaptive_margin(slowest, margin_s, floor_min, slowest_coef)
-            if time.monotonic() + max(slowest * SLOWEST_MULT, margin) >= deadline:
-                break
+            if replay_safe_sizing:
+                if _replay_stop(
+                    replay_cost,
+                    time.monotonic(),
+                    slowest * SLOWEST_MULT,
+                    replay_cap,
+                    wall_deadline,
+                ):
+                    break
+            else:
+                margin = _adaptive_margin(slowest, margin_s, floor_min, slowest_coef)
+                if time.monotonic() + max(slowest * SLOWEST_MULT, margin) >= deadline:
+                    break
             # Split applies only to the K1 message path. The first classification
             # batch always uses TEMPLATE; its mean latency fixes the template once
             # for every remaining candidate in this run. K>1 preserves the burst
@@ -309,6 +364,8 @@ class AttackAlgorithm(AttackAlgorithmBase):
                     )
             if fired:
                 cands.append(AttackCandidate.from_messages((msg,)))
+                if replay_safe_sizing:
+                    replay_cost += elapsed
         return cands
 
     @staticmethod
