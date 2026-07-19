@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "fill_rsafe_split_r0975 k1 n2000 expNone fill_rsafe_split_r0975 k1 n2000 expNone per-model split-by-latency (Harmony analysis-channel token forgery on the classified-slow row) + REPLAY-SAFE sizing (accumulate KEPT candidates' measured replay cost, stop at 0.975*replay_budget, warm-up-subtracted; wall-clock bound at run_start+0.975*budget). floor_min=4/m47/f0.95 baked as degrade-safe fallback (ignored while replay-safe engaged). 07-19 boundary-bisection ladder: r097(eff~0.957)=85.5 landed, r098(eff~0.967)=void -- this rung interpolates the gap to map the true ceiling above the confirmed-safe 75.825/85.5 base.",
+  "error_description": "",
+  "first_seen_at": "2026-07-19T02:15:38+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-rsafe-split-r0975?scriptVersionId=336356090",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": null,
+  "ref": 54820087,
+  "resolved_at": null,
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "SubmissionStatus.PENDING",
+  "submitted_at": "2026-07-19T02:10:40.067Z",
+  "taxonomy": "pending"
+}
