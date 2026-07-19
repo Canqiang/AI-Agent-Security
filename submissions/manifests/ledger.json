@@ -3,49 +3,48 @@
   "best_scored_ref": 54797743,
   "competition": "ai-agent-security-multi-step-tool-attacks",
   "counts_by_taxonomy": {
-    "complete_scored": 32,
+    "complete_scored": 36,
     "complete_zero": 2,
-    "other_error": 25,
-    "pending": 5,
+    "other_error": 26,
     "runtime_exceeded": 3,
     "system_error": 5
   },
-  "current_baseline_ref": 54797753,
+  "current_baseline_ref": 54820172,
   "refs": [
     {
       "description": "fill_rsafe_split_r0979 k1 n2000 expNone per-model split-by-latency (Harmony analysis-channel token forgery on the classified-slow row) + REPLAY-SAFE sizing (accumulate KEPT candidates' measured replay cost, stop at 0.979*replay_budget, warm-up-subtracted; wall-clock bound at run_start+0.979*budget). floor_min=4/m47/f0.95 baked as degrade-safe fallback (ignored while replay-safe engaged). 07-19 boundary-bisection ladder: r097(eff~0.957)=85.5 landed, r098(eff~0.967)=void -- this rung interpolates the gap to map the true ceiling above the confirmed-safe 75.825/85.5 base.",
-      "public_score": null,
+      "public_score": 79.29,
       "ref": 54820172,
       "submitted_at": "2026-07-19T02:15:27.450Z",
-      "taxonomy": "pending"
+      "taxonomy": "complete_scored"
     },
     {
       "description": "fill_rsafe_split_r0977 k1 n2000 expNone per-model split-by-latency (Harmony analysis-channel token forgery on the classified-slow row) + REPLAY-SAFE sizing (accumulate KEPT candidates' measured replay cost, stop at 0.977*replay_budget, warm-up-subtracted; wall-clock bound at run_start+0.977*budget). floor_min=4/m47/f0.95 baked as degrade-safe fallback (ignored while replay-safe engaged). 07-19 boundary-bisection ladder: r097(eff~0.957)=85.5 landed, r098(eff~0.967)=void -- this rung interpolates the gap to map the true ceiling above the confirmed-safe 75.825/85.5 base.",
-      "public_score": null,
+      "public_score": 81.315,
       "ref": 54820150,
       "submitted_at": "2026-07-19T02:14:11.070Z",
-      "taxonomy": "pending"
+      "taxonomy": "complete_scored"
     },
     {
       "description": "fill_rsafe_split_r0973 k1 n2000 expNone per-model split-by-latency (Harmony analysis-channel token forgery on the classified-slow row) + REPLAY-SAFE sizing (accumulate KEPT candidates' measured replay cost, stop at 0.973*replay_budget, warm-up-subtracted; wall-clock bound at run_start+0.973*budget). floor_min=4/m47/f0.95 baked as degrade-safe fallback (ignored while replay-safe engaged). 07-19 boundary-bisection ladder: r097(eff~0.957)=85.5 landed, r098(eff~0.967)=void -- this rung interpolates the gap to map the true ceiling above the confirmed-safe 75.825/85.5 base.",
-      "public_score": null,
+      "public_score": 85.14,
       "ref": 54820139,
       "submitted_at": "2026-07-19T02:13:26.717Z",
-      "taxonomy": "pending"
+      "taxonomy": "complete_scored"
     },
     {
       "description": "fill_rsafe_split_r0971 k1 n2000 expNone per-model split-by-latency (Harmony analysis-channel token forgery on the classified-slow row) + REPLAY-SAFE sizing (accumulate KEPT candidates' measured replay cost, stop at 0.971*replay_budget, warm-up-subtracted; wall-clock bound at run_start+0.971*budget). floor_min=4/m47/f0.95 baked as degrade-safe fallback (ignored while replay-safe engaged). 07-19 boundary-bisection ladder: r097(eff~0.957)=85.5 landed, r098(eff~0.967)=void -- this rung interpolates the gap to map the true ceiling above the confirmed-safe 75.825/85.5 base.",
-      "public_score": null,
+      "public_score": 80.865,
       "ref": 54820123,
       "submitted_at": "2026-07-19T02:12:38.333Z",
-      "taxonomy": "pending"
+      "taxonomy": "complete_scored"
     },
     {
       "description": "fill_rsafe_split_r0975 k1 n2000 expNone fill_rsafe_split_r0975 k1 n2000 expNone per-model split-by-latency (Harmony analysis-channel token forgery on the classified-slow row) + REPLAY-SAFE sizing (accumulate KEPT candidates' measured replay cost, stop at 0.975*replay_budget, warm-up-subtracted; wall-clock bound at run_start+0.975*budget). floor_min=4/m47/f0.95 baked as degrade-safe fallback (ignored while replay-safe engaged). 07-19 boundary-bisection ladder: r097(eff~0.957)=85.5 landed, r098(eff~0.967)=void -- this rung interpolates the gap to map the true ceiling above the confirmed-safe 75.825/85.5 base.",
       "public_score": null,
       "ref": 54820087,
       "submitted_at": "2026-07-19T02:10:40.067Z",
-      "taxonomy": "pending"
+      "taxonomy": "other_error"
     },
     {
       "description": "fill_rsafe_split_r095 k1 n2000 expNone per-model split-by-latency (Harmony analysis-channel token forgery on the classified-slow row) + REPLAY-SAFE sizing (accumulate KEPT candidates' measured replay cost, stop at 0.95*replay_budget, warm-up-subtracted; wall-clock bound at run_start+0.95*budget). floor_min=4/m47/f0.95 baked as degrade-safe fallback (ignored while replay-safe engaged). 07-18 ladder: safe floor, ~old flat-0.95 but cleaner. First real test of replay-safe sizing on our engine, chasing 80+ from the 75.825 split/floor4 base.",
@@ -518,12 +517,6 @@
     }
   ],
   "schema_version": "2026-06-24.submission-ledger.v1",
-  "unresolved_pending_refs": [
-    "54820172",
-    "54820150",
-    "54820139",
-    "54820123",
-    "54820087"
-  ],
-  "updated_at": "2026-07-19T02:15:38+00:00"
+  "unresolved_pending_refs": [],
+  "updated_at": "2026-07-19T15:18:27+00:00"
 }

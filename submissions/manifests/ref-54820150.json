@@ -8,11 +8,11 @@
   "log_excerpt": null,
   "notes": "",
   "private_score": null,
-  "public_score": null,
+  "public_score": 81.315,
   "ref": 54820150,
-  "resolved_at": null,
+  "resolved_at": "2026-07-19T15:18:27+00:00",
   "schema_version": "2026-06-24.submission-ref.v1",
-  "status": "SubmissionStatus.PENDING",
+  "status": "COMPLETE",
   "submitted_at": "2026-07-19T02:14:11.070Z",
-  "taxonomy": "pending"
+  "taxonomy": "complete_scored"
 }
