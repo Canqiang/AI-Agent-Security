@@ -1,18 +1,18 @@
 {
   "competition": "ai-agent-security-multi-step-tool-attacks",
   "description": "fill_rsafe_split_r099a k1 n2000 expNone per-model split-by-latency (Harmony analysis-channel token forgery on the classified-slow row) + REPLAY-SAFE sizing (accumulate KEPT candidates' measured replay cost, stop at 0.99*replay_budget, warm-up-subtracted; wall-clock bound at run_start+0.99*budget). floor_min=4/m47/f0.95 baked as degrade-safe fallback (ignored while replay-safe engaged). 07-18 ladder: max clamp, draw A. First real test of replay-safe sizing on our engine, chasing 80+ from the 75.825 split/floor4 base.",
-  "error_description": "",
+  "error_description": "Your notebook generated a submission file with incorrect format. Some examples causing this are: wrong number of rows or columns, empty values, an incorrect data type for a value, or invalid submission values from what is expected.",
   "first_seen_at": "2026-07-18T03:24:55+00:00",
   "kernel": null,
   "kernel_version_url": "/code/canqiang/aiagsec-rsafe-split-r099a?scriptVersionId=336146875",
-  "log_excerpt": null,
+  "log_excerpt": "[{\"stream_name\":\"stderr\",\"time\":7.246995147,\"data\":\"/usr/local/lib/python3.12/dist-packages/nbformat/__init__.py:96: MissingIDFieldWarning: Cell is missing an id field, this will become a hard error in future nbformat versions. You may want to use `normalize()` on your notebooks before validations (available since nbformat 5.1.4). Previous versions of nbformat are fixing this issue transparently, and will stop doing so in the future.\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":7.247061042,\"data\":\"  validate(nb)\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":8.161231243,\"data\":\"0.00s - Debugger warning: It seems that frozen modules are being used, which may\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":8.161265122,\"data\":\"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":8.161269011,\"data\":\"0.00s - to python to disable frozen modules.\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":8.161271849,\"data\":\"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":8.809994374,\"data\":\"0.00s - Debugger warning: It seems that frozen modules are being used, which may\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":8.810020069,\"data\":\"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":8.810030433,\"data\":\"0.00s - to python to disable frozen modules.\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":8.810033422,\"data\":\"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\\n\"}\n,{\"stream_name\":\"stdout\",\"time\":9.935867899,\"data\":\"Writing /kaggle/working/attack.py\\n\"}\n,{\"stream_name\":\"stdout\",\"time\":15.106621622,\"data\":\"placeholder submission.csv written. Set Accelerator = GPU T4 x2, then Submit.\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":17.649375738,\"data\":\"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\\\|'\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":17.64940709,\"data\":\"  cells[i][c] = re.sub('\\\\\\\\\\\\\\\\\\\\|', '|', cell)\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":17.805587241,\"data\":\"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\\\_'\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":17.805612257,\"data\":\"  text = re.sub(r'_', '\\\\_', text) # Escape underscores in display text\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":18.493553375,\"data\":\"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":18.784413552,\"data\":\"[NbConvertApp] Writing 26783 bytes to __notebook__.ipynb\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":21.230868569,\"data\":\"[NbConvertApp] Converting notebook __notebook__.ipynb to html\\n\"}\n,{\"stream_name\":\"stderr\",\"time\":22.040042726,\"data\":\"[NbConvertApp] Writing 327772 bytes to __results__.html\\n\"}\n]",
   "notes": "",
   "private_score": null,
   "public_score": null,
   "ref": 54797683,
-  "resolved_at": null,
+  "resolved_at": "2026-07-19T01:55:20+00:00",
   "schema_version": "2026-06-24.submission-ref.v1",
-  "status": "SubmissionStatus.PENDING",
+  "status": "COMPLETE",
   "submitted_at": "2026-07-18T03:08:49.380Z",
-  "taxonomy": "pending"
+  "taxonomy": "other_error"
 }

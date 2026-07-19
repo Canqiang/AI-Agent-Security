@@ -1,51 +1,50 @@
 {
-  "best_public_score": 75.825,
-  "best_scored_ref": 54783875,
+  "best_public_score": 85.5,
+  "best_scored_ref": 54797743,
   "competition": "ai-agent-security-multi-step-tool-attacks",
   "counts_by_taxonomy": {
-    "complete_scored": 30,
+    "complete_scored": 32,
     "complete_zero": 2,
-    "other_error": 22,
-    "pending": 5,
+    "other_error": 25,
     "runtime_exceeded": 3,
     "system_error": 5
   },
-  "current_baseline_ref": 54783875,
+  "current_baseline_ref": 54797753,
   "refs": [
     {
       "description": "fill_rsafe_split_r095 k1 n2000 expNone per-model split-by-latency (Harmony analysis-channel token forgery on the classified-slow row) + REPLAY-SAFE sizing (accumulate KEPT candidates' measured replay cost, stop at 0.95*replay_budget, warm-up-subtracted; wall-clock bound at run_start+0.95*budget). floor_min=4/m47/f0.95 baked as degrade-safe fallback (ignored while replay-safe engaged). 07-18 ladder: safe floor, ~old flat-0.95 but cleaner. First real test of replay-safe sizing on our engine, chasing 80+ from the 75.825 split/floor4 base.",
-      "public_score": null,
+      "public_score": 84.78,
       "ref": 54797753,
       "submitted_at": "2026-07-18T03:12:29.990Z",
-      "taxonomy": "pending"
+      "taxonomy": "complete_scored"
     },
     {
       "description": "fill_rsafe_split_r097 k1 n2000 expNone per-model split-by-latency (Harmony analysis-channel token forgery on the classified-slow row) + REPLAY-SAFE sizing (accumulate KEPT candidates' measured replay cost, stop at 0.97*replay_budget, warm-up-subtracted; wall-clock bound at run_start+0.97*budget). floor_min=4/m47/f0.95 baked as degrade-safe fallback (ignored while replay-safe engaged). 07-18 ladder: boundary map / void hedge. First real test of replay-safe sizing on our engine, chasing 80+ from the 75.825 split/floor4 base.",
-      "public_score": null,
+      "public_score": 85.5,
       "ref": 54797743,
       "submitted_at": "2026-07-18T03:11:50.833Z",
-      "taxonomy": "pending"
+      "taxonomy": "complete_scored"
     },
     {
       "description": "fill_rsafe_split_r098 k1 n2000 expNone per-model split-by-latency (Harmony analysis-channel token forgery on the classified-slow row) + REPLAY-SAFE sizing (accumulate KEPT candidates' measured replay cost, stop at 0.98*replay_budget, warm-up-subtracted; wall-clock bound at run_start+0.98*budget). floor_min=4/m47/f0.95 baked as degrade-safe fallback (ignored while replay-safe engaged). 07-18 ladder: boundary map. First real test of replay-safe sizing on our engine, chasing 80+ from the 75.825 split/floor4 base.",
       "public_score": null,
       "ref": 54797729,
       "submitted_at": "2026-07-18T03:11:10.787Z",
-      "taxonomy": "pending"
+      "taxonomy": "other_error"
     },
     {
       "description": "fill_rsafe_split_r099b k1 n2000 expNone per-model split-by-latency (Harmony analysis-channel token forgery on the classified-slow row) + REPLAY-SAFE sizing (accumulate KEPT candidates' measured replay cost, stop at 0.99*replay_budget, warm-up-subtracted; wall-clock bound at run_start+0.99*budget). floor_min=4/m47/f0.95 baked as degrade-safe fallback (ignored while replay-safe engaged). 07-18 ladder: max clamp, draw B. First real test of replay-safe sizing on our engine, chasing 80+ from the 75.825 split/floor4 base.",
       "public_score": null,
       "ref": 54797708,
       "submitted_at": "2026-07-18T03:09:58.520Z",
-      "taxonomy": "pending"
+      "taxonomy": "other_error"
     },
     {
       "description": "fill_rsafe_split_r099a k1 n2000 expNone per-model split-by-latency (Harmony analysis-channel token forgery on the classified-slow row) + REPLAY-SAFE sizing (accumulate KEPT candidates' measured replay cost, stop at 0.99*replay_budget, warm-up-subtracted; wall-clock bound at run_start+0.99*budget). floor_min=4/m47/f0.95 baked as degrade-safe fallback (ignored while replay-safe engaged). 07-18 ladder: max clamp, draw A. First real test of replay-safe sizing on our engine, chasing 80+ from the 75.825 split/floor4 base.",
       "public_score": null,
       "ref": 54797683,
       "submitted_at": "2026-07-18T03:08:49.380Z",
-      "taxonomy": "pending"
+      "taxonomy": "other_error"
     },
     {
       "description": "fill_frame_fm04_m47_f095 k1 n2000 expNone UNIFORM corrected Harmony-token template (base TEMPLATE swapped, applied to BOTH model rows unconditionally, no per-model split) at the AGGRESSIVE floor_min=4 cushion (our historical best raw config, 63.850). Cell (split=False, floor_min=4) of the 2x2 -- tests whether the new lever helps even without per-model classification, stacked on our best-known cushion.",
@@ -483,12 +482,6 @@
     }
   ],
   "schema_version": "2026-06-24.submission-ledger.v1",
-  "unresolved_pending_refs": [
-    "54797753",
-    "54797743",
-    "54797729",
-    "54797708",
-    "54797683"
-  ],
-  "updated_at": "2026-07-18T03:24:55+00:00"
+  "unresolved_pending_refs": [],
+  "updated_at": "2026-07-19T01:55:54+00:00"
 }
