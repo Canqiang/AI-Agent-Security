@@ -10,6 +10,12 @@ VALIDATION_BUDGET_PER_MODEL ?= 3000
 VALIDATION_MODELS ?= gpt_oss,gemma
 VALIDATION_MAX_TOOL_HOPS ?= 8
 VALIDATION_RAW_OUT ?= research/results/validation-raw.latest.jsonl
+PROBE_N ?= 12
+PROBE_HOPS ?= 1,8
+PROBE_BASELINE_HOP ?= 8
+PROBE_HOP ?= 1
+PROBE_OUT ?= research/results/hops-calibration.latest.json
+PROBE_RAW_OUT ?= research/results/hops-calibration.raw.jsonl
 EXPERIMENT_N ?= 5
 EXPERIMENT_FAMILIES ?= direct_exfil_suppress_once,direct_exfil_suppress_stop,direct_exfil_suppress_no_summary,direct_exfil_exactly_once,direct_exfil_minimal_function
 EXPERIMENT_BANK ?= research/results/candidate_bank.suppress_ab.jsonl
@@ -41,8 +47,11 @@ help:
 	@echo "  make submission-csv  write official four-row commit-run CSV"
 	@echo "  make kaggle-status   refresh Kaggle status JSON"
 	@echo "  make validation-gguf run real GGUF validation and write summary"
+	@echo "  make probe-hops-calibration  hops=1 vs hops=8 hit-rate/timing probe (needs a GGUF backend)"
 	@echo "  make validation-kernel build self-contained Kaggle validation kernel"
 	@echo "  make push-validation-kernel push validation kernel with explicit T4"
+	@echo "  make hops-calibration-kernel build self-contained CPU hops=1 vs hops=8 probe kernel"
+	@echo "  make push-hops-calibration-kernel push the CPU hops-calibration probe kernel"
 	@echo "  make submit-readiness-kernel build self-contained Kaggle submit-readiness kernel"
 	@echo "  make push-submit-readiness-kernel push submit-readiness kernel with explicit T4"
 	@echo "  make experiment-suppress-ab run local suppressor A/B experiment"
@@ -141,6 +150,18 @@ validation-gguf:
 		--out $(VALIDATION_SUMMARY) \
 		--raw-out $(VALIDATION_RAW_OUT)
 
+.PHONY: probe-hops-calibration
+probe-hops-calibration:
+	$(PYTHON) tools/probe_hops_calibration.py \
+		--n $(PROBE_N) \
+		--models $(VALIDATION_MODELS) \
+		--budget-per-model $(VALIDATION_BUDGET_PER_MODEL) \
+		--hops $(PROBE_HOPS) \
+		--baseline-hop $(PROBE_BASELINE_HOP) \
+		--probe-hop $(PROBE_HOP) \
+		--out $(PROBE_OUT) \
+		--raw-out $(PROBE_RAW_OUT)
+
 .PHONY: experiment-suppress-ab
 experiment-suppress-ab: sdk-present
 	$(PYTHON) tools/run_candidate_experiment.py \
@@ -167,6 +188,14 @@ validation-kernel:
 .PHONY: push-validation-kernel
 push-validation-kernel: validation-kernel
 	$(PYTHON) tools/push_kaggle_kernel.py kaggle_push/validation
+
+.PHONY: hops-calibration-kernel
+hops-calibration-kernel:
+	$(PYTHON) tools/prepare_hops_calibration_kernel.py
+
+.PHONY: push-hops-calibration-kernel
+push-hops-calibration-kernel: hops-calibration-kernel
+	$(PYTHON) tools/push_kaggle_kernel.py kaggle_push/hops_calibration
 
 .PHONY: submit-readiness-kernel
 submit-readiness-kernel:
