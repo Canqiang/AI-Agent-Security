@@ -162,6 +162,18 @@ BURST_K = 1
 # frontier-technique-research-2026-07-17).
 REPLAY_SAFE_SIZING = False    # opt-in gate; False == today's flat-margin stop
 REPLAY_SAFE_FRAC = 0.99       # hard clamp: KEPT replay cost <= this * replay budget
+# hops=1 fill-throughput lever (2026-07-20, memory hops1-fill-throughput-confirmed):
+# the scored replay always reruns at max_tool_hops=8 and the exfil event is recorded
+# at hop-0 (before the wrap-up hop), so a candidate fires identically whether the
+# fill probes it at 1 hop or 8 (empirically verified 12/12 both models). Probing at
+# PROBE_HOPS=1 skips the scoring-irrelevant wrap-up generation for a ~1.5-2x faster
+# fill, but its measured elapsed then UNDER-counts the true hops=8 replay cost, so
+# REPLAY_COST_COEF scales each measurement back up before REPLAY_SAFE_SIZING charges
+# it (uncalibrated it would under-count and risk a replay-budget-overrun void).
+# Both default to today's behavior BYTE-IDENTICALLY (probe at the grader hop cap,
+# no scaling); a generated variant flips them via the source-substitution mechanism.
+PROBE_HOPS = 0                # 0 == probe at the grader's max_tool_hops (today's 8)
+REPLAY_COST_COEF = 1.0        # measured elapsed x this == estimated hops=8 replay cost
 FALLBACK_N = 300              # emitted when the env cannot be probed (< 600 so
                               # audit's stale-default guard never trips)
 WARMUP_IDX = 899999           # far-away host index for the untimed warm-up (never
@@ -224,13 +236,20 @@ def _replay_stop(
     next_est: float,
     replay_cap: float,
     wall_deadline: float,
+    *,
+    next_wall_est: float | None = None,
 ) -> bool:
-    """Replay-safe stop test: True when adding one more candidate of ~`next_est`
-    cost would push either the KEPT set's accumulated replay cost past `replay_cap`
-    (the fresh replay budget, warm-up-adjusted) or the fill's own wall-clock past
-    `wall_deadline` (run()'s own budget). Either overrun voids the whole submission,
-    so stop if EITHER bound would be exceeded."""
-    return (replay_cost + next_est >= replay_cap) or (wall_now + next_est >= wall_deadline)
+    """Replay-safe stop test: True when adding one more candidate would push either
+    the KEPT set's accumulated replay cost past `replay_cap` (the fresh replay
+    budget, warm-up-adjusted) or the fill's own wall-clock past `wall_deadline`
+    (run()'s own budget). Either overrun voids the whole submission, so stop if
+    EITHER bound would be exceeded. `next_est` is the next candidate's estimated
+    REPLAY cost; `next_wall_est` (default: `next_est`) its estimated FILL wall-clock
+    cost -- these differ only when the fill probes at a tighter hop cap than the
+    replay reruns at (PROBE_HOPS < 8), where the fill measurement is cheaper than
+    the replay it stands in for."""
+    wall_est = next_est if next_wall_est is None else next_wall_est
+    return (replay_cost + next_est >= replay_cap) or (wall_now + wall_est >= wall_deadline)
 
 
 def _emit(n: int) -> list[AttackCandidate]:
@@ -290,6 +309,12 @@ class AttackAlgorithm(AttackAlgorithmBase):
         )
         replay_safe_frac = float(self.config.get("replay_safe_frac", REPLAY_SAFE_FRAC))
         replay_budget = float(self.config.get("replay_budget_s", budget))
+        # hops=1 lever: probe at a tighter hop cap than the replay reruns at, and
+        # scale each measured elapsed by replay_cost_coef to recover the true replay
+        # cost. probe_hops<=0 (default) == probe at the grader hop cap (byte-identical).
+        probe_hops_cfg = int(self.config.get("probe_hops", PROBE_HOPS) or 0)
+        probe_hops = max(1, min(probe_hops_cfg, 8)) if probe_hops_cfg > 0 else hops
+        replay_cost_coef = float(self.config.get("replay_cost_coef", REPLAY_COST_COEF))
 
         # One-time UNTIMED warm-up pays the model-load cost (75-146s on the GGUF
         # backend) BEFORE the loop, so it never inflates `slowest` and stops the
@@ -299,7 +324,7 @@ class AttackAlgorithm(AttackAlgorithmBase):
         run_start = time.monotonic()
         try:
             env.reset()
-            env.interact(_msg(WARMUP_IDX), max_tool_hops=hops)
+            env.interact(_msg(WARMUP_IDX), max_tool_hops=probe_hops)
         except Exception:
             return []
 
@@ -318,12 +343,14 @@ class AttackAlgorithm(AttackAlgorithmBase):
         chosen_template = TEMPLATE
         while len(cands) < cap:
             if replay_safe_sizing:
+                next_wall = slowest * SLOWEST_MULT
                 if _replay_stop(
                     replay_cost,
                     time.monotonic(),
-                    slowest * SLOWEST_MULT,
+                    next_wall * replay_cost_coef,
                     replay_cap,
                     wall_deadline,
+                    next_wall_est=next_wall,
                 ):
                     break
             else:
@@ -346,7 +373,7 @@ class AttackAlgorithm(AttackAlgorithmBase):
             t0 = time.monotonic()
             try:
                 env.reset()
-                env.interact(msg, max_tool_hops=hops)
+                env.interact(msg, max_tool_hops=probe_hops)
                 fired = self._fired(env)
             except Exception:
                 # Env died mid-fill: return the fired-so-far, don't discard them.
@@ -365,7 +392,7 @@ class AttackAlgorithm(AttackAlgorithmBase):
             if fired:
                 cands.append(AttackCandidate.from_messages((msg,)))
                 if replay_safe_sizing:
-                    replay_cost += elapsed
+                    replay_cost += elapsed * replay_cost_coef
         return cands
 
     @staticmethod

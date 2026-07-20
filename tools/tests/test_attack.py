@@ -216,6 +216,7 @@ class ScriptedEnv:
         self.misfire_idx = set(misfire_idx)
         self.n = 0
         self.messages = []
+        self.hops = []
         self._fired = False
 
     def reset(self):
@@ -223,6 +224,7 @@ class ScriptedEnv:
 
     def interact(self, msg, max_tool_hops=8):
         self.messages.append(msg)
+        self.hops.append(max_tool_hops)
         self.n += 1
         self.clock.advance(self.cold if self.n == 1 else self.latency)
         real_pos = self.n - 2
@@ -586,6 +588,71 @@ def test_replay_safe_cap_subtracts_measured_warmup(monkeypatch):
         monkeypatch, latency=0.10, algo_cfg=rs, time_budget_s=3.0, cold=1.0
     )
     assert len(big_warmup) < len(small_warmup)
+
+
+# hops=1 fill-throughput lever (2026-07-20, memory hops1-fill-throughput-confirmed):
+# the scored replay always reruns at max_tool_hops=8 and the exfil event lands on
+# hop-0, so a candidate fires identically whether the fill probes it at 1 hop or 8
+# (empirically verified: 12/12 both models). Probing at 1 hop is ~1.5-2x faster,
+# but its measured elapsed then UNDER-counts the true hops=8 replay cost, so a
+# per-model coef scales it back before REPLAY_SAFE_SIZING consumes it. Both knobs
+# default to today's behavior (probe at the grader hop cap, coef 1.0) byte-identically.
+
+
+def test_probe_hops_and_coef_default_to_today_behavior():
+    from attack import PROBE_HOPS, REPLAY_COST_COEF
+    assert PROBE_HOPS == 0        # 0 == follow the grader's max_tool_hops
+    assert REPLAY_COST_COEF == 1.0
+
+
+def test_probe_hops_overrides_the_env_interact_hop_cap(monkeypatch):
+    # probe_hops=1 must make EVERY interact (warm-up + candidates) run at 1 hop.
+    env, _cands = _scripted_run(
+        monkeypatch, latency=0.05, algo_cfg={"probe_hops": 1}, time_budget_s=1.0
+    )
+    assert env.hops and set(env.hops) == {1}
+
+
+def test_probe_hops_unset_follows_grader_max_tool_hops(monkeypatch):
+    # Default: no probe_hops -> interacts use the grader's max_tool_hops (4 here).
+    env, _cands = _scripted_run(
+        monkeypatch, latency=0.05, algo_cfg={}, time_budget_s=1.0
+    )
+    assert env.hops and set(env.hops) == {4}
+
+
+def test_replay_cost_coef_scales_the_replay_accounting(monkeypatch):
+    # With the replay bound binding, charging each kept candidate coef x its
+    # measured elapsed must return strictly FEWER candidates than coef 1.0.
+    base = {
+        "slowest0": 0.02, "hard_n_cap": 10000,
+        "replay_safe_sizing": True, "replay_safe_frac": 1.0, "replay_budget_s": 1.5,
+    }
+    _e1, coef1 = _scripted_run(
+        monkeypatch, latency=0.10, algo_cfg=dict(base, replay_cost_coef=1.0),
+        time_budget_s=3.0,
+    )
+    _e2, coef2 = _scripted_run(
+        monkeypatch, latency=0.10, algo_cfg=dict(base, replay_cost_coef=2.0),
+        time_budget_s=3.0,
+    )
+    assert len(coef2) < len(coef1)
+
+
+def test_replay_stop_uses_a_separate_wall_estimate_when_given():
+    from attack import _replay_stop
+    # next_est (replay estimate) has room, but the un-scaled wall estimate is what
+    # the wall bound must use -- passing a smaller next_wall_est keeps it from
+    # stopping on the (larger, coef-scaled) replay estimate.
+    assert _replay_stop(
+        replay_cost=0.0, wall_now=0.0, next_est=10.0,
+        replay_cap=1e9, wall_deadline=5.0, next_wall_est=1.0
+    ) is False
+    # ... and with no separate wall estimate the wall bound falls back to next_est.
+    assert _replay_stop(
+        replay_cost=0.0, wall_now=0.0, next_est=10.0,
+        replay_cap=1e9, wall_deadline=5.0
+    ) is True
 
 
 def test_replay_safe_audit_override_path_ignores_replay_config():
