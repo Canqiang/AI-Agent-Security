@@ -655,6 +655,27 @@ def test_replay_stop_uses_a_separate_wall_estimate_when_given():
     ) is True
 
 
+def test_replay_budget_mult_defaults_to_one():
+    from attack import REPLAY_BUDGET_MULT
+    assert REPLAY_BUDGET_MULT == 1.0
+
+
+def test_replay_budget_mult_scales_the_replay_budget(monkeypatch):
+    # No replay_budget_s config -> the replay budget is budget * REPLAY_BUDGET_MULT.
+    # A smaller mult makes the replay cap the binding bound and returns FEWER
+    # candidates; the scored path uses this constant to bet the notebook's overall
+    # replay wall has headroom BEYOND the fill budget (mult > 1).
+    base = {
+        "slowest0": 0.02, "hard_n_cap": 10000,
+        "replay_safe_sizing": True, "replay_safe_frac": 1.0,
+    }
+    monkeypatch.setattr(attack_module, "REPLAY_BUDGET_MULT", 0.5)
+    _e1, tight = _scripted_run(monkeypatch, latency=0.10, algo_cfg=base, time_budget_s=3.0)
+    monkeypatch.setattr(attack_module, "REPLAY_BUDGET_MULT", 1.0)
+    _e2, full = _scripted_run(monkeypatch, latency=0.10, algo_cfg=base, time_budget_s=3.0)
+    assert len(tight) < len(full)
+
+
 def test_replay_safe_audit_override_path_ignores_replay_config():
     candidates = AttackAlgorithm(
         config={"n_candidates": 5, "replay_safe_sizing": True, "replay_safe_frac": 0.99}

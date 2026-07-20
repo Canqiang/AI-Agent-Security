@@ -174,6 +174,14 @@ REPLAY_SAFE_FRAC = 0.99       # hard clamp: KEPT replay cost <= this * replay bu
 # no scaling); a generated variant flips them via the source-substitution mechanism.
 PROBE_HOPS = 0                # 0 == probe at the grader's max_tool_hops (today's 8)
 REPLAY_COST_COEF = 1.0        # measured elapsed x this == estimated hops=8 replay cost
+# Estimated ratio of the notebook's overall replay wall to run()'s per-model fill
+# budget. 1.0 (today) == assume they are equal (the safe default REPLAY_SAFE_SIZING
+# has always used). >1 bets the replay stage has headroom beyond the fill budget --
+# only useful WITH PROBE_HOPS<8, since a hops=1 fill can then produce more firing
+# candidates than a hops=8 fill could, up to that larger replay wall. Wrong (too
+# high) risks a replay-budget overrun void; the SDK does not expose the true wall
+# (memory frontier-technique-research-2026-07-19 finding 5), so this is a bet.
+REPLAY_BUDGET_MULT = 1.0      # replay budget default == budget * this (config overrides)
 FALLBACK_N = 300              # emitted when the env cannot be probed (< 600 so
                               # audit's stale-default guard never trips)
 WARMUP_IDX = 899999           # far-away host index for the untimed warm-up (never
@@ -308,7 +316,7 @@ class AttackAlgorithm(AttackAlgorithmBase):
             self.config.get("replay_safe_sizing", REPLAY_SAFE_SIZING)
         )
         replay_safe_frac = float(self.config.get("replay_safe_frac", REPLAY_SAFE_FRAC))
-        replay_budget = float(self.config.get("replay_budget_s", budget))
+        replay_budget = float(self.config.get("replay_budget_s", budget * REPLAY_BUDGET_MULT))
         # hops=1 lever: probe at a tighter hop cap than the replay reruns at, and
         # scale each measured elapsed by replay_cost_coef to recover the true replay
         # cost. probe_hops<=0 (default) == probe at the grader hop cap (byte-identical).

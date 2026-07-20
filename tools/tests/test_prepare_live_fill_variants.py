@@ -55,7 +55,54 @@ _BASE_SRC_WITH_REPLAY = (
     "BURST_K = 1                    # single-post default\n"
     "REPLAY_SAFE_SIZING = False    # opt-in gate\n"
     "REPLAY_SAFE_FRAC = 0.99       # hard clamp\n"
+    "PROBE_HOPS = 0                # grader hop cap\n"
+    "REPLAY_COST_COEF = 1.0        # replay-cost scale\n"
+    "REPLAY_BUDGET_MULT = 1.0      # replay wall vs fill budget\n"
 )
+
+
+def _hops_rung(**kw):
+    """A rung constructed directly so the hops=1 knobs can be exercised before
+    the _rung helper is aware of them."""
+    base = dict(name="fill_rsafe_split_r097_hop1", margin_s=47.0,
+                fill_budget_frac=0.95, description="hops=1 test rung")
+    base.update(kw)
+    return plfv.Rung(**base)
+
+
+def test_hops1_knobs_substituted_exactly_once_when_set():
+    out = plfv.rung_attack_code(
+        _hops_rung(probe_hops=1, replay_cost_coef=2.0, replay_budget_mult=1.3),
+        _BASE_SRC_WITH_REPLAY,
+    )
+    assert "PROBE_HOPS = 1" in out
+    assert "REPLAY_COST_COEF = 2.0" in out
+    assert "REPLAY_BUDGET_MULT = 1.3" in out
+    assert out.count("\nPROBE_HOPS = ") == 1
+    assert out.count("\nREPLAY_COST_COEF = ") == 1
+    assert out.count("\nREPLAY_BUDGET_MULT = ") == 1
+
+
+def test_hops1_knobs_none_leaves_the_assignments_untouched():
+    out = plfv.rung_attack_code(_hops_rung(), _BASE_SRC_WITH_REPLAY)
+    assert "PROBE_HOPS = 0" in out
+    assert "REPLAY_COST_COEF = 1.0" in out
+    assert "REPLAY_BUDGET_MULT = 1.0" in out
+
+
+def test_missing_probe_hops_assignment_raises_when_requested():
+    with pytest.raises(ValueError, match="PROBE_HOPS"):
+        plfv.rung_attack_code(_hops_rung(probe_hops=1), _BASE_SRC)
+
+
+def test_manifest_records_hops1_knobs(tmp_path):
+    manifest = plfv.write_variant(
+        _hops_rung(probe_hops=1, replay_cost_coef=2.0, replay_budget_mult=1.3),
+        tmp_path,
+    )
+    assert manifest["probe_hops"] == 1
+    assert manifest["replay_cost_coef"] == 2.0
+    assert manifest["replay_budget_mult"] == 1.3
 
 
 def test_replay_safe_sizing_substituted_exactly_once_when_set():

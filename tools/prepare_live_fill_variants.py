@@ -57,6 +57,19 @@ class Rung:
     # None -> leave REPLAY_SAFE_FRAC at the source default (0.99). A value bakes a
     # tighter/looser clamp (e.g. 0.97 as a hedge against the replay-overrun void).
     replay_safe_frac: float | None = None
+    # None -> leave PROBE_HOPS at the source default (0 == grader hop cap). A value
+    # (e.g. 1) bakes the hops=1 fill-throughput probe (2026-07-20): fire-detection
+    # is identical at 1 hop but the fill runs ~1.5-2x faster.
+    probe_hops: int | None = None
+    # None -> leave REPLAY_COST_COEF at the source default (1.0). Set alongside
+    # probe_hops<8 to scale each cheap probe's elapsed back up to the true hops=8
+    # replay cost (gpt_oss ~2.0, gemma ~1.5 measured; use the higher as a safe single
+    # value) so REPLAY_SAFE_SIZING cannot under-count and overrun the replay budget.
+    replay_cost_coef: float | None = None
+    # None -> leave REPLAY_BUDGET_MULT at the source default (1.0). >1 bets the
+    # notebook's overall replay wall exceeds the fill budget; only useful WITH
+    # probe_hops<8. Wrong (too high) risks a replay-overrun void.
+    replay_budget_mult: float | None = None
 
 
 RUNGS: dict[str, Rung] = {
@@ -218,6 +231,21 @@ def rung_attack_code(rung: Rung, base_source: str) -> str:
             rung.replay_safe_frac,
             f"07-18 replay-safe sizing rung: {rung.name}",
         )
+    if rung.probe_hops is not None:
+        text = _substitute_once(
+            text, "PROBE_HOPS", rung.probe_hops,
+            f"07-20 hops=1 fill-throughput rung: {rung.name}",
+        )
+    if rung.replay_cost_coef is not None:
+        text = _substitute_once(
+            text, "REPLAY_COST_COEF", rung.replay_cost_coef,
+            f"07-20 hops=1 replay-cost coef rung: {rung.name}",
+        )
+    if rung.replay_budget_mult is not None:
+        text = _substitute_once(
+            text, "REPLAY_BUDGET_MULT", rung.replay_budget_mult,
+            f"07-20 hops=1 replay-budget-mult rung: {rung.name}",
+        )
     return text
 
 
@@ -286,6 +314,18 @@ def write_variant(rung: Rung, out_root: Path) -> dict[str, Any]:
         "replay_safe_frac": (
             rung.replay_safe_frac if rung.replay_safe_frac is not None
             else _source_value(base_source, "REPLAY_SAFE_FRAC")
+        ),
+        "probe_hops": (
+            rung.probe_hops if rung.probe_hops is not None
+            else _source_value_int(base_source, "PROBE_HOPS")
+        ),
+        "replay_cost_coef": (
+            rung.replay_cost_coef if rung.replay_cost_coef is not None
+            else _source_value(base_source, "REPLAY_COST_COEF")
+        ),
+        "replay_budget_mult": (
+            rung.replay_budget_mult if rung.replay_budget_mult is not None
+            else _source_value(base_source, "REPLAY_BUDGET_MULT")
         ),
         "expected_public_score": None,
         "description": rung.description,
