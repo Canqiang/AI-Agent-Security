@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "hops=1 fill probe, r097 recipe, replay_budget_mult=1.0 (safe validation)",
+  "error_description": "",
+  "first_seen_at": "2026-07-20T02:41:46+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-hop1-rb10-0720?scriptVersionId=336590690",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": null,
+  "ref": 54843412,
+  "resolved_at": null,
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "SubmissionStatus.PENDING",
+  "submitted_at": "2026-07-20T02:41:45.770Z",
+  "taxonomy": "pending"
+}

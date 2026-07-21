@@ -6,11 +6,26 @@
     "complete_scored": 36,
     "complete_zero": 2,
     "other_error": 26,
+    "pending": 2,
     "runtime_exceeded": 3,
     "system_error": 5
   },
   "current_baseline_ref": 54820172,
   "refs": [
+    {
+      "description": "hops=1 fill probe, r097 recipe, replay_budget_mult=1.3 (gain-seeking)",
+      "public_score": null,
+      "ref": 54843434,
+      "submitted_at": "2026-07-20T02:43:29.023Z",
+      "taxonomy": "pending"
+    },
+    {
+      "description": "hops=1 fill probe, r097 recipe, replay_budget_mult=1.0 (safe validation)",
+      "public_score": null,
+      "ref": 54843412,
+      "submitted_at": "2026-07-20T02:41:45.770Z",
+      "taxonomy": "pending"
+    },
     {
       "description": "fill_rsafe_split_r0979 k1 n2000 expNone per-model split-by-latency (Harmony analysis-channel token forgery on the classified-slow row) + REPLAY-SAFE sizing (accumulate KEPT candidates' measured replay cost, stop at 0.979*replay_budget, warm-up-subtracted; wall-clock bound at run_start+0.979*budget). floor_min=4/m47/f0.95 baked as degrade-safe fallback (ignored while replay-safe engaged). 07-19 boundary-bisection ladder: r097(eff~0.957)=85.5 landed, r098(eff~0.967)=void -- this rung interpolates the gap to map the true ceiling above the confirmed-safe 75.825/85.5 base.",
       "public_score": 79.29,
@@ -517,6 +532,9 @@
     }
   ],
   "schema_version": "2026-06-24.submission-ledger.v1",
-  "unresolved_pending_refs": [],
-  "updated_at": "2026-07-19T15:18:27+00:00"
+  "unresolved_pending_refs": [
+    "54843412",
+    "54843434"
+  ],
+  "updated_at": "2026-07-20T02:43:29+00:00"
 }
