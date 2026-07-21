@@ -1,0 +1,477 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "mcp-excalidraw-server",
+  "elements": [
+    {
+      "id": "p1-bg",
+      "type": "rectangle",
+      "x": 40,
+      "y": 100,
+      "width": 900,
+      "height": 650,
+      "backgroundColor": "#e7f5ff",
+      "strokeColor": "#1971c2",
+      "strokeWidth": 2,
+      "strokeStyle": "dashed",
+      "roughness": 0,
+      "opacity": 45,
+      "createdAt": "2026-07-21T06:52:53.226Z",
+      "updatedAt": "2026-07-21T06:52:53.226Z",
+      "version": 1
+    },
+    {
+      "id": "p2-bg",
+      "type": "rectangle",
+      "x": 980,
+      "y": 100,
+      "width": 580,
+      "height": 650,
+      "backgroundColor": "#f3d9fa",
+      "strokeColor": "#9c36b5",
+      "strokeWidth": 2,
+      "strokeStyle": "dashed",
+      "roughness": 0,
+      "opacity": 45,
+      "createdAt": "2026-07-21T06:52:53.226Z",
+      "updatedAt": "2026-07-21T06:52:53.226Z",
+      "version": 1
+    },
+    {
+      "id": "title",
+      "type": "text",
+      "x": 50,
+      "y": 25,
+      "width": 1450,
+      "height": 45,
+      "strokeColor": "#1e1e1e",
+      "text": "How a candidate becomes a score",
+      "fontSize": 32,
+      "fontFamily": 2,
+      "createdAt": "2026-07-21T06:52:53.229Z",
+      "updatedAt": "2026-07-21T06:52:53.229Z",
+      "version": 1
+    },
+    {
+      "id": "p1-label",
+      "type": "text",
+      "x": 70,
+      "y": 125,
+      "width": 500,
+      "height": 30,
+      "strokeColor": "#1971c2",
+      "text": "PHASE 1 · ATTACK SEARCH",
+      "fontSize": 22,
+      "fontFamily": 2,
+      "createdAt": "2026-07-21T06:52:53.230Z",
+      "updatedAt": "2026-07-21T06:52:53.230Z",
+      "version": 1
+    },
+    {
+      "id": "p2-label",
+      "type": "text",
+      "x": 1010,
+      "y": 125,
+      "width": 500,
+      "height": 30,
+      "strokeColor": "#9c36b5",
+      "text": "PHASE 2 · FRESH REPLAY + SCORING",
+      "fontSize": 22,
+      "fontFamily": 2,
+      "createdAt": "2026-07-21T06:52:53.230Z",
+      "updatedAt": "2026-07-21T06:52:53.230Z",
+      "version": 1
+    },
+    {
+      "id": "algo",
+      "type": "rectangle",
+      "x": 80,
+      "y": 250,
+      "width": 220,
+      "height": 100,
+      "backgroundColor": "#a5d8ff",
+      "strokeColor": "#1971c2",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "label": {
+        "text": "Attack Algorithm\nsearches messages"
+      },
+      "fontSize": 20,
+      "fontFamily": 2,
+      "createdAt": "2026-07-21T06:52:53.230Z",
+      "updatedAt": "2026-07-21T06:52:53.230Z",
+      "version": 1
+    },
+    {
+      "id": "agent",
+      "type": "rectangle",
+      "x": 380,
+      "y": 240,
+      "width": 240,
+      "height": 120,
+      "backgroundColor": "#eebefa",
+      "strokeColor": "#9c36b5",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "label": {
+        "text": "Target Agent\nplans + calls tools"
+      },
+      "fontSize": 20,
+      "fontFamily": 2,
+      "createdAt": "2026-07-21T06:52:53.230Z",
+      "updatedAt": "2026-07-21T06:52:53.230Z",
+      "version": 1
+    },
+    {
+      "id": "guard",
+      "type": "diamond",
+      "x": 690,
+      "y": 240,
+      "width": 230,
+      "height": 130,
+      "backgroundColor": "#ffd8a8",
+      "strokeColor": "#e8590c",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "label": {
+        "text": "Public\nGuardrail"
+      },
+      "fontSize": 20,
+      "fontFamily": 2,
+      "createdAt": "2026-07-21T06:52:53.231Z",
+      "updatedAt": "2026-07-21T06:53:18.207Z",
+      "version": 2
+    },
+    {
+      "id": "candidate",
+      "type": "rectangle",
+      "x": 680,
+      "y": 500,
+      "width": 240,
+      "height": 110,
+      "backgroundColor": "#99e9f2",
+      "strokeColor": "#0c8599",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "label": {
+        "text": "Replayable candidate\nmessages + metadata"
+      },
+      "fontSize": 19,
+      "fontFamily": 2,
+      "createdAt": "2026-07-21T06:52:53.232Z",
+      "updatedAt": "2026-07-21T06:52:53.232Z",
+      "version": 1
+    },
+    {
+      "id": "event-note",
+      "type": "text",
+      "x": 430,
+      "y": 410,
+      "width": 230,
+      "height": 60,
+      "strokeColor": "#555555",
+      "text": "Tool event is recorded\nwith ok=true / ok=false",
+      "fontSize": 17,
+      "fontFamily": 2,
+      "createdAt": "2026-07-21T06:52:53.232Z",
+      "updatedAt": "2026-07-21T06:53:18.248Z",
+      "version": 2
+    },
+    {
+      "id": "replay",
+      "type": "rectangle",
+      "x": 1020,
+      "y": 240,
+      "width": 220,
+      "height": 120,
+      "backgroundColor": "#eebefa",
+      "strokeColor": "#9c36b5",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "label": {
+        "text": "Fresh Sandbox\nreplays messages"
+      },
+      "fontSize": 20,
+      "fontFamily": 2,
+      "createdAt": "2026-07-21T06:52:53.232Z",
+      "updatedAt": "2026-07-21T06:52:53.232Z",
+      "version": 1
+    },
+    {
+      "id": "scorer",
+      "type": "rectangle",
+      "x": 1300,
+      "y": 240,
+      "width": 220,
+      "height": 120,
+      "backgroundColor": "#a5d8ff",
+      "strokeColor": "#1971c2",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "label": {
+        "text": "Predicate Scorer\nreads replayed trace"
+      },
+      "fontSize": 20,
+      "fontFamily": 2,
+      "createdAt": "2026-07-21T06:52:53.233Z",
+      "updatedAt": "2026-07-21T06:52:53.233Z",
+      "version": 1
+    },
+    {
+      "id": "predicates",
+      "type": "text",
+      "x": 1000,
+      "y": 420,
+      "width": 260,
+      "height": 105,
+      "strokeColor": "#1e1e1e",
+      "text": "EXFILTRATION\nUNTRUSTED_TO_ACTION\nDESTRUCTIVE_WRITE\nCONFUSED_DEPUTY",
+      "fontSize": 17,
+      "fontFamily": 3,
+      "createdAt": "2026-07-21T06:52:53.234Z",
+      "updatedAt": "2026-07-21T06:53:18.227Z",
+      "version": 2
+    },
+    {
+      "id": "raw",
+      "type": "rectangle",
+      "x": 1290,
+      "y": 520,
+      "width": 240,
+      "height": 85,
+      "backgroundColor": "#b2f2bb",
+      "strokeColor": "#2f9e44",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "label": {
+        "text": "Raw score\nseverity + novelty"
+      },
+      "fontSize": 19,
+      "fontFamily": 2,
+      "createdAt": "2026-07-21T06:52:53.235Z",
+      "updatedAt": "2026-07-21T06:52:53.235Z",
+      "version": 1
+    },
+    {
+      "id": "norm",
+      "type": "rectangle",
+      "x": 1290,
+      "y": 650,
+      "width": 240,
+      "height": 70,
+      "backgroundColor": "#b2f2bb",
+      "strokeColor": "#2f9e44",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "label": {
+        "text": "normalized = min(1000, raw / 200)"
+      },
+      "fontSize": 17,
+      "fontFamily": 3,
+      "createdAt": "2026-07-21T06:52:53.235Z",
+      "updatedAt": "2026-07-21T06:52:53.235Z",
+      "version": 1
+    },
+    {
+      "id": "a1",
+      "type": "arrow",
+      "x": 308,
+      "y": 300,
+      "strokeColor": "#1971c2",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          64,
+          0
+        ]
+      ],
+      "start": {
+        "id": "algo"
+      },
+      "end": {
+        "id": "agent"
+      },
+      "endArrowhead": "arrow",
+      "createdAt": "2026-07-21T06:52:53.237Z",
+      "updatedAt": "2026-07-21T06:52:53.237Z",
+      "version": 1
+    },
+    {
+      "id": "a2",
+      "type": "arrow",
+      "x": 627.998925236779,
+      "y": 302.0983430366685,
+      "strokeColor": "#9c36b5",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          57.243571095069456,
+          0.9384191982798598
+        ]
+      ],
+      "start": {
+        "id": "agent"
+      },
+      "end": {
+        "id": "guard"
+      },
+      "endArrowhead": "arrow",
+      "createdAt": "2026-07-21T06:52:53.238Z",
+      "updatedAt": "2026-07-21T06:53:18.207Z",
+      "version": 2
+    },
+    {
+      "id": "a3",
+      "type": "arrow",
+      "x": 803.554563374754,
+      "y": 377.2718312622992,
+      "strokeColor": "#e8590c",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          -2.2945953651571926,
+          114.72976825786077
+        ]
+      ],
+      "start": {
+        "id": "guard"
+      },
+      "end": {
+        "id": "candidate"
+      },
+      "endArrowhead": "arrow",
+      "createdAt": "2026-07-21T06:52:53.238Z",
+      "updatedAt": "2026-07-21T06:53:18.207Z",
+      "version": 2
+    },
+    {
+      "id": "a4",
+      "type": "arrow",
+      "x": 877.5067505993726,
+      "y": 495.1084199913939,
+      "strokeColor": "#0c8599",
+      "strokeWidth": 2,
+      "strokeStyle": "dashed",
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          168.51591056596055,
+          -130.21683998278775
+        ]
+      ],
+      "start": {
+        "id": "candidate"
+      },
+      "end": {
+        "id": "replay"
+      },
+      "endArrowhead": "arrow",
+      "createdAt": "2026-07-21T06:52:53.238Z",
+      "updatedAt": "2026-07-21T06:52:53.238Z",
+      "version": 1
+    },
+    {
+      "id": "a5",
+      "type": "arrow",
+      "x": 1248,
+      "y": 300,
+      "strokeColor": "#9c36b5",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          44,
+          0
+        ]
+      ],
+      "start": {
+        "id": "replay"
+      },
+      "end": {
+        "id": "scorer"
+      },
+      "endArrowhead": "arrow",
+      "createdAt": "2026-07-21T06:52:53.239Z",
+      "updatedAt": "2026-07-21T06:52:53.239Z",
+      "version": 1
+    },
+    {
+      "id": "a6",
+      "type": "arrow",
+      "x": 1410,
+      "y": 368,
+      "strokeColor": "#1971c2",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          144
+        ]
+      ],
+      "start": {
+        "id": "scorer"
+      },
+      "end": {
+        "id": "raw"
+      },
+      "endArrowhead": "arrow",
+      "createdAt": "2026-07-21T06:52:53.239Z",
+      "updatedAt": "2026-07-21T06:52:53.239Z",
+      "version": 1
+    },
+    {
+      "id": "a7",
+      "type": "arrow",
+      "x": 1410,
+      "y": 613,
+      "strokeColor": "#2f9e44",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          29
+        ]
+      ],
+      "start": {
+        "id": "raw"
+      },
+      "end": {
+        "id": "norm"
+      },
+      "endArrowhead": "arrow",
+      "createdAt": "2026-07-21T06:52:53.240Z",
+      "updatedAt": "2026-07-21T06:52:53.240Z",
+      "version": 1
+    }
+  ],
+  "appState": {
+    "viewBackgroundColor": "#ffffff",
+    "gridSize": null
+  }
+}
