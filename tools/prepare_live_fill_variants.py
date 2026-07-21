@@ -70,6 +70,10 @@ class Rung:
     # notebook's overall replay wall exceeds the fill budget; only useful WITH
     # probe_hops<8. Wrong (too high) risks a replay-overrun void.
     replay_budget_mult: float | None = None
+    # None -> leave SLOW_MULTIPOST_N at the source default (1 == single-post). >1
+    # bakes token-forged multi-post on the Harmony slow (gpt_oss) row: N http.post
+    # endpoints planned per slow-row candidate (2026-07-21; ~1.1x throughput).
+    slow_multipost_n: int | None = None
 
 
 RUNGS: dict[str, Rung] = {
@@ -246,6 +250,11 @@ def rung_attack_code(rung: Rung, base_source: str) -> str:
             text, "REPLAY_BUDGET_MULT", rung.replay_budget_mult,
             f"07-20 hops=1 replay-budget-mult rung: {rung.name}",
         )
+    if rung.slow_multipost_n is not None:
+        text = _substitute_once(
+            text, "SLOW_MULTIPOST_N", rung.slow_multipost_n,
+            f"07-21 forged multi-post slow-row rung: {rung.name}",
+        )
     return text
 
 
@@ -326,6 +335,10 @@ def write_variant(rung: Rung, out_root: Path) -> dict[str, Any]:
         "replay_budget_mult": (
             rung.replay_budget_mult if rung.replay_budget_mult is not None
             else _source_value(base_source, "REPLAY_BUDGET_MULT")
+        ),
+        "slow_multipost_n": (
+            rung.slow_multipost_n if rung.slow_multipost_n is not None
+            else _source_value_int(base_source, "SLOW_MULTIPOST_N")
         ),
         "expected_public_score": None,
         "description": rung.description,

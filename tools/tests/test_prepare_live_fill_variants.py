@@ -58,6 +58,7 @@ _BASE_SRC_WITH_REPLAY = (
     "PROBE_HOPS = 0                # grader hop cap\n"
     "REPLAY_COST_COEF = 1.0        # replay-cost scale\n"
     "REPLAY_BUDGET_MULT = 1.0      # replay wall vs fill budget\n"
+    "SLOW_MULTIPOST_N = 1          # slow-row posts per candidate\n"
 )
 
 
@@ -103,6 +104,19 @@ def test_manifest_records_hops1_knobs(tmp_path):
     assert manifest["probe_hops"] == 1
     assert manifest["replay_cost_coef"] == 2.0
     assert manifest["replay_budget_mult"] == 1.3
+
+
+def test_slow_multipost_n_substituted_and_recorded(tmp_path):
+    out = plfv.rung_attack_code(_hops_rung(slow_multipost_n=4), _BASE_SRC_WITH_REPLAY)
+    assert "SLOW_MULTIPOST_N = 4" in out
+    assert out.count("\nSLOW_MULTIPOST_N = ") == 1
+    manifest = plfv.write_variant(_hops_rung(slow_multipost_n=4), tmp_path)
+    assert manifest["slow_multipost_n"] == 4
+
+
+def test_slow_multipost_n_none_leaves_assignment_untouched():
+    out = plfv.rung_attack_code(_hops_rung(), _BASE_SRC_WITH_REPLAY)
+    assert "SLOW_MULTIPOST_N = 1" in out
 
 
 def test_replay_safe_sizing_substituted_exactly_once_when_set():
