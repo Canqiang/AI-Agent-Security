@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "r097 + empty-analysis compression draw A",
+  "error_description": "",
+  "first_seen_at": "2026-07-21T06:31:40+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-ea-a-0721?scriptVersionId=336860647",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": 79.245,
+  "ref": 54870719,
+  "resolved_at": "2026-07-22T01:30:57+00:00",
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "COMPLETE",
+  "submitted_at": "2026-07-21T06:31:39.677Z",
+  "taxonomy": "complete_scored"
+}

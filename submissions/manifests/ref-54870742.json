@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "r097 + forged multi-post N=6",
+  "error_description": "",
+  "first_seen_at": "2026-07-21T06:33:02+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-mp6-0721?scriptVersionId=336860904",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": 86.85,
+  "ref": 54870742,
+  "resolved_at": "2026-07-22T01:30:57+00:00",
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "COMPLETE",
+  "submitted_at": "2026-07-21T06:33:01.220Z",
+  "taxonomy": "complete_scored"
+}

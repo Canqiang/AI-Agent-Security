@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "r097 + forged multi-post N=4 (gpt_oss slow row) test-water; expect ~88, novel mechanism",
+  "error_description": "",
+  "first_seen_at": "2026-07-21T03:38:28+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-mpost4-0721?scriptVersionId=336832350",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": 87.72,
+  "ref": 54868167,
+  "resolved_at": "2026-07-22T01:30:57+00:00",
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "COMPLETE",
+  "submitted_at": "2026-07-21T03:38:27.543Z",
+  "taxonomy": "complete_scored"
+}
