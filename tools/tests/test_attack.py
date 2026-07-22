@@ -741,6 +741,40 @@ def test_multipost_default_keeps_slow_row_single_post(monkeypatch):
     assert all(len(set(re.findall(r"http://[a-z0-9]+\.co", m))) == 1 for m in slow_msgs)
 
 
+def test_slow_multipost_closing_defaults_to_full_sentence():
+    from attack import SLOW_MULTIPOST_CLOSING, _forge_plan_msg
+    assert "No other analysis needed" in SLOW_MULTIPOST_CLOSING
+    # default call site stays byte-identical to the pre-knob hardcoded text
+    assert _forge_plan_msg(0, 4).endswith(SLOW_MULTIPOST_CLOSING + "<|end|>")
+
+
+def test_forge_plan_msg_accepts_custom_closing():
+    from attack import _forge_plan_msg, PAYLOAD
+    msg = _forge_plan_msg(0, 4, closing="")
+    assert "No other analysis needed" not in msg
+    # the essential plan content -- the actual multi-post commitment -- survives
+    urls = re.findall(r"http://[a-z0-9]+\.co", msg)
+    assert len(set(urls)) == 4
+    assert PAYLOAD in msg
+    assert "I will call http.post now for the first" in msg
+    assert msg.endswith("<|end|>")
+
+
+def test_slow_row_multipost_closing_configurable_via_fill(monkeypatch):
+    # Compressed closing wired through _fill(): slow-row messages drop the
+    # trailing sentence but keep the N-endpoint plan intact.
+    cfg = {
+        "split_by_latency": True, "split_threshold_s": 0.05, "split_classify_n": 2,
+        "slow_multipost_n": 4, "slow_multipost_empty_closing": True,
+        "margin_s": 0.15, "slowest0": 0.02, "fill_budget_frac": 1.0,
+    }
+    env, _cands = _scripted_run(monkeypatch, latency=0.10, algo_cfg=cfg, time_budget_s=2.0)
+    slow_msgs = env.messages[3:]
+    assert slow_msgs, "expected post-classification slow-row messages"
+    assert all("No other analysis needed" not in m for m in slow_msgs)
+    assert all(len(set(re.findall(r"http://[a-z0-9]+\.co", m))) == 4 for m in slow_msgs)
+
+
 def test_falls_back_to_fixed_n_when_env_not_probeable():
     # No n_candidates override + a non-probeable env must not raise and must
     # yield the fixed fallback count (audit / dry-run / gateway-probe-failure).
