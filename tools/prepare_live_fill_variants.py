@@ -74,6 +74,10 @@ class Rung:
     # bakes token-forged multi-post on the Harmony slow (gpt_oss) row: N http.post
     # endpoints planned per slow-row candidate (2026-07-21; ~1.1x throughput).
     slow_multipost_n: int | None = None
+    # None -> leave SLOW_MULTIPOST_EMPTY_CLOSING at the source default (False). A
+    # value bakes the 2026-07-22 stacked lever: drop _forge_plan_msg's trailing
+    # "No other analysis needed." sentence, keeping the endpoint plan itself.
+    slow_multipost_empty_closing: bool | None = None
 
 
 RUNGS: dict[str, Rung] = {
@@ -255,6 +259,11 @@ def rung_attack_code(rung: Rung, base_source: str) -> str:
             text, "SLOW_MULTIPOST_N", rung.slow_multipost_n,
             f"07-21 forged multi-post slow-row rung: {rung.name}",
         )
+    if rung.slow_multipost_empty_closing is not None:
+        text = _substitute_once(
+            text, "SLOW_MULTIPOST_EMPTY_CLOSING", rung.slow_multipost_empty_closing,
+            f"07-22 multi-post empty-closing rung: {rung.name}",
+        )
     return text
 
 
@@ -339,6 +348,11 @@ def write_variant(rung: Rung, out_root: Path) -> dict[str, Any]:
         "slow_multipost_n": (
             rung.slow_multipost_n if rung.slow_multipost_n is not None
             else _source_value_int(base_source, "SLOW_MULTIPOST_N")
+        ),
+        "slow_multipost_empty_closing": (
+            rung.slow_multipost_empty_closing
+            if rung.slow_multipost_empty_closing is not None
+            else _source_value_bool(base_source, "SLOW_MULTIPOST_EMPTY_CLOSING")
         ),
         "expected_public_score": None,
         "description": rung.description,
