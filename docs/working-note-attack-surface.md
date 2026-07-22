@@ -308,7 +308,7 @@ The scorer decodes reversible transforms only when matching a secret that was re
 
 ### A.5 Local timing does not transfer to the hosted replay
 
-Local timing did not transfer to hosted replay. One-hop firing was stable on both models (12/12), but local eight-hop/one-hop ratios (about 2.0 for gpt_oss and 1.5 for gemma) miscalibrated deployment: a 2.0-based build regressed from 85.500 to 53.550, consistent with a hosted ratio nearer 1.25. Byte-identical candidates also spanned about 20 public points (§7.1), so small timing gains need repeated submissions.
+Local timing did not transfer to hosted replay. One-hop firing was stable on both models (12/12), but local eight-hop/one-hop ratios (about 2.0 for gpt_oss and 1.5 for gemma) miscalibrated deployment: a 2.0-based build regressed from 85.500 to 53.550, and a companion build that also raised the replay-budget multiplier to 1.3 failed with a submission-format error rather than gaining anything — consistent with a true hosted ratio nearer 1.25 and no spare margin to trade for it. Byte-identical candidates also spanned about 20 public points (§7.1), so small timing gains need repeated submissions.
 
 The reachability proofs in §3–§6 do not share this hardware dependence. They can be reproduced from the MIT-licensed SDK on CPU with minimal traces.
 
