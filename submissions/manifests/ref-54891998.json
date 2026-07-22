@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "fill_r097_mpost8_frac90 k1 n2000 expNone r097 recipe + forged multi-post N=8 (all 8 hops) + REPLAY_SAFE_FRAC relaxed 0.97->0.90 for real margin; N=8 voided at 0.97 (54870767) -- tests whether that was margin-driven (lands here) or structural/hop-exhaustion (still voids)",
+  "error_description": "",
+  "first_seen_at": "2026-07-22T02:29:07+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-mpost8-f90-0722?scriptVersionId=337056904",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": null,
+  "ref": 54891998,
+  "resolved_at": null,
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "SubmissionStatus.PENDING",
+  "submitted_at": "2026-07-22T02:28:37.580Z",
+  "taxonomy": "pending"
+}

@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "fill_r097_mpost4_ec k1 n2000 expNone r097 recipe + forged multi-post N=4 + empty plan-closing text (stacks the two 07-21/07-22 confirmed levers; untested combo, drops the redundant 'No other analysis needed.' sentence while keeping the endpoint plan/continuation-intent text intact)",
+  "error_description": "",
+  "first_seen_at": "2026-07-22T02:29:07+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-mpost4-ec-0722?scriptVersionId=337056258",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": null,
+  "ref": 54891916,
+  "resolved_at": null,
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "SubmissionStatus.PENDING",
+  "submitted_at": "2026-07-22T02:23:26.163Z",
+  "taxonomy": "pending"
+}

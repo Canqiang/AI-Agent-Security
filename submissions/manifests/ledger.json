@@ -6,11 +6,47 @@
     "complete_scored": 41,
     "complete_zero": 2,
     "other_error": 28,
+    "pending": 5,
     "runtime_exceeded": 3,
     "system_error": 5
   },
   "current_baseline_ref": 54870742,
   "refs": [
+    {
+      "description": "fill_r097_mpost8_frac90 k1 n2000 expNone r097 recipe + forged multi-post N=8 (all 8 hops) + REPLAY_SAFE_FRAC relaxed 0.97->0.90 for real margin; N=8 voided at 0.97 (54870767) -- tests whether that was margin-driven (lands here) or structural/hop-exhaustion (still voids)",
+      "public_score": null,
+      "ref": 54891998,
+      "submitted_at": "2026-07-22T02:28:37.580Z",
+      "taxonomy": "pending"
+    },
+    {
+      "description": "fill_r097_mpost7 k1 n2000 expNone r097 recipe + forged multi-post N=7 (one hop of slack vs N=8's zero; tests whether the N=8 void onset is closer to a hop-exhaustion cliff or a smoother margin-driven degradation)",
+      "public_score": null,
+      "ref": 54891971,
+      "submitted_at": "2026-07-22T02:27:15.460Z",
+      "taxonomy": "pending"
+    },
+    {
+      "description": "fill_r097_mpost5 k1 n2000 expNone r097 recipe + forged multi-post N=5 (curve-filling between the confirmed N=4=87.72 peak and N=6=86.85; resolves whether N=4 is a true local peak or noise)",
+      "public_score": null,
+      "ref": 54891944,
+      "submitted_at": "2026-07-22T02:25:40.883Z",
+      "taxonomy": "pending"
+    },
+    {
+      "description": "fill_r097_mpost5 k1 n2000 expNone r097 recipe + forged multi-post N=5 (curve-filling between the confirmed N=4=87.72 peak and N=6=86.85; resolves whether N=4 is a true local peak or noise)",
+      "public_score": null,
+      "ref": 54891923,
+      "submitted_at": "2026-07-22T02:24:20.430Z",
+      "taxonomy": "pending"
+    },
+    {
+      "description": "fill_r097_mpost4_ec k1 n2000 expNone r097 recipe + forged multi-post N=4 + empty plan-closing text (stacks the two 07-21/07-22 confirmed levers; untested combo, drops the redundant 'No other analysis needed.' sentence while keeping the endpoint plan/continuation-intent text intact)",
+      "public_score": null,
+      "ref": 54891916,
+      "submitted_at": "2026-07-22T02:23:26.163Z",
+      "taxonomy": "pending"
+    },
     {
       "description": "r097 + forged multi-post N=8",
       "public_score": null,
@@ -566,6 +602,12 @@
     }
   ],
   "schema_version": "2026-06-24.submission-ledger.v1",
-  "unresolved_pending_refs": [],
-  "updated_at": "2026-07-22T01:30:57+00:00"
+  "unresolved_pending_refs": [
+    "54891998",
+    "54891971",
+    "54891944",
+    "54891923",
+    "54891916"
+  ],
+  "updated_at": "2026-07-22T02:29:07+00:00"
 }
