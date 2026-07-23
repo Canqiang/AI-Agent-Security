@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "fill_r097_mpost5_h2_0723 k1 n2000 expNone r097 recipe + forged multi-post N=5 -- harvest re-fire #2 of the confirmed-best config (54891923=89.455/54891944=88.575), betting on a higher draw within noise",
+  "error_description": "",
+  "first_seen_at": "2026-07-23T02:26:42+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-mpost5-h2-0723?scriptVersionId=337307442",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": null,
+  "ref": 54917115,
+  "resolved_at": null,
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "SubmissionStatus.PENDING",
+  "submitted_at": "2026-07-23T02:23:24.823Z",
+  "taxonomy": "pending"
+}

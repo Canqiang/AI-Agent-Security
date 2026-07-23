@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "fill_r097_mpost5_f973_0723 k1 n2000 expNone r097 recipe + forged multi-post N=5 + REPLAY_SAFE_FRAC nudged 0.97->0.973 -- tests whether multi-post's different per-candidate cost structure shifts the safe/void boundary vs the single-post-calibrated 0.97 ceiling",
+  "error_description": "",
+  "first_seen_at": "2026-07-23T02:26:42+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-mpost5-f973-0723?scriptVersionId=337307747",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": null,
+  "ref": 54917158,
+  "resolved_at": null,
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "SubmissionStatus.PENDING",
+  "submitted_at": "2026-07-23T02:26:19.117Z",
+  "taxonomy": "pending"
+}

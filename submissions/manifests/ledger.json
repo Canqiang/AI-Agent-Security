@@ -6,11 +6,47 @@
     "complete_scored": 46,
     "complete_zero": 2,
     "other_error": 28,
+    "pending": 5,
     "runtime_exceeded": 3,
     "system_error": 5
   },
   "current_baseline_ref": 54891998,
   "refs": [
+    {
+      "description": "fill_r097_mpost5_f973_0723 k1 n2000 expNone r097 recipe + forged multi-post N=5 + REPLAY_SAFE_FRAC nudged 0.97->0.973 -- tests whether multi-post's different per-candidate cost structure shifts the safe/void boundary vs the single-post-calibrated 0.97 ceiling",
+      "public_score": null,
+      "ref": 54917158,
+      "submitted_at": "2026-07-23T02:26:19.117Z",
+      "taxonomy": "pending"
+    },
+    {
+      "description": "fill_r097_mpost7_h2_0723 k1 n2000 expNone r097 recipe + forged multi-post N=7 -- harvest re-fire #2 (prior draw 54891971=88.87), a second-best config diversifying the harvest away from pure N=5",
+      "public_score": null,
+      "ref": 54917148,
+      "submitted_at": "2026-07-23T02:25:19.743Z",
+      "taxonomy": "pending"
+    },
+    {
+      "description": "fill_r097_mpost7_h1_0723 k1 n2000 expNone r097 recipe + forged multi-post N=7 -- harvest re-fire #1 (prior draw 54891971=88.87), a second-best config diversifying the harvest away from pure N=5",
+      "public_score": null,
+      "ref": 54917128,
+      "submitted_at": "2026-07-23T02:24:22.067Z",
+      "taxonomy": "pending"
+    },
+    {
+      "description": "fill_r097_mpost5_h2_0723 k1 n2000 expNone r097 recipe + forged multi-post N=5 -- harvest re-fire #2 of the confirmed-best config (54891923=89.455/54891944=88.575), betting on a higher draw within noise",
+      "public_score": null,
+      "ref": 54917115,
+      "submitted_at": "2026-07-23T02:23:24.823Z",
+      "taxonomy": "pending"
+    },
+    {
+      "description": "fill_r097_mpost5_h1_0723 k1 n2000 expNone r097 recipe + forged multi-post N=5 -- harvest re-fire #1 of the confirmed-best config (54891923=89.455/54891944=88.575), betting on a higher draw within noise",
+      "public_score": null,
+      "ref": 54917101,
+      "submitted_at": "2026-07-23T02:21:57.670Z",
+      "taxonomy": "pending"
+    },
     {
       "description": "fill_r097_mpost8_frac90 k1 n2000 expNone r097 recipe + forged multi-post N=8 (all 8 hops) + REPLAY_SAFE_FRAC relaxed 0.97->0.90 for real margin; N=8 voided at 0.97 (54870767) -- tests whether that was margin-driven (lands here) or structural/hop-exhaustion (still voids)",
       "public_score": 77.75,
@@ -601,6 +637,12 @@
     }
   ],
   "schema_version": "2026-06-24.submission-ledger.v1",
-  "unresolved_pending_refs": [],
-  "updated_at": "2026-07-23T01:24:06+00:00"
+  "unresolved_pending_refs": [
+    "54917158",
+    "54917148",
+    "54917128",
+    "54917115",
+    "54917101"
+  ],
+  "updated_at": "2026-07-23T02:26:42+00:00"
 }
