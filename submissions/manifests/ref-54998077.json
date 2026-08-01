@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "",
+  "error_description": "",
+  "first_seen_at": "2026-08-01T01:50:53+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-mpost5-0722?scriptVersionId=337056381",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": 89.69,
+  "ref": 54998077,
+  "resolved_at": "2026-08-01T01:50:53+00:00",
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "COMPLETE",
+  "submitted_at": "2026-07-26T10:10:27.730Z",
+  "taxonomy": "complete_scored"
+}

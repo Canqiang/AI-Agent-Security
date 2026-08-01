@@ -1,16 +1,114 @@
 {
-  "best_public_score": 89.455,
-  "best_scored_ref": 54891923,
+  "best_public_score": 91.03,
+  "best_scored_ref": 54998089,
   "competition": "ai-agent-security-multi-step-tool-attacks",
   "counts_by_taxonomy": {
-    "complete_scored": 51,
+    "complete_scored": 64,
     "complete_zero": 2,
-    "other_error": 28,
+    "other_error": 29,
     "runtime_exceeded": 3,
     "system_error": 5
   },
-  "current_baseline_ref": 54917158,
+  "current_baseline_ref": 55028752,
   "refs": [
+    {
+      "description": "",
+      "public_score": 88.67,
+      "ref": 55028752,
+      "submitted_at": "2026-07-27T12:32:12.837Z",
+      "taxonomy": "complete_scored"
+    },
+    {
+      "description": "",
+      "public_score": 88.41,
+      "ref": 55015143,
+      "submitted_at": "2026-07-27T01:23:31.757Z",
+      "taxonomy": "complete_scored"
+    },
+    {
+      "description": "",
+      "public_score": 87.16,
+      "ref": 55015138,
+      "submitted_at": "2026-07-27T01:23:20.807Z",
+      "taxonomy": "complete_scored"
+    },
+    {
+      "description": "",
+      "public_score": 88.2,
+      "ref": 55015132,
+      "submitted_at": "2026-07-27T01:23:07.530Z",
+      "taxonomy": "complete_scored"
+    },
+    {
+      "description": "",
+      "public_score": 87.43,
+      "ref": 55015129,
+      "submitted_at": "2026-07-27T01:22:55.180Z",
+      "taxonomy": "complete_scored"
+    },
+    {
+      "description": "",
+      "public_score": 91.03,
+      "ref": 54998089,
+      "submitted_at": "2026-07-26T10:10:55.567Z",
+      "taxonomy": "complete_scored"
+    },
+    {
+      "description": "",
+      "public_score": 88.855,
+      "ref": 54998085,
+      "submitted_at": "2026-07-26T10:10:40.993Z",
+      "taxonomy": "complete_scored"
+    },
+    {
+      "description": "",
+      "public_score": 89.69,
+      "ref": 54998077,
+      "submitted_at": "2026-07-26T10:10:27.730Z",
+      "taxonomy": "complete_scored"
+    },
+    {
+      "description": "",
+      "public_score": 88.605,
+      "ref": 54991071,
+      "submitted_at": "2026-07-26T04:04:22.600Z",
+      "taxonomy": "complete_scored"
+    },
+    {
+      "description": "",
+      "public_score": 88.725,
+      "ref": 54991068,
+      "submitted_at": "2026-07-26T04:04:11.750Z",
+      "taxonomy": "complete_scored"
+    },
+    {
+      "description": "",
+      "public_score": 88.925,
+      "ref": 54975288,
+      "submitted_at": "2026-07-25T12:26:10.067Z",
+      "taxonomy": "complete_scored"
+    },
+    {
+      "description": "",
+      "public_score": null,
+      "ref": 54943983,
+      "submitted_at": "2026-07-24T05:43:38.023Z",
+      "taxonomy": "other_error"
+    },
+    {
+      "description": "",
+      "public_score": 85.945,
+      "ref": 54943976,
+      "submitted_at": "2026-07-24T05:43:23.767Z",
+      "taxonomy": "complete_scored"
+    },
+    {
+      "description": "",
+      "public_score": 87.55,
+      "ref": 54943974,
+      "submitted_at": "2026-07-24T05:43:12.500Z",
+      "taxonomy": "complete_scored"
+    },
     {
       "description": "fill_r097_mpost5_f973_0723 k1 n2000 expNone r097 recipe + forged multi-post N=5 + REPLAY_SAFE_FRAC nudged 0.97->0.973 -- tests whether multi-post's different per-candidate cost structure shifts the safe/void boundary vs the single-post-calibrated 0.97 ceiling",
       "public_score": 86.715,
@@ -637,5 +735,5 @@
   ],
   "schema_version": "2026-06-24.submission-ledger.v1",
   "unresolved_pending_refs": [],
-  "updated_at": "2026-07-24T01:15:37+00:00"
+  "updated_at": "2026-08-01T01:51:22+00:00"
 }
