@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "fill_r097_mpost5 k1 n2000 expNone r097 recipe + forged multi-post N=5 (curve-filling between the confirmed N=4=87.72 peak and N=6=86.85; resolves whether N=4 is a true local peak or noise)",
+  "error_description": "",
+  "first_seen_at": "2026-08-02T01:30:06+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-mpost5-0722?scriptVersionId=339397674",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": 89.93,
+  "ref": 55151556,
+  "resolved_at": "2026-08-02T01:30:06+00:00",
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "COMPLETE",
+  "submitted_at": "2026-08-01T02:07:38.643Z",
+  "taxonomy": "complete_scored"
+}
