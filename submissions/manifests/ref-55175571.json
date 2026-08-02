@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "fill_r097_mpost7 k1 n2000 expNone r097 recipe + forged multi-post N=7 (one hop of slack vs N=8's zero; tests whether the N=8 void onset is closer to a hop-exhaustion cliff or a smoother margin-driven degradation)",
+  "error_description": "",
+  "first_seen_at": "2026-08-02T02:31:33+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-mpost7-0722?scriptVersionId=339597575",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": null,
+  "ref": 55175571,
+  "resolved_at": null,
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "SubmissionStatus.PENDING",
+  "submitted_at": "2026-08-02T02:31:15.070Z",
+  "taxonomy": "pending"
+}
