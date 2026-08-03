@@ -28,6 +28,11 @@ KAGGLE_IMAGE_URLS = {
         "inbox%2F3072872%2Fbfcba3d355e406fe88a1936402ba83a2%2F"
         "04-score-economics.png?generation=1784618386850249&alt=media"
     ),
+    "assets/working-note/05-wrapup-cost-decomposition.png": (
+        "https://www.googleapis.com/download/storage/v1/b/kaggle-user-content/o/"
+        "inbox%2F3072872%2Fea916fb1a465dcb7c992671c5ea7bf67%2F"
+        "fig5-wrapup-cost-decomposition.png?generation=1785733184099898&alt=media"
+    ),
 }
 
 

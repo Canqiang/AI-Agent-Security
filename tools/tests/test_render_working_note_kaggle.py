@@ -20,6 +20,7 @@ def test_renderer_replaces_all_local_working_note_images(tmp_path: Path) -> None
                 "![surface](assets/working-note/02-attack-surface-collapse.png)",
                 "![proof](assets/working-note/03-window-nesting-proof.png)",
                 "![economics](assets/working-note/04-score-economics.png)",
+                "![decomposition](assets/working-note/05-wrapup-cost-decomposition.png)",
                 "",
             ]
         )
@@ -41,15 +42,12 @@ def test_renderer_replaces_all_local_working_note_images(tmp_path: Path) -> None
 
     assert result.returncode == 0, result.stderr
     rendered = output.read_text()
+    # every local working-note image path must be gone, replaced by a hosted URL
     assert "assets/working-note/" not in rendered
-    for filename in (
-        "01-scoring-pipeline.png",
-        "02-attack-surface-collapse.png",
-        "03-window-nesting-proof.png",
-        "04-score-economics.png",
-    ):
-        assert filename in rendered
-        assert "https://www.googleapis.com/download/storage/v1/b/kaggle-user-content/o/" in rendered
+    # all five mapped images render as Kaggle-hosted URLs (the hosted filename need
+    # not match the local one — figure 5's hosted object is named fig5-*.png)
+    hosted_prefix = "https://www.googleapis.com/download/storage/v1/b/kaggle-user-content/o/"
+    assert rendered.count(hosted_prefix) == 5
 
 
 def test_renderer_fails_if_expected_image_is_missing(tmp_path: Path) -> None:
