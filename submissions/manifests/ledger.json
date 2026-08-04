@@ -3,14 +3,28 @@
   "best_scored_ref": 54998089,
   "competition": "ai-agent-security-multi-step-tool-attacks",
   "counts_by_taxonomy": {
-    "complete_scored": 72,
+    "complete_scored": 74,
     "complete_zero": 2,
     "other_error": 31,
     "runtime_exceeded": 3,
     "system_error": 5
   },
-  "current_baseline_ref": 55175560,
+  "current_baseline_ref": 55202000,
   "refs": [
+    {
+      "description": "",
+      "public_score": 85.62,
+      "ref": 55202000,
+      "submitted_at": "2026-08-03T04:14:35.833Z",
+      "taxonomy": "complete_scored"
+    },
+    {
+      "description": "",
+      "public_score": 86.695,
+      "ref": 55201994,
+      "submitted_at": "2026-08-03T04:14:23.360Z",
+      "taxonomy": "complete_scored"
+    },
     {
       "description": "fill_r097_mpost7 k1 n2000 expNone r097 recipe + forged multi-post N=7 (one hop of slack vs N=8's zero; tests whether the N=8 void onset is closer to a hop-exhaustion cliff or a smoother margin-driven degradation)",
       "public_score": null,
@@ -805,5 +819,5 @@
   ],
   "schema_version": "2026-06-24.submission-ledger.v1",
   "unresolved_pending_refs": [],
-  "updated_at": "2026-08-03T01:31:23+00:00"
+  "updated_at": "2026-08-04T01:46:28+00:00"
 }
