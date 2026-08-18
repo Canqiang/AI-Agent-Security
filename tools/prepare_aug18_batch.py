@@ -41,6 +41,7 @@ def build_variant(
     knobs: dict[str, tuple[int | float | bool, str]],
     *,
     desc: str,
+    slug: str | None = None,
 ) -> Path:
     # Base is the current src/attack.py, which carries the NEW FAST_MULTIPOST_N
     # knob plus the engine defaults. The proven mpost5 recipe (91.03 lineage,
@@ -66,7 +67,7 @@ def build_variant(
     code_cell["outputs"] = []
     code_cell["execution_count"] = None
 
-    slug = f"aiagsec-{name}"
+    slug = slug or name
     metadata = {
         "code_file": "submission.ipynb",
         "competition_sources": ["ai-agent-security-multi-step-tool-attacks"],
@@ -74,13 +75,13 @@ def build_variant(
         "enable_gpu": True,
         "enable_internet": False,
         "enable_tpu": False,
-        "id": f"canqiang/{slug}",
+        "id": f"canqiang/aiagsec-{slug}",
         "is_private": True,
         "kernel_sources": [],
         "kernel_type": "notebook",
         "language": "python",
         "machine_shape": "NvidiaTeslaT4",
-        "title": f"AIAgSec {name}",
+        "title": f"AIAgSec {slug}",
     }
 
     out_dir = OUT_ROOT / name
@@ -115,6 +116,9 @@ def build_variant(
 
 VARIANTS: dict[str, dict] = {
     # S1 baseline: exact proven mpost5 recipe, fresh slug, new evaluator.
+    # NOTE (08-18): the FIRST baseline submission was burned on the generic
+    # kernel's placeholder zeros (push_submit_variants kernel bug, fixed). Reused
+    # only as the reference; not re-submitted today.
     "baseline-mpost5": {
         "desc": "exact mpost5 recipe (91.03 lineage) under the 08-06 evaluator",
         "knobs": {
@@ -127,6 +131,7 @@ VARIANTS: dict[str, dict] = {
     # replay cushion to the wall (attack-gen timeout still fatal, so not 1.0).
     "overshoot-f099-r100": {
         "desc": "mpost5 + overshoot: fill 0.99 / replay 1.0 (partial-credit)",
+        "slug": "overshoot-f099-r100-v2",
         "knobs": {
             "FILL_BUDGET_FRAC": (0.99, "08-18 overshoot: fill to wall under partial-credit"),
             "REPLAY_SAFE_FRAC": (1.0, "08-18 overshoot: keep partial replay score"),
@@ -136,6 +141,7 @@ VARIANTS: dict[str, dict] = {
     # S3 gemma multipost: the 08-06 parser fix lever on the fast row (isolated).
     "gemma-mpost3": {
         "desc": "mpost5 + gemma fast-row multipost N=3 (08-06 parser fix)",
+        "slug": "gemma-mpost3-v2",
         "knobs": {
             "FILL_BUDGET_FRAC": (0.95, "08-18 gemma-mpost3: baseline fill"),
             "REPLAY_SAFE_FRAC": (0.97, "08-18 gemma-mpost3: baseline replay"),
@@ -145,6 +151,7 @@ VARIANTS: dict[str, dict] = {
     # S4 gemma multipost + overshoot (combined lever).
     "gemma-mpost3-overshoot": {
         "desc": "mpost5 + gemma multipost N=3 + overshoot",
+        "slug": "gemma-mpost3-overshoot-v2",
         "knobs": {
             "FILL_BUDGET_FRAC": (0.99, "08-18 gemma-mpost3-overshoot: fill to wall"),
             "REPLAY_SAFE_FRAC": (1.0, "08-18 gemma-mpost3-overshoot: partial replay"),
@@ -154,6 +161,7 @@ VARIANTS: dict[str, dict] = {
     # S5 heavier gemma multipost + overshoot.
     "gemma-mpost5-overshoot": {
         "desc": "mpost5 + gemma multipost N=5 + overshoot",
+        "slug": "gemma-mpost5-overshoot-v2",
         "knobs": {
             "FILL_BUDGET_FRAC": (0.99, "08-18 gemma-mpost5-overshoot: fill to wall"),
             "REPLAY_SAFE_FRAC": (1.0, "08-18 gemma-mpost5-overshoot: partial replay"),
@@ -165,7 +173,8 @@ VARIANTS: dict[str, dict] = {
 
 def main() -> int:
     for name, spec in VARIANTS.items():
-        out_dir = build_variant(name, spec["knobs"], desc=spec["desc"])
+        out_dir = build_variant(name, spec["knobs"], desc=spec["desc"],
+                                slug=spec.get("slug"))
         print(f"{name}: {out_dir}")
     return 0
 

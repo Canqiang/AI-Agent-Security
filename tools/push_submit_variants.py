@@ -94,6 +94,12 @@ def submit_variant(
     from push_kaggle_kernel import push_kernel
 
     manifest = load_json(folder / "variant-manifest.json")
+    # The kernel this variant actually lives at: push_kernel uploads the folder's
+    # notebook under kernel-metadata.json's `id`, so the wait/verify/submit steps
+    # MUST target THAT kernel, not a shared default. Submitting from a shared
+    # generic kernel submits its stale output (2026-08-18: burned a submission on
+    # the generic kernel's placeholder zeros).
+    variant_kernel = load_json(folder / "kernel-metadata.json").get("id") or kernel
     message = (
         f"{manifest['name']} k{manifest['chain_k']} n{manifest['n_candidates']} "
         f"exp{manifest['expected_public_score']} {manifest['description']}"
@@ -119,7 +125,7 @@ def submit_variant(
 
     def wait_fn(version: int) -> dict:
         return kernel_wait.wait_for_fresh_complete(
-            poll_status=lambda: ss._status_text(api, kernel),
+            poll_status=lambda: ss._status_text(api, variant_kernel),
             sleep=time.sleep, monotonic=time.monotonic,
             min_floor_s=ss.MIN_FLOOR_SECONDS, timeout_s=timeout_seconds,
             poll_seconds=poll_seconds,
@@ -136,8 +142,8 @@ def submit_variant(
         pending_fn=ss._real_pending(api, competition),
         push_fn=lambda: push_kernel(folder),
         wait_fn=wait_fn,
-        verify_fn=ss._real_verify(api, kernel),
-        submit_fn=lambda version: ss._to_jsonable_submit_from(api, competition, kernel, message, version),
+        verify_fn=ss._real_verify(api, variant_kernel),
+        submit_fn=lambda version: ss._to_jsonable_submit_from(api, competition, variant_kernel, message, version),
         record_fn=lambda: None,
     )
     result = ss.run_safe_submit(plan, deps)

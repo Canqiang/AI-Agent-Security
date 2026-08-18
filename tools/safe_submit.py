@@ -175,6 +175,13 @@ def _real_verify(api: Any, kernel: str) -> Callable[[], dict]:
             for needed in OFFICIAL_SUBMISSION_IDS:
                 if needed not in text:
                     blockers.append(f"submission.csv missing row {needed}")
+            # Placeholder guard (2026-08-18): a plain notebook run writes a
+            # hardcoded zeros submission.csv; submitting it would burn a quota
+            # slot on a 0.0. If every row is 0.0 it is NOT a real scored run.
+            rows = [line.strip() for line in text.strip().splitlines() if line.strip()]
+            scores = [line.split(",")[-1] for line in rows[1:]]
+            if scores and all(s.strip() in {"0", "0.0", "0.00", ""} for s in scores):
+                blockers.append("submission.csv is placeholder zeros (not a scored run)")
             for log in Path(tmp).glob("*.log"):
                 body = log.read_text(errors="replace")
                 if "Traceback" in body or "exceeded the allowed runtime" in body:
