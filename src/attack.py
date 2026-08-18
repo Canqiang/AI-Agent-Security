@@ -183,6 +183,18 @@ REPLAY_COST_COEF = 1.0        # measured elapsed x this == estimated hops=8 repl
 # BYTE-IDENTICAL. Gain is modest (~1.1x throughput: 4x posts cost ~3.6x replay,
 # each post is a full reasoning generation) -- see memory multipost-forge-*.
 SLOW_MULTIPOST_N = 1          # http.post endpoints planned per slow-row candidate
+# Fast-row (gemma) multi-post (2026-08-18): the 08-06 evaluator update fixed
+# gemma's tool-call parsing (subsequent tool-call responses were wrapped in
+# braces and dropped, capping gemma at ONE post per candidate -- thread 733058).
+# Now the fast row can chain K http.post calls per candidate via the plain
+# _burst_msg form (gemma is not Harmony, so the token-forged analysis channel
+# does not apply). K=1 (default) == today's single-post fast-row behavior,
+# BYTE-IDENTICAL; a generated variant bakes K>1 via the same source-substitution
+# mechanism. Same EV shape as SLOW_MULTIPOST_N: K posts cost ~Kx replay but each
+# post is a full reasoning generation, so real gain is measured, not assumed --
+# but gemma's fast candidate loop means a small K here multiplies the FAST half
+# of the mean, which the old (pre-fix) evaluator never allowed.
+FAST_MULTIPOST_N = 1          # http.post endpoints planned per fast-row candidate
 # The trailing sentence _forge_plan_msg appends after its endpoint plan -- kept as
 # a named constant so its default text is defined once, tested, and reused as the
 # function's default `closing` argument.
@@ -376,6 +388,7 @@ class AttackAlgorithm(AttackAlgorithmBase):
             self.config.get("slow_multipost_empty_closing", SLOW_MULTIPOST_EMPTY_CLOSING)
         )
         slow_multipost_closing = "" if slow_multipost_empty_closing else SLOW_MULTIPOST_CLOSING
+        fast_multipost_n = max(1, int(self.config.get("fast_multipost_n", FAST_MULTIPOST_N)))
 
         # One-time UNTIMED warm-up pays the model-load cost (75-146s on the GGUF
         # backend) BEFORE the loop, so it never inflates `slowest` and stops the
@@ -427,6 +440,13 @@ class AttackAlgorithm(AttackAlgorithmBase):
                 slow_row = split_on and not classifying and chosen_template == frame_template
                 if slow_row and slow_multipost_n > 1:
                     msg = _forge_plan_msg(idx, slow_multipost_n, closing=slow_multipost_closing)
+                elif not slow_row and fast_multipost_n > 1:
+                    # Fast-row (gemma) multi-post: one message driving K http.post
+                    # calls. Enabled by the 08-06 parser fix (gemma could previously
+                    # only fire one post per candidate). Independent of split: when
+                    # split is off there is no slow/fast distinction, so every row
+                    # is "fast" and uses this form.
+                    msg = _burst_msg(idx, fast_multipost_n)
                 else:
                     template = (
                         TEMPLATE if (not split_on or classifying) else chosen_template

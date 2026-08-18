@@ -296,6 +296,29 @@ def test_fill_defaults_to_single_post_when_burst_k_unset():
         assert c.user_messages[0].count(f"data={PAYLOAD}") == 1
 
 
+def test_fill_uses_burst_form_for_fast_row_when_fast_multipost_set():
+    # fast_multipost_n>1 (08-06 gemma parser fix): a no-split run classifies every
+    # row as "fast", so every fired candidate's single message carries K secret
+    # posts via _burst_msg (not the Harmony forge -- gemma is not Harmony).
+    env = FakeEnv(latency=0.01, cold=0.05, misfire_idx=(1, 3))
+    cands = _run(env, algo_cfg={"fast_multipost_n": 3}, time_budget_s=2.0, max_tool_hops=8)
+    assert len(cands) >= 1
+    for c in cands:
+        assert len(c.user_messages) == 1
+        assert c.user_messages[0].count(f"data={PAYLOAD}") == 3
+        assert "http.post" in c.user_messages[0]
+
+
+def test_fill_fast_multipost_defaults_to_single_post():
+    # fast_multipost_n unset (== default 1) must stay BYTE-IDENTICAL to the
+    # current single-post fast-row behavior.
+    env = FakeEnv(latency=0.01, cold=0.05, misfire_idx=(1, 3))
+    cands = _run(env, algo_cfg={"fast_multipost_n": 1}, time_budget_s=2.0, max_tool_hops=8)
+    assert len(cands) >= 1
+    for c in cands:
+        assert c.user_messages[0].count(f"data={PAYLOAD}") == 1
+
+
 def test_fill_stops_before_deadline_cushion():
     # ~0.10s per candidate + a tiny budget: the loop must stop EARLY
     # (deadline-aware), never running to HARD_N_CAP.
