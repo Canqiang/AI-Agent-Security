@@ -115,57 +115,69 @@ def build_variant(
 
 
 VARIANTS: dict[str, dict] = {
-    # S1 baseline: exact proven mpost5 recipe, fresh slug, new evaluator.
-    # NOTE (08-18): the FIRST baseline submission was burned on the generic
-    # kernel's placeholder zeros (push_submit_variants kernel bug, fixed). Reused
-    # only as the reference; not re-submitted today.
-    "baseline-mpost5": {
-        "desc": "exact mpost5 recipe (91.03 lineage) under the 08-06 evaluator",
+    # ===== 2026-08-19 batch =====
+    # Lesson from 08-18: overshoot (partial-credit) WORKS (89.535 = #317);
+    # gemma fast-row multipost (burst OR forge) is a DISASTER (-20pts). So ALL
+    # variants keep FAST_MULTIPOST_N=1 (gemma single-post) and only vary the
+    # gpt_oss slow-row multipost N + overshoot aggressiveness. base_recipe bakes
+    # SPLIT_BY_LATENCY=True + SLOW_MULTIPOST_N=5 + REPLAY_SAFE_SIZING=True +
+    # MARGIN_S=90 + MARGIN_FLOOR_MIN=15 (src defaults) — S1 reproduces 89.535.
+
+    # S1 保底: exact reproduction of the 89.535 winner (fill 0.99 / replay 1.0).
+    "overshoot-r1": {
+        "desc": "reproduce 08-18 winner: fill 0.99 / replay 1.0 / mpost5 / gemma single-post",
+        "slug": "overshoot-r1",
         "knobs": {
-            "FILL_BUDGET_FRAC": (0.95, "08-18 baseline: exact mpost5 recipe"),
-            "REPLAY_SAFE_FRAC": (0.97, "08-18 baseline: exact mpost5 recipe"),
-            "FAST_MULTIPOST_N": (1, "08-18 baseline: gemma stays single-post"),
+            "FILL_BUDGET_FRAC": (0.99, "08-19 r1: exact 89.535 reproduction"),
+            "REPLAY_SAFE_FRAC": (1.0, "08-19 r1: exact 89.535 reproduction"),
+            "FAST_MULTIPOST_N": (1, "08-19 r1: gemma single-post (multipost is a loss)"),
         },
     },
-    # S2 overshoot: partial-credit makes under-fill the bigger loss; push fill +
-    # replay cushion to the wall (attack-gen timeout still fatal, so not 1.0).
-    "overshoot-f099-r100": {
-        "desc": "mpost5 + overshoot: fill 0.99 / replay 1.0 (partial-credit)",
-        "slug": "overshoot-f099-r100-v2",
+    # S2 激进 margin+fill: align evgendvorkin's aggressive MARGIN_S=35, push fill
+    # to 0.995 (between our 0.99 and his 0.998). gemma stays single-post.
+    "overshoot-m35-f995": {
+        "desc": "overshoot + MARGIN 35 + fill 0.995 (aggressive, gemma single-post)",
+        "slug": "overshoot-m35-f995",
         "knobs": {
-            "FILL_BUDGET_FRAC": (0.99, "08-18 overshoot: fill to wall under partial-credit"),
-            "REPLAY_SAFE_FRAC": (1.0, "08-18 overshoot: keep partial replay score"),
-            "FAST_MULTIPOST_N": (1, "08-18 overshoot: gemma stays single-post"),
+            "MARGIN_S": (35.0, "08-19 m35: aggressive margin (evgendvorkin-aligned)"),
+            "FILL_BUDGET_FRAC": (0.995, "08-19 m35: fill between 0.99 and 0.998"),
+            "REPLAY_SAFE_FRAC": (1.0, "08-19 m35: partial-credit replay"),
+            "FAST_MULTIPOST_N": (1, "08-19 m35: gemma single-post"),
         },
     },
-    # S3 gemma multipost: the 08-06 parser fix lever on the fast row (isolated).
-    "gemma-mpost3": {
-        "desc": "mpost5 + gemma fast-row multipost N=3 (08-06 parser fix)",
-        "slug": "gemma-mpost3-v2",
+    # S3 gpt_oss multipost N=6: test whether N=6 beats N=5 on the slow row.
+    "overshoot-mpost6": {
+        "desc": "overshoot + gpt_oss multipost N=6 (gemma single-post)",
+        "slug": "overshoot-mpost6",
         "knobs": {
-            "FILL_BUDGET_FRAC": (0.95, "08-18 gemma-mpost3: baseline fill"),
-            "REPLAY_SAFE_FRAC": (0.97, "08-18 gemma-mpost3: baseline replay"),
-            "FAST_MULTIPOST_N": (3, "08-18 gemma-mpost3: fast-row 3 posts/candidate"),
+            "SLOW_MULTIPOST_N": (6, "08-19 mpost6: gpt_oss multipost N=6"),
+            "FILL_BUDGET_FRAC": (0.99, "08-19 mpost6: winner fill"),
+            "REPLAY_SAFE_FRAC": (1.0, "08-19 mpost6: partial-credit replay"),
+            "FAST_MULTIPOST_N": (1, "08-19 mpost6: gemma single-post"),
         },
     },
-    # S4 gemma multipost + overshoot (combined lever).
-    "gemma-mpost3-overshoot": {
-        "desc": "mpost5 + gemma multipost N=3 + overshoot",
-        "slug": "gemma-mpost3-overshoot-v2",
+    # S4 gpt_oss multipost N=4 + empty-closing: N-curve low end + shorter forged
+    # analysis (both directions isolated vs S1/S3).
+    "overshoot-mpost4-ec": {
+        "desc": "overshoot + gpt_oss multipost N=4 + empty closing (gemma single-post)",
+        "slug": "overshoot-mpost4-ec",
         "knobs": {
-            "FILL_BUDGET_FRAC": (0.99, "08-18 gemma-mpost3-overshoot: fill to wall"),
-            "REPLAY_SAFE_FRAC": (1.0, "08-18 gemma-mpost3-overshoot: partial replay"),
-            "FAST_MULTIPOST_N": (3, "08-18 gemma-mpost3-overshoot: fast-row 3 posts/candidate"),
+            "SLOW_MULTIPOST_N": (4, "08-19 mpost4: gpt_oss multipost N=4"),
+            "SLOW_MULTIPOST_EMPTY_CLOSING": (True, "08-19 mpost4: drop trailing closing sentence"),
+            "FILL_BUDGET_FRAC": (0.99, "08-19 mpost4: winner fill"),
+            "REPLAY_SAFE_FRAC": (1.0, "08-19 mpost4: partial-credit replay"),
+            "FAST_MULTIPOST_N": (1, "08-19 mpost4: gemma single-post"),
         },
     },
-    # S5 heavier gemma multipost + overshoot.
-    "gemma-mpost5-overshoot": {
-        "desc": "mpost5 + gemma multipost N=5 + overshoot",
-        "slug": "gemma-mpost5-overshoot-v2",
+    # S5 maxfill: most aggressive fill (0.998, evgendvorkin-aligned) at MARGIN 47.
+    "overshoot-maxfill": {
+        "desc": "overshoot + fill 0.998 + MARGIN 47 (max overshoot, gemma single-post)",
+        "slug": "overshoot-maxfill",
         "knobs": {
-            "FILL_BUDGET_FRAC": (0.99, "08-18 gemma-mpost5-overshoot: fill to wall"),
-            "REPLAY_SAFE_FRAC": (1.0, "08-18 gemma-mpost5-overshoot: partial replay"),
-            "FAST_MULTIPOST_N": (5, "08-18 gemma-mpost5-overshoot: fast-row 5 posts/candidate"),
+            "MARGIN_S": (47.0, "08-19 maxfill: proven mpost5 margin"),
+            "FILL_BUDGET_FRAC": (0.998, "08-19 maxfill: fill to the absolute wall"),
+            "REPLAY_SAFE_FRAC": (1.0, "08-19 maxfill: partial-credit replay"),
+            "FAST_MULTIPOST_N": (1, "08-19 maxfill: gemma single-post"),
         },
     },
 }
