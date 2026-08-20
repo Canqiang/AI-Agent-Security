@@ -162,6 +162,16 @@ BURST_K = 1
 # frontier-technique-research-2026-07-17).
 REPLAY_SAFE_SIZING = False    # opt-in gate; False == today's flat-margin stop
 REPLAY_SAFE_FRAC = 0.99       # hard clamp: KEPT replay cost <= this * replay budget
+# Replay overshoot (2026-08-20, thread 733058): since the 08-06 evaluator update a
+# replay-phase timeout keeps the PARTIAL score of what replayed in time instead of
+# voiding the submission, while an attack-GEN timeout is still fatal. That splits
+# the two bounds _replay_stop guards: the replay cap may now deliberately exceed
+# the replay budget (bank whatever replays first), but the fill wall-clock must NOT
+# (it bounds run() itself). REPLAY_OVERSHOOT_FRAC scales ONLY the replay cap;
+# the wall stays at REPLAY_SAFE_FRAC * budget. 0 == follow REPLAY_SAFE_FRAC
+# (legacy behavior, byte-identical); >1.0 returns more candidates than the replay
+# budget can finish -- a partial-credit gamble, see memory aug18-evaluator-update.
+REPLAY_OVERSHOOT_FRAC = 0.0   # 0 == follow REPLAY_SAFE_FRAC; >1.0 = partial-credit gamble
 # hops=1 fill-throughput lever (2026-07-20, memory hops1-fill-throughput-confirmed):
 # the scored replay always reruns at max_tool_hops=8 and the exfil event is recorded
 # at hop-0 (before the wrap-up hop), so a candidate fires identically whether the
@@ -376,6 +386,10 @@ class AttackAlgorithm(AttackAlgorithmBase):
             self.config.get("replay_safe_sizing", REPLAY_SAFE_SIZING)
         )
         replay_safe_frac = float(self.config.get("replay_safe_frac", REPLAY_SAFE_FRAC))
+        replay_overshoot_frac = (
+            float(self.config.get("replay_overshoot_frac", REPLAY_OVERSHOOT_FRAC))
+            or replay_safe_frac
+        )
         replay_budget = float(self.config.get("replay_budget_s", budget * REPLAY_BUDGET_MULT))
         # hops=1 lever: probe at a tighter hop cap than the replay reruns at, and
         # scale each measured elapsed by replay_cost_coef to recover the true replay
@@ -407,7 +421,10 @@ class AttackAlgorithm(AttackAlgorithmBase):
         # must fit the fresh replay budget minus the measured warm-up (so the replay's
         # own model-load has room), and the fill's own wall-clock must fit run()'s
         # budget (anchored at run_start, folding warm-up in). Unused when off.
-        replay_cap = replay_safe_frac * replay_budget - (time.monotonic() - run_start)
+        # Since 08-06 the replay bound alone may overshoot (REPLAY_OVERSHOOT_FRAC:
+        # timeout banks partial credit); the wall bound still must not (gen timeout
+        # stays fatal), so it alone tracks REPLAY_SAFE_FRAC.
+        replay_cap = replay_overshoot_frac * replay_budget - (time.monotonic() - run_start)
         wall_deadline = run_start + replay_safe_frac * budget
         replay_cost = 0.0
         cands: list[AttackCandidate] = []

@@ -613,6 +613,53 @@ def test_replay_safe_cap_subtracts_measured_warmup(monkeypatch):
     assert len(big_warmup) < len(small_warmup)
 
 
+# Replay overshoot (2026-08-20, 08-06 evaluator update): a replay-phase timeout now
+# banks PARTIAL credit instead of voiding, while an attack-gen timeout is still
+# fatal. So REPLAY_OVERSHOOT_FRAC may lift the KEPT set past the replay budget, but
+# it must NOT extend the fill wall-clock (that bound guards run() itself).
+
+
+def test_replay_overshoot_default_follows_replay_safe_frac():
+    from attack import REPLAY_OVERSHOOT_FRAC
+    assert REPLAY_OVERSHOOT_FRAC == 0.0   # 0 == follow REPLAY_SAFE_FRAC (legacy)
+
+
+def test_replay_overshoot_grows_kept_set_within_same_fill_wall(monkeypatch):
+    # Same wall clock (replay_safe_frac=1.0, time_budget 3.0s both runs); the
+    # baseline's replay cap (replay_budget 1.0s) binds first, so lifting ONLY the
+    # replay cap 1.0x -> 1.5x must keep MORE candidates under the identical wall.
+    base = {
+        "slowest0": 0.02, "hard_n_cap": 10000,
+        "replay_safe_sizing": True, "replay_safe_frac": 1.0,
+        "replay_budget_s": 1.0,
+    }
+    _ne, normal = _scripted_run(
+        monkeypatch, latency=0.10, algo_cfg=base, time_budget_s=3.0
+    )
+    _oe, overshoot = _scripted_run(
+        monkeypatch, latency=0.10,
+        algo_cfg=dict(base, replay_overshoot_frac=1.5), time_budget_s=3.0,
+    )
+    assert len(overshoot) > len(normal)
+    # The gen wall must not move with the overshoot knob -- see the structural
+    # test below for the wall-anchor proof.
+
+
+def test_replay_overshoot_leaves_wall_deadline_at_safe_frac(monkeypatch):
+    # Structural: with replay_overshoot_frac > replay_safe_frac the loop may only
+    # stop LATER via the replay cap, never via a later wall. Freeze time and prove
+    # the wall bound still fires at replay_safe_frac * budget: with a huge replay
+    # budget (cap never binds) the fill must still stop inside run()'s budget.
+    cfg = {
+        "slowest0": 0.02, "hard_n_cap": 10000,
+        "replay_safe_sizing": True, "replay_safe_frac": 1.0,
+        "replay_budget_s": 1e9, "replay_overshoot_frac": 1.5,
+    }
+    env, cands = _scripted_run(monkeypatch, latency=0.10, algo_cfg=cfg, time_budget_s=2.0)
+    assert len(cands) > 0            # wall allowed a normal fill ...
+    assert len(cands) < 10000        # ... but the wall DID stop it (cap never could)
+
+
 # hops=1 fill-throughput lever (2026-07-20, memory hops1-fill-throughput-confirmed):
 # the scored replay always reruns at max_tool_hops=8 and the exfil event lands on
 # hop-0, so a candidate fires identically whether the fill probes it at 1 hop or 8
