@@ -12,7 +12,7 @@
   "ref": 55175571,
   "resolved_at": "2026-08-03T01:31:23+00:00",
   "schema_version": "2026-06-24.submission-ref.v1",
-  "status": "COMPLETE",
+  "status": "ERROR",
   "submitted_at": "2026-08-02T02:31:15.070Z",
   "taxonomy": "other_error"
 }

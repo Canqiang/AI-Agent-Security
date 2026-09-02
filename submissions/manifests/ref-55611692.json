@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "overshoot-m35-f995 k1 n2000 expNone overshoot + MARGIN 35 + fill 0.995 (aggressive, gemma single-post)",
+  "error_description": "",
+  "first_seen_at": "2026-08-21T01:24:35+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-overshoot-m35-f995?scriptVersionId=343342968",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": 87.705,
+  "ref": 55611692,
+  "resolved_at": "2026-08-21T01:24:35+00:00",
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "COMPLETE",
+  "submitted_at": "2026-08-19T01:11:23.977Z",
+  "taxonomy": "complete_scored"
+}

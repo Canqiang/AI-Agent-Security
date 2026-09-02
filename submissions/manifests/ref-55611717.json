@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "overshoot-maxfill k1 n2000 expNone overshoot + fill 0.998 + MARGIN 47 (max overshoot, gemma single-post)",
+  "error_description": "",
+  "first_seen_at": "2026-08-21T01:24:35+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-overshoot-maxfill?scriptVersionId=343343147",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": 88.0,
+  "ref": 55611717,
+  "resolved_at": "2026-08-21T01:24:35+00:00",
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "COMPLETE",
+  "submitted_at": "2026-08-19T01:13:22.880Z",
+  "taxonomy": "complete_scored"
+}

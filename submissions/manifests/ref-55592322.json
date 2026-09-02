@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "gemma-mpost5-overshoot k1 n2000 expNone mpost5 + gemma multipost N=5 + overshoot",
+  "error_description": "",
+  "first_seen_at": "2026-08-21T01:24:35+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-gemma-mpost5-overshoot-v2?scriptVersionId=343142765",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": 67.81,
+  "ref": 55592322,
+  "resolved_at": "2026-08-21T01:24:35+00:00",
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "COMPLETE",
+  "submitted_at": "2026-08-18T04:30:33.893Z",
+  "taxonomy": "complete_scored"
+}

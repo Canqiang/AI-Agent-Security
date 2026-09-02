@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "overshoot-f099-r100 k1 n2000 expNone mpost5 + overshoot: fill 0.99 / replay 1.0 (partial-credit)",
+  "error_description": "",
+  "first_seen_at": "2026-08-21T01:24:35+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-overshoot-f099-r100-v2?scriptVersionId=343142347",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": 89.535,
+  "ref": 55592286,
+  "resolved_at": "2026-08-21T01:24:35+00:00",
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "COMPLETE",
+  "submitted_at": "2026-08-18T04:28:37.193Z",
+  "taxonomy": "complete_scored"
+}

@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "gemma-mpost3 k1 n2000 expNone mpost5 + gemma fast-row multipost N=3 (08-06 parser fix)",
+  "error_description": "",
+  "first_seen_at": "2026-08-21T01:24:35+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-gemma-mpost3-v2?scriptVersionId=343142550",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": 67.895,
+  "ref": 55592294,
+  "resolved_at": "2026-08-21T01:24:35+00:00",
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "COMPLETE",
+  "submitted_at": "2026-08-18T04:29:16.317Z",
+  "taxonomy": "complete_scored"
+}

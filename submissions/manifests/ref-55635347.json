@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "harvest d3 of 89.535 anchor: same-version rerun v2 (fill 0.99 / replay 1.0 / mpost5 / gemma single-post) [08-20 GPU-quota-free harvest]",
+  "error_description": "",
+  "first_seen_at": "2026-08-21T01:24:35+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-overshoot-f099-r100-v2?scriptVersionId=343142347",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": 88.445,
+  "ref": 55635347,
+  "resolved_at": "2026-08-21T01:24:35+00:00",
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "COMPLETE",
+  "submitted_at": "2026-08-20T01:34:25.080Z",
+  "taxonomy": "complete_scored"
+}

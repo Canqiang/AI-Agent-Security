@@ -33,3 +33,6 @@ talks/
 
 # Local Chinese doc mirrors (English versions are the committed source of truth)
 *.zh.md
+
+# Generated Kaggle-render of the Working Note (regenerate via tools/render_working_note_kaggle.py)
+docs/working-note-attack-surface.kaggle.md

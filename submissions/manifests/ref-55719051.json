@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "CD-hedge floor calibration: 1 benign email.send/candidate (CONFUSED_DEPUTY, 6 raw/fire); isolates the public score that would survive a payload-aware private guardrail",
+  "error_description": "",
+  "first_seen_at": "2026-08-23T15:51:14+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-cd-hedge-calib?scriptVersionId=344406169",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": null,
+  "ref": 55719051,
+  "resolved_at": null,
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "SubmissionStatus.PENDING",
+  "submitted_at": "2026-08-23T15:51:13.537Z",
+  "taxonomy": "pending"
+}

@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "re-measure 91.03-lineage mpost5 baseline-mpost5 v1 under current evaluator, draw 2/4 (GPU-free same-version resubmit; characterize distribution vs single unlucky landing)",
+  "error_description": "",
+  "first_seen_at": "2026-08-22T02:18:59+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-baseline-mpost5?scriptVersionId=343139384",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": 84.46,
+  "ref": 55681209,
+  "resolved_at": "2026-08-23T05:08:13+00:00",
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "COMPLETE",
+  "submitted_at": "2026-08-22T02:18:32.880Z",
+  "taxonomy": "complete_scored"
+}

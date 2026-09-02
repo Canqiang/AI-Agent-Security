@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "overshoot-mpost6 k1 n2000 expNone overshoot + gpt_oss multipost N=6 (gemma single-post)",
+  "error_description": "",
+  "first_seen_at": "2026-08-21T01:24:35+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-overshoot-mpost6?scriptVersionId=343343018",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": 88.51,
+  "ref": 55611698,
+  "resolved_at": "2026-08-21T01:24:35+00:00",
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "COMPLETE",
+  "submitted_at": "2026-08-19T01:12:03.840Z",
+  "taxonomy": "complete_scored"
+}

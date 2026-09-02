@@ -1,0 +1,18 @@
+{
+  "competition": "ai-agent-security-multi-step-tool-attacks",
+  "description": "overshoot-r1 k1 n2000 expNone reproduce 08-18 winner: fill 0.99 / replay 1.0 / mpost5 / gemma single-post",
+  "error_description": "",
+  "first_seen_at": "2026-08-21T01:24:35+00:00",
+  "kernel": null,
+  "kernel_version_url": "/code/canqiang/aiagsec-overshoot-r1?scriptVersionId=343342921",
+  "log_excerpt": null,
+  "notes": "",
+  "private_score": null,
+  "public_score": 84.065,
+  "ref": 55611680,
+  "resolved_at": "2026-08-21T01:24:35+00:00",
+  "schema_version": "2026-06-24.submission-ref.v1",
+  "status": "COMPLETE",
+  "submitted_at": "2026-08-19T01:10:44.843Z",
+  "taxonomy": "complete_scored"
+}

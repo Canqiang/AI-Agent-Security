@@ -74,6 +74,7 @@ class SubmitPlan:
     allow_stacking: bool = False
     allow_pending: bool = False
     allow_env_probe: bool = False
+    allow_no_url: bool = False
     dry_run: bool = False
     reason: str = ""
 
@@ -137,6 +138,7 @@ def _real_audit(source: Path, n: int, plan: SubmitPlan, per_candidate_seconds: f
             allow_high_n=plan.allow_high_n, allow_stacking=plan.allow_stacking,
             per_candidate_seconds=per_candidate_seconds,
             allow_env_probe=plan.allow_env_probe,
+            allow_no_url=plan.allow_no_url,
         )
         return {"ok": result["ok"], "blockers": result.get("blockers", [])}
 
@@ -208,6 +210,8 @@ def main() -> int:
     parser.add_argument("--message", required=True)
     parser.add_argument("--allow-high-n", action="store_true")
     parser.add_argument("--allow-stacking", action="store_true")
+    parser.add_argument("--allow-no-url", action="store_true",
+                        help="CD mode: email.send candidates carry no http.post URL")
     parser.add_argument("--allow-env-probe", action="store_true",
                         help="permit env.interact/probe in the scored source (adaptive per-model fill)")
     parser.add_argument("--per-candidate-seconds", type=float, default=None,
@@ -225,7 +229,7 @@ def main() -> int:
                         default=FRESH_KERNEL_POLL_ERROR_GRACE_S)
     args = parser.parse_args()
 
-    if (args.allow_stacking or args.allow_high_n or args.allow_pending or args.allow_env_probe) and not args.reason:
+    if (args.allow_stacking or args.allow_high_n or args.allow_pending or args.allow_env_probe or args.allow_no_url) and not args.reason:
         print(json.dumps({"ok": False, "stage": "args",
                           "blockers": ["override flags require --reason"]}, indent=2))
         return 2
@@ -240,6 +244,7 @@ def main() -> int:
     plan = SubmitPlan(
         allow_high_n=args.allow_high_n, allow_stacking=args.allow_stacking,
         allow_pending=args.allow_pending, allow_env_probe=args.allow_env_probe,
+        allow_no_url=args.allow_no_url,
         dry_run=args.dry_run, reason=args.reason,
     )
 
