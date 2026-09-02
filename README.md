@@ -89,3 +89,8 @@ research, not for use against live systems.
 > Xander. *The Scored Attack Surface Collapses to a Single Predicate.* Kaggle
 > Working Note, AI Agent Security: Multi-Step Tool Attacks, 2026.
 > DOI [10.34740/kaggle/w/104679](https://doi.org/10.34740/kaggle/w/104679).
+
+## License
+
+Released under the [MIT License](LICENSE). The underlying `aicomp-sdk` is a
+separate MIT-licensed project by the competition organizers.
