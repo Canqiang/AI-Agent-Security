@@ -5,7 +5,7 @@
 > Scope: the first two phases of the harness-engineering effort for Kaggle
 > `ai-agent-security-multi-step-tool-attacks`. Phase 0 = forensics / oracle
 > ingestion. Phase 1 = submission-mechanics correctness. Phases 2–3 (runtime
-> fidelity台, A/B sweep, 55.8 reproduction) are out of scope here; see §9.
+> fidelity rig, A/B sweep, 55.8 reproduction) are out of scope here; see §9.
 
 ---
 
@@ -282,10 +282,10 @@ outcome; no action needed beyond letting the ledger capture it.
 
 ## 9. Roadmap context (out of scope here)
 
-- **Phase 2 — runtime-fidelity台:** make `run_gguf_validation` run the full
+- **Phase 2 — runtime-fidelity rig:** make `run_gguf_validation` run the full
   `eval_attack` gateway path (not the bare `_replay_candidate_trace`) as a
   non-scored T4 shadow kernel; derive a safe-N projection; add a parity-assertion
-  tool proving台 config == gateway constants (hops, backend, guardrail, seed).
+  tool proving rig config == gateway constants (hops, backend, guardrail, seed).
 - **Phase 3 — velocity & calibration:** A/B/sweep ranking engine feeding
   promotion; canary→recalibrate loop; reproduce/beat the 55.8 replay-dense
   approach (current baseline is ~1/3 of it).

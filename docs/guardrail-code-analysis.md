@@ -17,7 +17,7 @@ is the only high-value predicate an attacker can actually reach.*
 > in-trace** scores through reversible encodings, and the fixture literals
 > (`TOKEN=admin123`, …) are **not** credited unless read. For current predicate
 > behaviour use `docs/working-note-attack-surface.md` §4/§9 (version-corrected) or the
-> vault note `12 - Guardrail代码规则与机制` §7. The **guardrail/env/scoring** facts
+> vault note `12 - Guardrail Rules & Mechanism` §7. The **guardrail/env/scoring** facts
 > (§2, §4) and the **structural proofs** (§5) are SHA-verified and remain valid.
 
 ---

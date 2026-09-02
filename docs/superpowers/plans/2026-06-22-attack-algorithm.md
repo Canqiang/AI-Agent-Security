@@ -192,7 +192,7 @@ python -m py_compile /tmp/validation.py
 - If only A1/A2 (injection) hit → injection earns a bandit arm; record which token shape worked.
 - Record refusal vs malformed-call vs no-call per candidate.
 
-**Do NOT** add injection or roleplay logic to scored `src/attack.py` until this probe shows a material, reproducible (two-pass) gain over the plain control. Roleplay/祖母 family is not probed separately (low EV, prompt-budget cost); revisit only if both injection and plain controls fail on a model.
+**Do NOT** add injection or roleplay logic to scored `src/attack.py` until this probe shows a material, reproducible (two-pass) gain over the plain control. Roleplay/grandma-style family is not probed separately (low EV, prompt-budget cost); revisit only if both injection and plain controls fail on a model.
 
 ---
 

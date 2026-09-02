@@ -1,68 +1,68 @@
-# Kaggle 竞赛增量调研：AI Agent Security — Multi-Step Tool Attacks（2026-07-19 更新）
+# Kaggle Competition Incremental Research: AI Agent Security — Multi-Step Tool Attacks (2026-07-19 update)
 
-> 本次日期：2026-07-19。上一份调研：`docs/competition-research-update-2026-07-17.md`（2026-07-17）。中间 07-18 的两件事——replay-safe sizing 机制的 TDD 实现、以及同日一次两路情报调研（`frontier-technique-research-2026-07-18`）——只记在了 Claude memory 里，未落成 docs/ 文档；本次是 07-18 打出去的那批提交的出分记录 + 后续行动，不重复展开 07-18 的调研内容，只在需要时引用其结论并标注修正。
-> 本次结论来自：① 直接查询 Kaggle API（`tools/pull_submission_ledger.py` + 全量 leaderboard 分页遍历）核实出分与排名，不依赖分页预览或情报调研的二手转述；② 在自己的实时提交管线上真实验证（本次新增 5 个真实提交，全部 PENDING，待下次核实）；③ 对照 07-18 情报调研的一条具体断言（"披露的 replay-safe 安全点是 0.92-0.94"）与自己管线的真实出分数据，发现该断言不适用于我们自己的实现。
-
----
-
-## 0. 本次最重要的几句话
-
-1. **07-18 打出去的 replay-safe sizing 5 连发梯度全部出分，最高分 63.850→75.825→85.5，三级跳，且都是同一条"Harmony token 伪造 + 按延迟路由"机制上叠加不同工程手段得到的。** r097（标称 `REPLAY_SAFE_FRAC=0.97`，扣掉实测 warmup 后有效约 0.957）打出 **85.5，新历史最高**，排名从 217-222/2020-2022 跳到 **约 113-114/2067**（85.500 分处恰好 4 队并列）。
-2. **r098/r099a/r099b（有效 frac ≥0.967）三个全部"格式错误"作废，r095（有效 ~0.937）也出了高分 84.78。** 由此可以把"重放安全"机制在我们自己管线上的真实作废边界夹在**有效 0.957（安全）～0.967（作废）**之间。
-3. **这个边界明显高于 07-18 情报调研引用的第三方"披露安全点 0.92-0.94"。** 那个数字是抓取到的第三方仓库（`Manish-khichar/JED-Attack`）在**他们自己**引擎上测出的，不是我们管线的真实边界——我们 `_fill()` 的 warm-up 扣除设计（重放预算里先减掉实测 warmup 再乘 frac）比对方朴素的"标称 frac × 固定预算"实现多买到了真实缓冲。**教训：外部披露的标定数字只能当先验，必须用自己管线的真实出分覆盖，不能想当然地继续保守。**
-4. **07-18 手算的 EV 估计彻底错了方向和量级**：当时估计"0.99 相比 fm04/f095 只多 ~+3% N（~+2 分）"，实际在一个真正落地的 clamp（r097）上涨了 **+9.675 分（相比 75.825），是预测天花板的近 5 倍**。这类边界效应的收益，手算外推靠不住，只有实测数字可信。
-5. **趁热打铁，用今天全新的 5/5 配额打了一发 5 点边界二分梯度**（标称 0.971/0.973/0.975/0.977/0.979，插值已知安全点 0.97 和已知作废点 0.98 之间），全部提交成功、无 403，等待出分——目标是把"有效 0.957 安全～0.967 作废"这个粗区间收窄到更精确的数字。
-6. **顺带用 Kaggle API 分页遍历验证了完整的全量榜单结构**（不是分页预览，是真正翻完 2067 支队伍），确认了排名方法论上的一个细节：leaderboard 用"每队最高分"展示，并列分数会挤在相邻的行号里——这次我们 85.500 分处有 4 队并列，Kaggle 官方排名算法下大概率显示同一个名次（约 113），而不是我们翻页数出来的第 114 行。
+> Date: 2026-07-19. Previous research: `docs/competition-research-update-2026-07-17.md` (2026-07-17). The two things in between on 07-18 — the TDD implementation of the replay-safe sizing mechanism, and a two-track intelligence recon on the same day (`frontier-technique-research-2026-07-18`) — were recorded only in Claude memory and never turned into docs/ documents; this update is the score record of the batch of submissions fired on 07-18 plus the follow-up actions. It does not re-expand the 07-18 recon content, only citing its conclusions where needed and flagging corrections.
+> This update's conclusions come from: ① directly querying the Kaggle API (`tools/pull_submission_ledger.py` + full paginated traversal of the leaderboard) to verify scores and rankings, not relying on the paginated preview or the second-hand restatement of the intelligence recon; ② real verification on our own live submission pipeline (5 new real submissions this round, all PENDING, to be verified next time); ③ comparing one specific assertion from the 07-18 recon ("the disclosed replay-safe operating point is 0.92-0.94") against the real scoring data from our own pipeline, and finding that this assertion does not apply to our own implementation.
 
 ---
 
-## 1. 07-18 梯度出分明细
+## 0. The most important sentences this round
 
-07-18 打出去的 `fill_rsafe_split_*` 5 连发（全部 split 路由 + Harmony token + floor_min=4/m47/f0.95 兜底，只变 `REPLAY_SAFE_FRAC`）全部 resolved：
+1. **The 5-shot replay-safe sizing gradient fired on 07-18 all scored, top score 63.850→75.825→85.5, a three-level jump, and all were obtained by stacking different engineering techniques on the same "Harmony token forgery + latency-based routing" mechanism.** r097 (nominal `REPLAY_SAFE_FRAC=0.97`, effectively about 0.957 after subtracting the measured warmup) scored **85.5, a new all-time high**, jumping the ranking from 217-222/2020-2022 to **about 113-114/2067** (exactly 4 teams tied at 85.500).
+2. **r098/r099a/r099b (effective frac ≥0.967) all voided with "format error", and r095 (effective ~0.937) also produced a high score of 84.78.** This pins the real voiding boundary of the "replay-safe" mechanism on our own pipeline between **effective 0.957 (safe) and 0.967 (void)**.
+3. **This boundary is clearly higher than the third-party "disclosed safe point 0.92-0.94" cited in the 07-18 recon.** That number was measured by a scraped third-party repo (`Manish-khichar/JED-Attack`) on **their own** engine, not the real boundary of our pipeline — the warmup-subtraction design in our `_fill()` (subtract the measured warmup from the replay budget first, then multiply by frac) buys more real buffer than the other side's naive "nominal frac × fixed budget" implementation. **Lesson: externally disclosed calibration numbers can only serve as a prior; they must be overridden by real scores from our own pipeline, and we cannot assume we should keep being conservative.**
+4. **The EV estimate hand-computed on 07-18 was wrong in both direction and magnitude**: at the time we estimated "0.99 only adds ~+3% N over fm04/f095 (~+2 points)", but on one clamp that actually landed (r097) the gain was **+9.675 points (relative to 75.825), nearly 5× the predicted ceiling**. For this kind of boundary-effect payoff, hand-computed extrapolation is unreliable; only measured numbers can be trusted.
+5. **Striking while the iron is hot, we used today's fresh 5/5 quota to fire a 5-point boundary bisection gradient** (nominal 0.971/0.973/0.975/0.977/0.979, interpolating between the known safe point 0.97 and the known void point 0.98), all submitted successfully with no 403, awaiting scores — the goal is to narrow the coarse interval "effective 0.957 safe ~ 0.967 void" to a more precise number.
+6. **Along the way, we used Kaggle API pagination to verify the full leaderboard structure** (not the paginated preview, but actually flipping through all 2067 teams), confirming a detail of the ranking methodology: the leaderboard displays "each team's highest score", and tied scores get crammed into adjacent row numbers — this round we have 4 teams tied at 85.500, and under Kaggle's official ranking algorithm they will most likely show as the same rank (about 113), not the 114th row we counted by paging.
 
-| 变体 | 标称 frac | 有效 frac（扣 warmup） | ref | 结果 |
+---
+
+## 1. 07-18 gradient score details
+
+The `fill_rsafe_split_*` 5-shot fired on 07-18 (all split routing + Harmony token + floor_min=4/m47/f0.95 fallback, varying only `REPLAY_SAFE_FRAC`) all resolved:
+
+| Variant | Nominal frac | Effective frac (warmup subtracted) | ref | Result |
 |---|---:|---:|---|---|
-| r099a | 0.99 | ~0.977 | `54797683` | 格式错误（作废） |
-| r099b | 0.99 | ~0.977 | `54797708` | 格式错误（作废） |
-| r098 | 0.98 | ~0.967 | `54797729` | 格式错误（作废） |
-| r097 | 0.97 | ~0.957 | `54797743` | **85.5 ✅ 新历史最高** |
+| r099a | 0.99 | ~0.977 | `54797683` | Format error (void) |
+| r099b | 0.99 | ~0.977 | `54797708` | Format error (void) |
+| r098 | 0.98 | ~0.967 | `54797729` | Format error (void) |
+| r097 | 0.97 | ~0.957 | `54797743` | **85.5 ✅ new all-time high** |
 | r095 | 0.95 | ~0.937 | `54797753` | 84.78 |
 
-用 `tools/pull_submission_ledger.py --print` 直接核实，`best_public_score=85.5`、`best_scored_ref=54797743`；`submissions/manifests/` 已同步（commit `f7e0738`）。
+Verified directly with `tools/pull_submission_ledger.py --print`: `best_public_score=85.5`, `best_scored_ref=54797743`; `submissions/manifests/` is synced (commit `f7e0738`).
 
-**排名核实方法**：由于 Kaggle 分页预览只显示前 20 行，本次直接调用底层 `ApiGetLeaderboardRequest`（绕过 `competition_leaderboard_view()` 不返回 `next_page_token` 的封装限制）分页拉完全部 2067 支队伍，在结果里按 `team_id` 匹配到自己（`Xander`，`team_id=16378320`）。命中位置是第 114 行，分数 `85.500`；同一分数还有 3 队（`kwang` 113 行、`Dante Lok` 115 行、`zekenoe` 116 行）——4 队并列同一个 `85.500`。Kaggle 官方标准竞赛排名（并列同名次、下一名次跳过并列数）下，这 4 队大概率都显示为第 113 名，我们内部记录用"约 113-114"表示这个不确定性。
-
----
-
-## 2. 作废边界：我们自己的实测数据推翻了外部披露的标定值
-
-07-18 情报调研（`frontier-technique-research-2026-07-18`，未落成 docs/，只在 memory 里）引用了一个第三方仓库（`Manish-khichar/JED-Attack`，文件 `ai-agent-security-v80-tensorliu-stacked3-v85.ipynb`）的说法：`REPLAY_SAFE=0.99` 会撑爆返回集合触发"格式错误"，**披露的安全操作点是激进 0.94、稳妥 0.92**。当时据此判断我们打出去的梯度（标称 0.99/0.99/0.98/0.97/0.95）"瞄高了"，预期只有 r095（有效 ~0.937，落在披露的 0.92-0.94 安全带里）最可能落地，r097/098/099 有作废风险。
-
-**实际出分后，这个预期被推翻**：r097 在有效 ~0.957 处不仅干净落地，还打出全场最高分；真正的作废边界（在我们自己管线上）落在有效 0.957 到 0.967 之间——比第三方披露的 0.92-0.94 高出至少两个百分点以上。
-
-**推测原因**：第三方那个数字是在**他们自己**的填充引擎上测出的，不是通用常数。我们 `src/attack.py::_fill()` 的 replay-safe 实现在计算停止点时，先从"标称 frac × 9000s 重放预算"里**减掉实测的 warmup 耗时**，再据此累计已保留候选的实测重放成本决定是否继续填充；这个"先扣 warmup 再乘 frac"的设计比对方朴素的"标称 frac 直接乘固定预算"的实现，多买到了一截真实缓冲——所以同样标称 0.97 的 frac，在我们管线上跑出来的真实风险要小于对方管线。
-
-这不是说第三方的数字是错的（它对他们自己的引擎大概率是准的），而是**任何跨仓库/跨实现搬运过来的"安全边界"数字，本质上是对方工程细节的产物，不能直接当成我们自己代码的物理常数**。这条已经写进 Claude memory 的 `frontier-technique-research-2026-07-18` 更正、以及本仓库的 `docs/working-note-attack-surface.md`（作为附带的方法论观察，虽然那份 Working Note 的主线论证是别的东西）。
+**Ranking verification method**: since the Kaggle paginated preview only shows the first 20 rows, this round we directly called the underlying `ApiGetLeaderboardRequest` (bypassing the `competition_leaderboard_view()` wrapper limitation that doesn't return `next_page_token`) to page through all 2067 teams, then matched ourselves in the result by `team_id` (`Xander`, `team_id=16378320`). The hit position was row 114, score `85.500`; 3 other teams share the same score (`kwang` row 113, `Dante Lok` row 115, `zekenoe` row 116) — 4 teams tied at the same `85.500`. Under Kaggle's official standard competition ranking (ties share a rank, the next rank skips by the number of ties), these 4 teams most likely all show as rank 113, and our internal record uses "about 113-114" to represent this uncertainty.
 
 ---
 
-## 3. EV 手算 vs. 实测：错得有多离谱
+## 2. Voiding boundary: our own measured data overturns the externally disclosed calibration value
 
-07-18 打梯度之前手算过一次 EV：按真实 gpt_oss ~20s/候选估算，replay-safe 0.99 相比当时的最优配置（`fill_split_fm04_m47_f095`，75.825）只能多挤出 **~+3% 的候选数 N，约 +2 分**——据此判断这个杠杆本身是边际的，冲 80+ 主要要靠在 ~20-26% 的同配置噪声带里抽到一次好的 draw，不是这个机制单独能带来的确定性收益。
+The 07-18 recon (`frontier-technique-research-2026-07-18`, never turned into a docs/ document, only in memory) cited a claim from a third-party repo (`Manish-khichar/JED-Attack`, file `ai-agent-security-v80-tensorliu-stacked3-v85.ipynb`): `REPLAY_SAFE=0.99` blows up the return set and triggers "format error", and **the disclosed safe operating points are aggressive 0.94, conservative 0.92**. Based on this, we judged that the gradient we fired (nominal 0.99/0.99/0.98/0.97/0.95) "aimed too high", and expected that only r095 (effective ~0.937, landing in the disclosed 0.92-0.94 safe band) was most likely to land, while r097/098/099 had voiding risk.
 
-**实际落地后**：r097（一个真正落地的 clamp，不是作废的那三个）比 75.825 涨了 **+9.675 分**，是预测天花板（+2 分）的**近 5 倍**。手算模型显然低估了：它把 N 的增长近似成线性的，但没有充分建模"填充循环的停止点被死死钉在真实重放预算边缘、而不是像 flat floor_min cushion 那样早早止步"这件事对候选数的非线性放大效应。
+**After the actual scores came in, this expectation was overturned**: r097 at effective ~0.957 not only landed cleanly but also produced the highest score of the whole batch; the real voiding boundary (on our own pipeline) falls between effective 0.957 and 0.967 — at least two-plus percentage points higher than the third-party's disclosed 0.92-0.94.
 
-**结论**：这类"贴着边界榨取吞吐量"的杠杆，手算 EV 只能给一个方向性的、极不可靠的下界参考，实际收益必须靠真实提交数据说话。以后再遇到类似的边界效应估算，应该更早承认手算的不确定性，而不是把一个粗略下界当成决策依据。
+**Presumed reason**: that third-party number was measured on **their own** fill engine, not a universal constant. When our `src/attack.py::_fill()` replay-safe implementation computes the stopping point, it first **subtracts the measured warmup time** from "nominal frac × 9000s replay budget", then accumulates the measured replay cost of retained candidates against that to decide whether to keep filling; this "subtract warmup first, then multiply by frac" design buys a slice of real buffer that the other side's naive "nominal frac directly times fixed budget" implementation doesn't — so the same nominal 0.97 frac yields lower real risk on our pipeline than on theirs.
+
+This does not mean the third-party number is wrong (it is probably accurate for their own engine); rather, **any "safety boundary" number carried over cross-repo / cross-implementation is essentially a product of the other side's engineering details and cannot be treated directly as a physical constant of our own code**. This has been written into the `frontier-technique-research-2026-07-18` correction already in Claude memory, and into this repo's `docs/working-note-attack-surface.md` (as an incidental methodological observation, even though that Working Note's main-line argument is about something else).
 
 ---
 
-## 4. 今天（07-19）打的边界二分梯度
+## 3. Hand-computed EV vs. measured: how wildly wrong it was
 
-用户明确选择"全押边界探测"：既然已知安全边界比预想的宽松很多（有效 0.957 安全 vs 0.967 作废，而不是 0.92-0.94），今天全新的 5/5 配额全部用来精细定位这个边界，而不是重复确认 r097 或转向别的研究方向。
+Before firing the gradient on 07-18, we hand-computed EV once: estimating at real gpt_oss ~20s/candidate, replay-safe 0.99 could only squeeze out **~+3% more candidate count N, about +2 points** over the then-best config (`fill_split_fm04_m47_f095`, 75.825) — and based on this we judged that the lever itself was marginal, and that pushing into 80+ mostly depended on drawing a good result within the ~20-26% same-config noise band, not on a deterministic gain this mechanism alone could provide.
 
-在已知安全点（标称 0.97）和已知作废点（标称 0.98）之间取 5 个内插点，均匀分布，其余配置和 r097 完全一致（split 路由 + Harmony token + floor_min=4/m47/f0.95 兜底 + replay_safe_sizing=True，只变 `REPLAY_SAFE_FRAC`）：
+**After it actually landed**: r097 (a clamp that actually landed, not one of the three that voided) gained **+9.675 points** over 75.825, **nearly 5×** the predicted ceiling (+2 points). The hand-computed model clearly underestimated: it approximated N's growth as linear, but did not adequately model the nonlinear amplification effect on candidate count of "the fill loop's stopping point being pinned tight against the real replay budget edge, rather than stopping early like a flat floor_min cushion".
 
-| 变体 | 标称 frac | ref |
+**Conclusion**: for this kind of "extract throughput hugging the boundary" lever, hand-computed EV can only give a directional, extremely unreliable lower-bound reference, and the actual payoff must be spoken for by real submission data. Next time a similar boundary-effect estimate comes up, we should admit the hand-computation's uncertainty earlier, rather than treating a rough lower bound as a decision basis.
+
+---
+
+## 4. The boundary bisection gradient fired today (07-19)
+
+The user explicitly chose "go all-in on boundary probing": since the known safe boundary is much more lenient than expected (effective 0.957 safe vs 0.967 void, not 0.92-0.94), today's fresh 5/5 quota is all used to finely locate this boundary, rather than re-confirming r097 or pivoting to some other research direction.
+
+We took 5 interpolation points between the known safe point (nominal 0.97) and the known void point (nominal 0.98), evenly distributed, with everything else identical to r097 (split routing + Harmony token + floor_min=4/m47/f0.95 fallback + replay_safe_sizing=True, varying only `REPLAY_SAFE_FRAC`):
+
+| Variant | Nominal frac | ref |
 |---|---:|---|
 | `fill_rsafe_split_r0971` | 0.971 | `54820123` |
 | `fill_rsafe_split_r0973` | 0.973 | `54820139` |
@@ -70,18 +70,18 @@
 | `fill_rsafe_split_r0977` | 0.977 | `54820150` |
 | `fill_rsafe_split_r0979` | 0.979 | `54820172` |
 
-**生成方式**：没有沿用以往"临时改 `tools/prepare_live_fill_variants.py` 里的 `KERNEL_ID`/`KERNEL_TITLE`/`RUNGS` 再 `git checkout` 复原"的模式，改成写一个一次性脚本，直接 `import prepare_live_fill_variants` 后在进程内 monkeypatch `KERNEL_ID`/`KERNEL_TITLE`，调用其 `write_variant()`/`Rung` API——效果等价（该模块本来就是按可 import 的 API 设计并被单测覆盖的），但从头到尾不触碰被 git 追踪的文件，全程 `git status` 保持干净，省掉了手工 revert 出错的风险。
+**Generation method**: rather than following the past pattern of "temporarily editing `KERNEL_ID`/`KERNEL_TITLE`/`RUNGS` in `tools/prepare_live_fill_variants.py` then `git checkout` to restore", we wrote a one-off script that directly `import prepare_live_fill_variants`, monkeypatches `KERNEL_ID`/`KERNEL_TITLE` in-process, and calls its `write_variant()`/`Rung` API — the effect is equivalent (that module was designed as an importable API and is covered by unit tests to begin with), but from start to finish it never touches git-tracked files, keeping `git status` clean throughout and avoiding the risk of a manual-revert mistake.
 
-**推送**：诊断优先，先单打中间点 `r0975` 确认管线（拿到 ref、无 403），再逐个推送剩余 4 个——`push_submit_variants.py` 一次调用只吃一个 `--kernel` 用于等待/校验/正式提交，5 个变体各自独立的私有 slug 必须分 5 次调用，不能一次传多个变体名。全部 `ok:true`、`stage:submitted`、`blockers:[]`，无 403。仓库账本两次同步提交：`f7e0738`（85.5 出分 sync）+ `ab15df7`（记录这批新 pending）。
+**Push**: diagnostics first — first fire only the middle point `r0975` to confirm the pipeline (get a ref, no 403), then push the remaining 4 one at a time — `push_submit_variants.py` only takes one `--kernel` per call for the wait/validate/formal-submit steps, so the 5 variants' each-independent private slugs must be pushed in 5 separate calls, not passing multiple variant names at once. All `ok:true`, `stage:submitted`, `blockers:[]`, no 403. Two repo ledger sync commits: `f7e0738` (85.5 score sync) + `ab15df7` (record this batch of new pending).
 
-**下一步判读方式**：如果高标称的两个（0.977/0.979）作废、低标称的两个（0.971/0.973）落地，就能把边界从"有效 0.957 安全～0.967 作废"这个粗区间收窄到一个更精确的数字（大概率会精确到某个具体的百分之一以内）；如果边界不是这么整齐（比如中间某个点意外作废、两端却落地），那说明这个边界本身也有同配置噪声成分，不是纯粹的确定性阈值，需要和历史上"floor_min 扫描出现非单调格式错误"（`scored-submission-ledger` 07-10 条目）的教训对照着看。
+**How to read the next step**: if the two high-nominal ones (0.977/0.979) void and the two low-nominal ones (0.971/0.973) land, we can narrow the boundary from the coarse interval "effective 0.957 safe ~ 0.967 void" to a more precise number (most likely precise to some specific hundredth); if the boundary is not this clean (e.g. some middle point unexpectedly voids while both ends land), that indicates the boundary itself also has a same-config noise component and is not a pure deterministic threshold, and it must be read against the historical lesson of "the floor_min sweep produced non-monotonic format errors" (`scored-submission-ledger` 07-10 entry).
 
 ---
 
-## 5. 待观察 / 下一步
+## 5. To watch / next steps
 
-- **检查这 5 个新提交的分数**（历史上 2.5-4.5 小时以上，有时更久）。
-- **仍未做的事**：原样重复 r097 一次以完全确认 85.5 的可靠性（目前的证据是"两个不同标称 frac 的独立 draw 都落在 84-86 区间、彼此相差 <1 分，比历史噪声带窄很多"，这是支持性证据但不是同配置重复本身）。
-- **仍未读的高信号情报**：`yusuketogashi/ai-agent-sec-another-approach`（07-17 情报调研标记的新 notebook，112 票，未读——分数不经 API 暴露、代码不走 r.jina.ai 渲染，需要手动打开浏览器）。
-- **88-103 顶层依然是黑箱**：rank-2 玩家（102.835，论坛帖 726264）明确说这段差距"有清晰方向"，即确定性技术、不是 GPU 运气；披露的 recipe 家族自己最高的祖先版本据称到过 87.9。多 post 叠加是目前唯一存活的候选假说（Pilkwang 说叠加"死了"，但 devchandra/tensorliu 的"Stacked-3 v85"等新 notebook 仍在实测），暂无公开验证分数证实。
-- `docs/working-note-attack-surface.md` §7/§9/§11 已经加了 2026-07-19 更新段落，把"CoT 压缩杠杆测试一次判 null"的旧结论修正为"null 的是错误的具体实现（自然语言 framing），真正的实现（token 级伪造）已确认有效"——这是本仓库唯一一份需要保持学术严谨性的英文交付物，后续任何进一步的分数变化都应该同步回那份文档，而不只是这份中文调研记录。
+- **Check the scores of these 5 new submissions** (historically 2.5-4.5 hours or more, sometimes longer).
+- **Still not done**: repeat r097 verbatim once to fully confirm the reliability of 85.5 (the current evidence is "two independent draws at two different nominal fracs both land in the 84-86 range, differing from each other by <1 point, much narrower than the historical noise band" — this is supporting evidence but not a same-config repeat itself).
+- **Still-unread high-signal intelligence**: `yusuketogashi/ai-agent-sec-another-approach` (a new notebook flagged in the 07-17 recon, 112 votes, unread — the score isn't exposed via the API, and the code doesn't render through r.jina.ai, so it needs a manual browser open).
+- **The 88-103 top tier remains a black box**: the rank-2 player (102.835, forum post 726264) explicitly says this gap "has a clear direction", i.e. deterministic technique, not GPU luck; the disclosed recipe family's own highest ancestor version reportedly reached 87.9. Multi-post stacking is currently the only surviving candidate hypothesis (Pilkwang says stacking "is dead", but new notebooks like devchandra/tensorliu's "Stacked-3 v85" are still testing it live), with no public verified score confirming it yet.
+- `docs/working-note-attack-surface.md` §7/§9/§11 already has a 2026-07-19 update paragraph added, correcting the old conclusion "the CoT compression lever tested null in one shot" to "what tested null was the wrong specific implementation (natural-language framing); the real implementation (token-level forgery) has been confirmed effective" — this is the only English deliverable in this repo that needs to maintain academic rigor, and any further score changes going forward should be synced back to that document, not just this Chinese research record.
